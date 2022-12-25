@@ -31,7 +31,7 @@ STACK_IMPL(stack_op, struct operand *, 128);
 void caculator_init(struct caculator *caculator)
 {
 	_MY_TRACE_STR("caculator_init()\n");
-	memset(caculator, sizeof(*caculator), 0);
+	memset(caculator, 0, sizeof(*caculator));
 }
 
 /** return bool */
@@ -79,15 +79,15 @@ char * caculator_convert_to_postfix(char *expr)
 
 	for (ii=0; ii < token_i; ii++) {
 		if (strchr(opers, tokens[ii][0]) == NULL) {
-			strncat(out_buf, tokens[ii], sizeof(out_buf));
-			strncat(out_buf, " ", sizeof(out_buf));
+			strncat(out_buf, tokens[ii], 0, sizeof(out_buf));
+			strncat(out_buf, " ", 0, sizeof(out_buf));
 		}
 		else {
 			while (!(is_empty=stack_is_empty())
 			       && caculator_precedence(top_sym=stack_pop(), tokens[ii][0])) {
 				char2str[0] = top_sym;
-				strncat(out_buf, char2str, sizeof(out_buf));
-				strncat(out_buf, " ", sizeof(out_buf));
+				strncat(out_buf, char2str, 0, sizeof(out_buf));
+				strncat(out_buf, " ", 0, sizeof(out_buf));
 			}
 			if (! is_empty)
 				stack_push(top_sym);
@@ -100,8 +100,8 @@ char * caculator_convert_to_postfix(char *expr)
 
 	while (!stack_is_empty()) {
 		char2str[0] = stack_pop();
-		strncat(out_buf, char2str, sizeof(out_buf));
-		strncat(out_buf, " ", sizeof(out_buf));
+		strncat(out_buf, char2str, 0, sizeof(out_buf));
+		strncat(out_buf, " ", 0, sizeof(out_buf));
 	}
 
 	return out_buf;
@@ -124,20 +124,20 @@ struct operand * caculator_build_syntax_tree(char *tree)
 		if (strchr(opers, tokens[i][0]) == NULL) {
 			if (is_numeric(tokens[i])) {
 				struct number *num;
-				num = malloc(sizeof(*num));
+				num = malloc( sizeof(*num));
 				number_init(num, atoi(tokens[i]));
 				stack_op_push(&num->operand);
 			}
 			else {
 				struct variable *var;
-				var = malloc(sizeof(*var));
+				var = malloc( sizeof(*var));
 				variable_init(var, tokens[i]);
 				stack_op_push(&var->operand);
 			}
 		}
 		else {// If token is an operator
 			struct expression *expr;
-			expr = malloc(sizeof(*expr));
+			expr = malloc( sizeof(*expr));
 			expression_init(expr, tokens[i][0]);
 			expr->_right = stack_op_pop();
 			expr->_left = stack_op_pop();

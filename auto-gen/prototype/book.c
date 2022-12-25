@@ -41,7 +41,7 @@ static struct product_ops product_ops = {
 
 void book_init(struct book *book)
 {
-	memset(book, sizeof(*book), 0);
+	memset(book, 0, sizeof(*book));
 	product_init(&book->product);
 	CLASS_OPS_INIT(book->product.ops, product_ops);
 }

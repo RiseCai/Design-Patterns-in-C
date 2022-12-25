@@ -34,7 +34,7 @@ The classes and/or objects participating in this pattern are:
 void credit_init(struct credit *credit)
 {
 	_MY_TRACE_STR("credit_init()\n");
-	memset(credit, sizeof(*credit), 0);
+	memset(credit, 0, sizeof(*credit));
 }
 
 int credit_has_good_credit(struct credit *credit, char *name)

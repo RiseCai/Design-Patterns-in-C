@@ -50,7 +50,7 @@ static void state_on_ops_off(struct state *state, struct machine *fsm)
 
 	_MY_TRACE_STR("state_on::off()\n");
 
-	off = malloc(sizeof(*off));
+	off = malloc( sizeof(*off));
 	state_off_init(off);
 	machine_set_state(fsm, &off->state);
 
@@ -67,7 +67,7 @@ static struct state_ops state_ops = {
 void state_on_init(struct state_on *state_on)
 {
 	_MY_TRACE_STR("state_on_init(1)\n");
-	memset(state_on, sizeof(*state_on), 0);
+	memset(state_on, 0, sizeof(*state_on));
 	state_init(&state_on->state);
 	CLASS_OPS_INIT_SUPER(state_on->state.ops, state_ops);
 }

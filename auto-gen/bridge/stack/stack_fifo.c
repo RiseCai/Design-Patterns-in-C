@@ -23,7 +23,7 @@ static int stack_fifo_ops_pop(struct stack *stack)
 	int rtn;
 	struct stack_impl_list *list;
 	printf("stack_fifo::pop()\n");
-	list = malloc(sizeof(*list));
+	list = malloc( sizeof(*list));
 	if (!list)
 		return -1; /* assume the data eg 0 */
 	stack_impl_list_init(list);
@@ -44,7 +44,7 @@ static struct stack_ops stack_ops = {
 
 void stack_fifo_init(struct stack_fifo *stack_fifo, char *stack_impl)
 {
-	memset(stack_fifo, sizeof(*stack_fifo), 0);
+	memset(stack_fifo, 0, sizeof(*stack_fifo));
 	stack_init(&stack_fifo->stack, stack_impl);
 	CLASS_OPS_INIT_SUPER(stack_fifo->stack.ops, stack_ops);
 }

@@ -1,0 +1,10 @@
+/home/caiyuanjia/software/project/Design-Patterns-in-C/auto-gen/out_debug/command/command.o: \
+ command.c \
+ /home/caiyuanjia/software/project/Design-Patterns-in-C/auto-gen/util/mycommon.h \
+ /home/caiyuanjia/software/project/Design-Patterns-in-C/auto-gen/util/myobj.h \
+ command.h \
+ /home/caiyuanjia/software/project/Design-Patterns-in-C/auto-gen/util/mytrace.h
+/home/caiyuanjia/software/project/Design-Patterns-in-C/auto-gen/util/mycommon.h:
+/home/caiyuanjia/software/project/Design-Patterns-in-C/auto-gen/util/myobj.h:
+command.h:
+/home/caiyuanjia/software/project/Design-Patterns-in-C/auto-gen/util/mytrace.h:

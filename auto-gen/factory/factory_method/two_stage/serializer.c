@@ -22,6 +22,6 @@
 
 void serializer_init(struct serializer *serializer)
 {
-	memset(serializer, sizeof(*serializer), 0);
+	memset(serializer, 0, sizeof(*serializer));
 }
 

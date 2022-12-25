@@ -11,7 +11,7 @@ static struct product_cache_ops product_cache_ops = {0
 
 void product_cache_init(struct product_cache *product_cache)
 {
-	memset(product_cache, sizeof(*product_cache), 0);
+	memset(product_cache, 0, sizeof(*product_cache));
 	product_cache->ops = &product_cache_ops;
 }
 
@@ -23,7 +23,7 @@ void product_cache_load_cache()
 
 	printf("product_cache::load_cache()\n");
 	
-	b1 = malloc(sizeof(*b1));
+	b1 = malloc( sizeof(*b1));
 	book_init(b1);
 	product_set_description(&b1->product, "Oliver Twist");
 	product_set_sku(&b1->product, "B1");
@@ -31,7 +31,7 @@ void product_cache_load_cache()
 
 	product_cache_ops.product_list[product_cache_ops.product_list_sz++] = &b1->product;
 
-	d1 = malloc(sizeof(*d1));
+	d1 = malloc( sizeof(*d1));
 	disk_init(d1);
 	product_set_description(&d1->product, "Superman");
 	product_set_sku(&d1->product, "D1");

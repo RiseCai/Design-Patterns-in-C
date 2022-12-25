@@ -1,0 +1,14 @@
+/home/caiyuanjia/software/project/Design-Patterns-in-C/auto-gen/out_debug/chain_of_responsibility/test.o: \
+ test.c \
+ /home/caiyuanjia/software/project/Design-Patterns-in-C/auto-gen/util/test_suite.h \
+ chain_handle1.h chain_handle.h \
+ /home/caiyuanjia/software/project/Design-Patterns-in-C/auto-gen/util/myobj.h \
+ /home/caiyuanjia/software/project/Design-Patterns-in-C/auto-gen/util/ulist.h \
+ chain_handle2.h chain_handle3.h
+/home/caiyuanjia/software/project/Design-Patterns-in-C/auto-gen/util/test_suite.h:
+chain_handle1.h:
+chain_handle.h:
+/home/caiyuanjia/software/project/Design-Patterns-in-C/auto-gen/util/myobj.h:
+/home/caiyuanjia/software/project/Design-Patterns-in-C/auto-gen/util/ulist.h:
+chain_handle2.h:
+chain_handle3.h:

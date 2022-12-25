@@ -38,6 +38,6 @@ static struct observer_ops observer_ops = {
 /** constructor(). */
 void observer_init(struct observer *observer)
 {
-	memset(observer, sizeof(*observer), 0);
+	memset(observer, 0, sizeof(*observer));
 	observer->ops = &observer_ops;
 }

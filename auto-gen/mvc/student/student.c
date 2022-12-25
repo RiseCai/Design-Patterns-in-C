@@ -27,13 +27,13 @@
 /** constructor(). */
 void student_init(struct student *student)
 {
-	memset(student, sizeof(*student), 0);
+	memset(student, 0, sizeof(*student));
 }
 
 void student_set_name(struct student *student, const char *name, int name_sz)
 {
 	_MY_TRACE_STR("student::set_name()\n");
-	snprintf(student->_name, sizeof(student->_name), name);
+	snprintf(student->_name, 0, sizeof(student->_name), name);
 }
 
 char * student_get_name(struct student *student)

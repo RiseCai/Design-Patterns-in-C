@@ -65,7 +65,7 @@ static struct A_ops A_ops = {
 /** constructor(). */
 void A_B3_init(struct A_B3 *A_B3)
 {
-	memset(A_B3, sizeof(*A_B3), 0);
+	memset(A_B3, 0, sizeof(*A_B3));
 	A_init(&A_B3->A);
 	CLASS_OPS_INIT_SUPER(A_B3->A.ops, A_ops);
 }

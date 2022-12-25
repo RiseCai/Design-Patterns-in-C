@@ -1,0 +1,16 @@
+/home/caiyuanjia/software/project/Design-Patterns-in-C/auto-gen/out_debug/command/test.o: \
+ test.c \
+ /home/caiyuanjia/software/project/Design-Patterns-in-C/auto-gen/util/mycommon.h \
+ /home/caiyuanjia/software/project/Design-Patterns-in-C/auto-gen/util/myobj.h \
+ /home/caiyuanjia/software/project/Design-Patterns-in-C/auto-gen/util/mytrace.h \
+ /home/caiyuanjia/software/project/Design-Patterns-in-C/auto-gen/util/test_suite.h \
+ flipup.h command.h light.h flipdown.h switcher.h
+/home/caiyuanjia/software/project/Design-Patterns-in-C/auto-gen/util/mycommon.h:
+/home/caiyuanjia/software/project/Design-Patterns-in-C/auto-gen/util/myobj.h:
+/home/caiyuanjia/software/project/Design-Patterns-in-C/auto-gen/util/mytrace.h:
+/home/caiyuanjia/software/project/Design-Patterns-in-C/auto-gen/util/test_suite.h:
+flipup.h:
+command.h:
+light.h:
+flipdown.h:
+switcher.h:

@@ -60,6 +60,6 @@ static struct state_ops state_ops = {
 void state_init(struct state *state)
 {
 	_MY_TRACE_STR("state_init(1)\n");
-	memset(state, sizeof(*state), 0);
+	memset(state, 0, sizeof(*state));
 	state->ops = &state_ops;
 }

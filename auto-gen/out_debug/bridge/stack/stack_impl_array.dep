@@ -1,0 +1,7 @@
+/home/caiyuanjia/software/project/Design-Patterns-in-C/auto-gen/out_debug/bridge/stack/stack_impl_array.o: \
+ stack_impl_array.c \
+ /home/caiyuanjia/software/project/Design-Patterns-in-C/auto-gen/util/myobj.h \
+ stack_impl_array.h stack_impl.h
+/home/caiyuanjia/software/project/Design-Patterns-in-C/auto-gen/util/myobj.h:
+stack_impl_array.h:
+stack_impl.h:

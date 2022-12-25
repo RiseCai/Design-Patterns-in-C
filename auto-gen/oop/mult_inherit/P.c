@@ -43,6 +43,6 @@ static struct P_ops P_ops = {
 /** constructor(). */
 void P_init(struct P *P)
 {
-	memset(P, sizeof(*P), 0);
+	memset(P, 0, sizeof(*P));
 	P->ops = &P_ops;
 }

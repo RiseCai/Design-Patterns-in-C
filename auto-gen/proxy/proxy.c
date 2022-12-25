@@ -31,7 +31,7 @@ static void proxy_ops_request(struct subject *subject)
 	struct real_subject *sub = a_proxy->_subject;
 	_MY_TRACE_STR("proxy::request()\n");
 	if (!sub) {
-		sub = malloc(sizeof(*sub));
+		sub = malloc( sizeof(*sub));
 		real_subject_init(sub);
 	}
 	if (sub) {
@@ -47,7 +47,7 @@ static struct subject_ops subject_ops = {
 void proxy_init(struct proxy *proxy)
 {
 	_MY_TRACE_STR("proxy_init()\n");
-	memset(proxy, sizeof(*proxy), 0);
+	memset(proxy, 0, sizeof(*proxy));
 	subject_init(&proxy->subject);
 	CLASS_OPS_INIT(proxy->subject.ops, subject_ops);
 }

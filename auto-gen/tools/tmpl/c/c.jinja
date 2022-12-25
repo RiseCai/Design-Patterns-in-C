@@ -74,7 +74,7 @@ static struct {{ vtable_class_name }}_ops {{ fetch_ops_name(vtable_class_name, o
 {
 	{% if not trace %}printf{% else %}_MY_TRACE_STR{% endif -%}
 	("{{ name }}_init({% if init_index > 1 %}{{ init_index }}{% endif %})\n");
-	memset({{ name }}, sizeof(*{{ name }}), 0);
+	memset({{ name }}, 0, sizeof(*{{ name }}));
 	{%- if supers -%}
 		{%- for parent_name,parent_vtables in supers.iteritems() -%}
 			{%- set outer_loop = loop %}

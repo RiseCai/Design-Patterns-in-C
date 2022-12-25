@@ -29,6 +29,6 @@ static struct component_ops component_ops = {
 
 void component_init(struct component *component)
 {
-	memset(component, sizeof(*component), 0);
+	memset(component, 0, sizeof(*component));
 	component->ops = &component_ops;
 }

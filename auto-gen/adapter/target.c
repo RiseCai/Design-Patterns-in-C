@@ -29,7 +29,7 @@ static struct target_ops target_ops = {
 
 void target_init(struct target *target)
 {
-	memset(target, sizeof(*target), 0);
+	memset(target, 0, sizeof(*target));
 	target->ops = &target_ops;
 }
 

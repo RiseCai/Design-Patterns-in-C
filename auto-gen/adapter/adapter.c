@@ -34,7 +34,7 @@ static struct target_ops target_ops = {
 
 void adapter_init(struct adapter *adapter, struct adaptee *adaptee)
 {
-	memset(adapter, sizeof(*adapter), 0);
+	memset(adapter, 0, sizeof(*adapter));
 	target_init(&adapter->target);
 	CLASS_OPS_INIT(adapter->target.ops, target_ops);
 	adapter->_adaptee = adaptee;

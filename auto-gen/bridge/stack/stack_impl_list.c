@@ -47,13 +47,13 @@ static void stack_impl_list_ops_push(struct stack_impl *stack_impl, int val)
 	printf("stack_impl_list::push()\n");
 	if (list->nodes) {
 		struct node *prev = list->nodes->prev;
-		struct node *curr = malloc(sizeof(*curr));
+		struct node *curr = malloc( sizeof(*curr));
 		prev->next = curr;
 		curr->next = list->nodes;
 		curr->prev = prev;
 	}
 	else {
-		list->nodes = malloc(sizeof(*list->nodes));
+		list->nodes = malloc( sizeof(*list->nodes));
 		node_init(list->nodes, val);
 	}
 }
@@ -95,7 +95,7 @@ static struct stack_impl_ops stack_impl_ops = {
 
 void stack_impl_list_init(struct stack_impl_list *stack_impl_list)
 {
-	memset(stack_impl_list, sizeof(*stack_impl_list), 0);
+	memset(stack_impl_list, 0, sizeof(*stack_impl_list));
 	stack_impl_init(&stack_impl_list->stack_impl);
 	CLASS_OPS_INIT_SUPER(stack_impl_list->stack_impl.ops, stack_impl_ops);
 }

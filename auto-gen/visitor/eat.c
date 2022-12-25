@@ -52,7 +52,7 @@ static struct animal_do_ops animal_do_ops = {
 /** constructor(). */
 void eat_init(struct eat *eat)
 {
-	memset(eat, sizeof(*eat), 0);
+	memset(eat, 0, sizeof(*eat));
 	animal_do_init(&eat->animal_do);
 	CLASS_OPS_INIT(eat->animal_do.ops, animal_do_ops);
 }

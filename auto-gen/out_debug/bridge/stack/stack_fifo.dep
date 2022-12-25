@@ -1,0 +1,10 @@
+/home/caiyuanjia/software/project/Design-Patterns-in-C/auto-gen/out_debug/bridge/stack/stack_fifo.o: \
+ stack_fifo.c \
+ /home/caiyuanjia/software/project/Design-Patterns-in-C/auto-gen/util/myobj.h \
+ stack_fifo.h stack.h stack_impl.h stack_impl_list.h node.h
+/home/caiyuanjia/software/project/Design-Patterns-in-C/auto-gen/util/myobj.h:
+stack_fifo.h:
+stack.h:
+stack_impl.h:
+stack_impl_list.h:
+node.h:

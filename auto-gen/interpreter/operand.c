@@ -40,6 +40,6 @@ static struct operand_ops operand_ops = {
 void operand_init(struct operand *operand)
 {
 	_MY_TRACE_STR("operand_init()\n");
-	memset(operand, sizeof(*operand), 0);
+	memset(operand, 0, sizeof(*operand));
 	operand->ops = &operand_ops;
 }

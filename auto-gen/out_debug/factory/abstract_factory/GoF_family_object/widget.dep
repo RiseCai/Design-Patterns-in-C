@@ -1,0 +1,3 @@
+/home/caiyuanjia/software/project/Design-Patterns-in-C/auto-gen/out_debug/factory/abstract_factory/GoF_family_object/widget.o: \
+ widget.c widget.h
+widget.h:

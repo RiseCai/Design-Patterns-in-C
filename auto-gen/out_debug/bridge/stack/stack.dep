@@ -1,0 +1,7 @@
+/home/caiyuanjia/software/project/Design-Patterns-in-C/auto-gen/out_debug/bridge/stack/stack.o: \
+ stack.c stack.h stack_impl.h stack_impl_array.h stack_impl_list.h node.h
+stack.h:
+stack_impl.h:
+stack_impl_array.h:
+stack_impl_list.h:
+node.h:

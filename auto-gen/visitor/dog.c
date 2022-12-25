@@ -45,7 +45,7 @@ static struct animal_ops animal_ops = {
 /** constructor(). */
 void dog_init(struct dog *dog)
 {
-	memset(dog, sizeof(*dog), 0);
+	memset(dog, 0, sizeof(*dog));
 	animal_init(&dog->animal);
 	CLASS_OPS_INIT(dog->animal.ops, animal_ops);
 }

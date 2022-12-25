@@ -29,6 +29,6 @@ static struct color_ops color_ops = {
 
 void color_init(struct color *color)
 {
-	memset(color, sizeof(*color), 0);
+	memset(color, 0, sizeof(*color));
 	color->ops = &color_ops;
 }

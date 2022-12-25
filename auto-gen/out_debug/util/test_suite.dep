@@ -1,0 +1,6 @@
+/home/caiyuanjia/software/project/Design-Patterns-in-C/auto-gen/out_debug/util/test_suite.o: \
+ test_suite.c \
+ /home/caiyuanjia/software/project/Design-Patterns-in-C/auto-gen/util/ulist.h \
+ test_suite.h
+/home/caiyuanjia/software/project/Design-Patterns-in-C/auto-gen/util/ulist.h:
+test_suite.h:

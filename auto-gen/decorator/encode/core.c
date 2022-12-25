@@ -46,7 +46,7 @@ static struct interface_ops interface_ops = {
 /** constructor(). */
 void core_init(struct core *core)
 {
-	memset(core, sizeof(*core), 0);
+	memset(core, 0, sizeof(*core));
 	interface_init(&core->interface);
 	CLASS_OPS_INIT(core->interface.ops, interface_ops);
 }

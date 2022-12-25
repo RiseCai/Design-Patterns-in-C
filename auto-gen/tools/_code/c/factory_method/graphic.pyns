@@ -1,0 +1,11 @@
+{'type':'node', 'id':'product', 'attrs':'+ name', 'meths':'+ product()|~ do_it()', 'x':1, 'y':1, 'width':1, 'height':1}
+{'type':'node', 'id':'concrete_product_1', 'attrs':'', 'meths':'+ concrete_product_1()|~ do_it(product)', 'x':61, 'y':61, 'width':1, 'height':1}
+{'type':'node', 'id':'concrete_product_2', 'attrs':'', 'meths':'+ concrete_product_2()|~ do_it(product)', 'x':121, 'y':121, 'width':1, 'height':1}
+{'type':'node', 'id':'factory', 'attrs':'', 'meths':'+ factory()|+ do_it()|~ create()', 'x':181, 'y':181, 'width':1, 'height':1}
+{'type':'node', 'id':'factory_product_1', 'attrs':'', 'meths':'+ factory_product_1()|~ create(factory)', 'x':241, 'y':241, 'width':1, 'height':1}
+{'type':'node', 'id':'factory_product_2', 'attrs':'', 'meths':'+ factory_product_2()|~ create(factory)', 'x':301, 'y':301, 'width':1, 'height':1}
+{'type':'edge', 'id':'concrete_product_1_to_product', 'source':'concrete_product_1', 'target':'product', 'uml_edge_type':'generalisation'}
+{'type':'edge', 'id':'concrete_product_2_to_product', 'source':'concrete_product_2', 'target':'product', 'uml_edge_type':'generalisation'}
+{'type':'edge', 'id':'factory_to_product', 'source':'factory', 'target':'product', 'uml_edge_type':'composition'}
+{'type':'edge', 'id':'factory_product_1_to_factory', 'source':'factory_product_1', 'target':'factory', 'uml_edge_type':'generalisation'}
+{'type':'edge', 'id':'factory_product_2_to_factory', 'source':'factory_product_2', 'target':'factory', 'uml_edge_type':'generalisation'}

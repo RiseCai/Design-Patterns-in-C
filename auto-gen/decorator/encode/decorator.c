@@ -44,7 +44,7 @@ static struct interface_ops interface_ops = {
 /** constructor(). */
 void decorator_init(struct decorator *decorator, struct interface *inner)
 {
-	memset(decorator, sizeof(*decorator), 0);
+	memset(decorator, 0, sizeof(*decorator));
 	interface_init(&decorator->interface);
 	CLASS_OPS_INIT_SUPER(decorator->interface.ops, interface_ops);
 	decorator->ops = &decorator_ops;

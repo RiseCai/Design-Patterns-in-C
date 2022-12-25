@@ -47,6 +47,6 @@ static struct participant_ops participant_ops = {0
 void participant_init(struct participant *participant)
 {
 	_MY_TRACE_STR("participant_init()\n");
-	memset(participant, sizeof(*participant), 0);
+	memset(participant, 0, sizeof(*participant));
 	participant->ops = &participant_ops;
 }

@@ -71,6 +71,6 @@ static struct subject_ops subject_ops = {
 /** constructor(). */
 void subject_init(struct subject *subject)
 {
-	memset(subject, sizeof(*subject), 0);
+	memset(subject, 0, sizeof(*subject));
 	subject->ops = &subject_ops;
 }

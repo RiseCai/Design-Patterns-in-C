@@ -1,0 +1,21 @@
+/home/caiyuanjia/software/project/Design-Patterns-in-C/auto-gen/out_debug/factory/abstract_factory/three_dimension/test.o: \
+ test.c \
+ /home/caiyuanjia/software/project/Design-Patterns-in-C/auto-gen/util/myobj.h \
+ /home/caiyuanjia/software/project/Design-Patterns-in-C/auto-gen/util/test_suite.h \
+ ../two_dimension/pizza_store3.h ../two_dimension/../../pizza.h \
+ ../two_dimension/../two_dimension/pizza_factory.h \
+ ../two_dimension/../two_dimension/../../pizza.h \
+ ../two_dimension/pizza_factory.h pizza_factory_standard_v2.h \
+ pizza_ingredient_factory.h ../../pizza.h \
+ pizza_ingredient_factory_organic.h
+/home/caiyuanjia/software/project/Design-Patterns-in-C/auto-gen/util/myobj.h:
+/home/caiyuanjia/software/project/Design-Patterns-in-C/auto-gen/util/test_suite.h:
+../two_dimension/pizza_store3.h:
+../two_dimension/../../pizza.h:
+../two_dimension/../two_dimension/pizza_factory.h:
+../two_dimension/../two_dimension/../../pizza.h:
+../two_dimension/pizza_factory.h:
+pizza_factory_standard_v2.h:
+pizza_ingredient_factory.h:
+../../pizza.h:
+pizza_ingredient_factory_organic.h:

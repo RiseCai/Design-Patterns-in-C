@@ -1,0 +1,9 @@
+/home/caiyuanjia/software/project/Design-Patterns-in-C/auto-gen/out_debug/bridge/shape/color_red.o: \
+ color_red.c \
+ /home/caiyuanjia/software/project/Design-Patterns-in-C/auto-gen/util/mycommon.h \
+ /home/caiyuanjia/software/project/Design-Patterns-in-C/auto-gen/util/myobj.h \
+ color_red.h color.h
+/home/caiyuanjia/software/project/Design-Patterns-in-C/auto-gen/util/mycommon.h:
+/home/caiyuanjia/software/project/Design-Patterns-in-C/auto-gen/util/myobj.h:
+color_red.h:
+color.h:

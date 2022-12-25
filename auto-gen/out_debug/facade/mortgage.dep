@@ -1,0 +1,12 @@
+/home/caiyuanjia/software/project/Design-Patterns-in-C/auto-gen/out_debug/facade/mortgage.o: \
+ mortgage.c \
+ /home/caiyuanjia/software/project/Design-Patterns-in-C/auto-gen/util/mycommon.h \
+ mortgage.h \
+ /home/caiyuanjia/software/project/Design-Patterns-in-C/auto-gen/util/mytrace.h \
+ bank.h credit.h loan.h
+/home/caiyuanjia/software/project/Design-Patterns-in-C/auto-gen/util/mycommon.h:
+mortgage.h:
+/home/caiyuanjia/software/project/Design-Patterns-in-C/auto-gen/util/mytrace.h:
+bank.h:
+credit.h:
+loan.h:

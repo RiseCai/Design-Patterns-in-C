@@ -18,7 +18,7 @@ auto:
 	@find * -type d -exec sh -c '(\
 		cd {} && \
 		cp $(TOPDIR)tpl_top.mk topdir.mk; \
-		if ! [ -a Makefile ]; then \
+		if ! [ -e Makefile ]; then \
 			cp $(TOPDIR)tpl_make.mk Makefile; \
 		fi; \
 		)' \;

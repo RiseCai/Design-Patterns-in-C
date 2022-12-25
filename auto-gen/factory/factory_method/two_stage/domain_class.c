@@ -22,6 +22,6 @@
 
 void domain_class_init(struct domain_class *domain_class)
 {
-	memset(domain_class, sizeof(*domain_class), 0);
+	memset(domain_class, 0, sizeof(*domain_class));
 }
 

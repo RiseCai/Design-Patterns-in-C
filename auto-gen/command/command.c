@@ -32,6 +32,6 @@ static struct command_ops command_ops = {0
 void command_init(struct command *command)
 {
 	_MY_TRACE_STR("command_init()\n");
-	memset(command, sizeof(*command), 0);
+	memset(command, 0, sizeof(*command));
 	command->ops = &command_ops;
 }

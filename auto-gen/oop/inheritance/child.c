@@ -75,7 +75,7 @@ static struct parent_ops parent_ops = {
 
 void child_init(struct child *child)
 {
-	memset(child, sizeof(*child), 0);
+	memset(child, 0, sizeof(*child));
 	parent_init(&child->parent);
 	CLASS_OPS_INIT_SUPER_WITH_FIRST_STATIC(child->parent.ops, parent_ops, static_pub_data3);
 	child->ops = &child_ops;

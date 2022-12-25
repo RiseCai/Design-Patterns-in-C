@@ -25,7 +25,7 @@ static struct M_ops M_ops = {0
 /** constructor(). */
 void M_N_init(struct M_N *M_N)
 {
-	memset(M_N, sizeof(*M_N), 0);
+	memset(M_N, 0, sizeof(*M_N));
 	M_init(&M_N->M);
 	CLASS_OPS_INIT_SUPER(M_N->M.ops, M_ops);
 }

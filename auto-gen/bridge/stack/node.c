@@ -19,7 +19,7 @@
 
 void node_init(struct node *node, int val)
 {
-	memset(node, sizeof(*node), 0);
+	memset(node, 0, sizeof(*node));
 	node->val = val;
 	node->prev = node;
 	node->next = node;

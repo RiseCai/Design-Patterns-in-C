@@ -36,7 +36,7 @@ static struct stack_ops stack_ops = {
 
 void stack_hanoi_init(struct stack_hanoi *stack_hanoi, char *stack_impl)
 {
-	memset(stack_hanoi, sizeof(*stack_hanoi), 0);
+	memset(stack_hanoi, 0, sizeof(*stack_hanoi));
 	stack_init(&stack_hanoi->stack, stack_impl);
 	CLASS_OPS_INIT_SUPER(stack_hanoi->stack.ops, stack_ops);
 	stack_hanoi->rejects = 0;

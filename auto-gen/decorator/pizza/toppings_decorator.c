@@ -46,7 +46,7 @@ static struct pizza_ops pizza_ops = {
 /** constructor(). */
 void toppings_decorator_init(struct toppings_decorator *toppings_decorator, struct pizza *inner, int topping_price)
 {
-	memset(toppings_decorator, sizeof(*toppings_decorator), 0);
+	memset(toppings_decorator, 0, sizeof(*toppings_decorator));
 	pizza_init(&toppings_decorator->pizza);
 	CLASS_OPS_INIT_SUPER(toppings_decorator->pizza.ops, pizza_ops);
 	toppings_decorator->_inner = inner;

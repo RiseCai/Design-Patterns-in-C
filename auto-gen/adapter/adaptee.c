@@ -22,7 +22,7 @@
 
 void adaptee_init(struct adaptee *adaptee)
 {
-	memset(adaptee, sizeof(*adaptee), 0);
+	memset(adaptee, 0, sizeof(*adaptee));
 }
 
 

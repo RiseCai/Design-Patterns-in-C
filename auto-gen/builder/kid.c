@@ -22,7 +22,7 @@
 
 void kid_init(struct kid *kid)
 {
-	memset(kid, sizeof(*kid), 0);
+	memset(kid, 0, sizeof(*kid));
 }
 
 

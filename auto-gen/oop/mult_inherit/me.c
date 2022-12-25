@@ -37,7 +37,7 @@ static struct P_ops P_ops_5 = {0
 /** constructor(). */
 void me_init(struct me *me)
 {
-	memset(me, sizeof(*me), 0);
+	memset(me, 0, sizeof(*me));
 	A_B1_init(&me->A_B1);
 	CLASS_OPS_INIT_SUPER(me->A_B1.A.ops, A_ops);
 	A_B2_init(&me->A_B2);

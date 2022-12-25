@@ -67,7 +67,7 @@ static struct iterator * stack_array_ops_create_iter(struct stack *stack)
 	struct stack_array *a_stack_array = container_of(stack, typeof(*a_stack_array), stack);
 
 	_MY_TRACE_STR("stack_array::create_iter()\n");
-	iter = malloc(sizeof(*iter));
+	iter = malloc( sizeof(*iter));
 	stack_array_iter_init(iter, a_stack_array);
 	return &iter->iterator;
 }
@@ -84,7 +84,7 @@ static struct stack_ops stack_ops = {
 void stack_array_init(struct stack_array *stack_array)
 {
 	_MY_TRACE_STR("stack_array_init()\n");
-	memset(stack_array, sizeof(*stack_array), 0);
+	memset(stack_array, 0, sizeof(*stack_array));
 	stack_init(&stack_array->stack);
 	CLASS_OPS_INIT_SUPER(stack_array->stack.ops, stack_ops);
 }

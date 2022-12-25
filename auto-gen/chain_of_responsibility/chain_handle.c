@@ -1,6 +1,6 @@
 #include "chain_handle.h"
 
-static void chain_base_ops_add(struct chan_handle *base, struct chan_handle *next)
+static void chain_base_ops_add(struct chain_handle *base, struct chan_handle *next)
 {
 	if (base->next)
 		chain_base_add(base->next, next);

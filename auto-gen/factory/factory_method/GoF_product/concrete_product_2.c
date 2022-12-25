@@ -18,7 +18,7 @@ static struct product_ops product_ops = {
 
 void concrete_product_2_init(struct concrete_product_2 *concrete_product_2)
 {
-	memset(concrete_product_2, sizeof(*concrete_product_2), 0);
+	memset(concrete_product_2, 0, sizeof(*concrete_product_2));
 	product_init(&concrete_product_2->product);
 	CLASS_OPS_INIT(concrete_product_2->product.ops, product_ops);
 }

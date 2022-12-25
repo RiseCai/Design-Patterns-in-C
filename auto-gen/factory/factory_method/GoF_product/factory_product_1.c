@@ -12,7 +12,7 @@ static struct product * factory_product_1_ops_create(struct factory *factory)
 	struct concrete_product_1 *p1;
 
 	printf("factory_product_1::create()\n");
-	p1 = malloc(sizeof(*p1));
+	p1 = malloc( sizeof(*p1));
 	concrete_product_1_init(p1);
 	return &p1->product;
 }
@@ -24,7 +24,7 @@ static struct factory_ops factory_ops = {
 
 void factory_product_1_init(struct factory_product_1 *factory_product_1)
 {
-	memset(factory_product_1, sizeof(*factory_product_1), 0);
+	memset(factory_product_1, 0, sizeof(*factory_product_1));
 	factory_init(&factory_product_1->factory);
 	CLASS_OPS_INIT(factory_product_1->factory.ops, factory_ops);
 }

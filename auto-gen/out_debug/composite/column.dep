@@ -1,0 +1,13 @@
+/home/caiyuanjia/software/project/Design-Patterns-in-C/auto-gen/out_debug/composite/column.o: \
+ column.c \
+ /home/caiyuanjia/software/project/Design-Patterns-in-C/auto-gen/util/mycommon.h \
+ /home/caiyuanjia/software/project/Design-Patterns-in-C/auto-gen/util/myobj.h \
+ column.h \
+ /home/caiyuanjia/software/project/Design-Patterns-in-C/auto-gen/util/mytrace.h \
+ composite.h component.h
+/home/caiyuanjia/software/project/Design-Patterns-in-C/auto-gen/util/mycommon.h:
+/home/caiyuanjia/software/project/Design-Patterns-in-C/auto-gen/util/myobj.h:
+column.h:
+/home/caiyuanjia/software/project/Design-Patterns-in-C/auto-gen/util/mytrace.h:
+composite.h:
+component.h:

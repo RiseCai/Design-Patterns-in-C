@@ -34,7 +34,7 @@ The classes and/or objects participating in this pattern are:
 void bank_init(struct bank *bank)
 {
 	_MY_TRACE_STR("bank_init()\n");
-	memset(bank, sizeof(*bank), 0);
+	memset(bank, 0, sizeof(*bank));
 }
 
 int bank_has_sufficient_savings(struct bank *bank, char *name, int amount)

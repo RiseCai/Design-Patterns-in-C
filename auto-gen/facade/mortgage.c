@@ -33,15 +33,15 @@ The classes and/or objects participating in this pattern are:
 void mortgage_init(struct mortgage *m)
 {
 	_MY_TRACE_STR("mortgage_init()\n");
-	memset(m, sizeof(*m), 0);
+	memset(m, 0, sizeof(*m));
 
-	m->_bank = malloc(sizeof(*m->_bank));
+	m->_bank = malloc( sizeof(*m->_bank));
 	bank_init(m->_bank);
 
-	m->_credit = malloc(sizeof(*m->_credit));
+	m->_credit = malloc( sizeof(*m->_credit));
 	credit_init(m->_credit);
 
-	m->_loan = malloc(sizeof(*m->_loan));
+	m->_loan = malloc( sizeof(*m->_loan));
 	loan_init(m->_loan);
 }
 

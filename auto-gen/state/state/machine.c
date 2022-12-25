@@ -33,7 +33,7 @@
 void machine_init(struct machine *machine, struct state *state)
 {
 	_MY_TRACE_STR("machine_init(1)\n");
-	memset(machine, sizeof(*machine), 0);
+	memset(machine, 0, sizeof(*machine));
 	machine->_state = state;
 }
 

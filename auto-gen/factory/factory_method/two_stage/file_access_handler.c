@@ -22,6 +22,6 @@
 
 void file_access_handler_init(struct file_access_handler *file_access_handler)
 {
-	memset(file_access_handler, sizeof(*file_access_handler), 0);
+	memset(file_access_handler, 0, sizeof(*file_access_handler));
 }
 

@@ -55,6 +55,6 @@ static struct A_ops A_ops = {
 /** constructor(). */
 void A_init(struct A *A)
 {
-	memset(A, sizeof(*A), 0);
+	memset(A, 0, sizeof(*A));
 	A->ops = &A_ops;
 }

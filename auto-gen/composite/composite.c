@@ -36,7 +36,7 @@ static struct component_ops component_ops = {
 
 void composite_init(struct composite *composite, int val)
 {
-	memset(composite, sizeof(*composite), 0);
+	memset(composite, 0, sizeof(*composite));
 	component_init(&composite->component);
 	CLASS_OPS_INIT_SUPER(composite->component.ops, component_ops);
 	composite->value = val;

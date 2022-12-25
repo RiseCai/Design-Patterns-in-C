@@ -27,8 +27,9 @@ void chain_handle1_init(struct chain_handle1 *chain)
 {
 	chain_base_init(&chain->super);
 	CLASS_OPS_INIT_SUPER(chain->super.ops, chain_handler1_ops);
-#if DEBUG
-	chain_handler1_ops.__super = chain_base_init(&chain->super);
-	chain->ops = OPS_FILL(&chain_handler1_ops, chain->ops.__super);
+#if 0
+	chain_base_init(&chain->super);
+	chain_handler1_ops.__super = chain->super;
+	chain->self.ops = OPS_FILL(&chain_handler1_ops, chain->self.ops->__super);
 #endif
 }

@@ -22,7 +22,7 @@
 
 void product_init(struct product *product)
 {
-	memset(product, sizeof(*product), 0);
+	memset(product, 0, sizeof(*product));
 }
 
 

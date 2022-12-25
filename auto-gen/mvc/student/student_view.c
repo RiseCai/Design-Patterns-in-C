@@ -27,7 +27,7 @@
 /** constructor(). */
 void student_view_init(struct student_view *student_view)
 {
-	memset(student_view, sizeof(*student_view), 0);
+	memset(student_view, 0, sizeof(*student_view));
 }
 
 void student_view_show_me(struct student_view *student_view, struct student *stu)

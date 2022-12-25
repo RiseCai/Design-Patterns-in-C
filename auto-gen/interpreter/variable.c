@@ -46,7 +46,7 @@ static struct operand_ops operand_ops = {
 void variable_init(struct variable *variable, char *name)
 {
 	_MY_TRACE_STR("variable_init()\n");
-	memset(variable, sizeof(*variable), 0);
+	memset(variable, 0, sizeof(*variable));
 	operand_init(&variable->operand);
 	CLASS_OPS_INIT(variable->operand.ops, operand_ops);
 	variable->_name = name;

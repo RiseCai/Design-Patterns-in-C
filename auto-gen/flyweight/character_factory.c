@@ -36,7 +36,7 @@
 void character_factory_init(struct character_factory *character_factory)
 {
 	_MY_TRACE_STR("character_factory_init()\n");
-	memset(character_factory, sizeof(*character_factory), 0);
+	memset(character_factory, 0, sizeof(*character_factory));
 }
 
 struct character * character_factory_get_character(struct character_factory *fac, char c)
@@ -54,19 +54,19 @@ struct character * character_factory_get_character(struct character_factory *fac
 		switch (c) {
 		case 'A': {
 			struct character_a *a;
-			a = malloc(sizeof(*a));
+			a = malloc( sizeof(*a));
 			character_a_init(a);
 			val_char = &a->character;
 		} break;
 		case 'B': {
 			struct character_b *b;
-			b = malloc(sizeof(*b));
+			b = malloc( sizeof(*b));
 			character_b_init(b);
 			val_char = &b->character;
 		} break;
 		case 'C': {
 			struct character_c *c2;
-			c2 = malloc(sizeof(*c2));
+			c2 = malloc( sizeof(*c2));
 			character_c_init(c2);
 			val_char = &c2->character;
 		} break;

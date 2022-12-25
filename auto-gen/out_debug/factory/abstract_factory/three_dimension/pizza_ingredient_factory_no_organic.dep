@@ -1,0 +1,9 @@
+/home/caiyuanjia/software/project/Design-Patterns-in-C/auto-gen/out_debug/factory/abstract_factory/three_dimension/pizza_ingredient_factory_no_organic.o: \
+ pizza_ingredient_factory_no_organic.c \
+ /home/caiyuanjia/software/project/Design-Patterns-in-C/auto-gen/util/myobj.h \
+ pizza_ingredient_factory_no_organic.h pizza_ingredient_factory.h \
+ ../../pizza.h
+/home/caiyuanjia/software/project/Design-Patterns-in-C/auto-gen/util/myobj.h:
+pizza_ingredient_factory_no_organic.h:
+pizza_ingredient_factory.h:
+../../pizza.h:

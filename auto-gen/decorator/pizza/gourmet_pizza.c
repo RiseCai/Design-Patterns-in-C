@@ -46,7 +46,7 @@ static struct pizza_ops pizza_ops = {
 /** constructor(). */
 void gourmet_pizza_init(struct gourmet_pizza *gourmet_pizza, int pizza_price)
 {
-	memset(gourmet_pizza, sizeof(*gourmet_pizza), 0);
+	memset(gourmet_pizza, 0, sizeof(*gourmet_pizza));
 	pizza_init(&gourmet_pizza->pizza);
 	CLASS_OPS_INIT(gourmet_pizza->pizza.ops, pizza_ops);
 }

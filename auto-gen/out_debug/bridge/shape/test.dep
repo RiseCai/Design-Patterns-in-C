@@ -1,0 +1,18 @@
+/home/caiyuanjia/software/project/Design-Patterns-in-C/auto-gen/out_debug/bridge/shape/test.o: \
+ test.c \
+ /home/caiyuanjia/software/project/Design-Patterns-in-C/auto-gen/util/mycommon.h \
+ /home/caiyuanjia/software/project/Design-Patterns-in-C/auto-gen/util/myobj.h \
+ /home/caiyuanjia/software/project/Design-Patterns-in-C/auto-gen/util/mytrace.h \
+ /home/caiyuanjia/software/project/Design-Patterns-in-C/auto-gen/util/test_suite.h \
+ color_blue.h color.h color_red.h shape_rectangle.h shape.h \
+ shape_circle.h
+/home/caiyuanjia/software/project/Design-Patterns-in-C/auto-gen/util/mycommon.h:
+/home/caiyuanjia/software/project/Design-Patterns-in-C/auto-gen/util/myobj.h:
+/home/caiyuanjia/software/project/Design-Patterns-in-C/auto-gen/util/mytrace.h:
+/home/caiyuanjia/software/project/Design-Patterns-in-C/auto-gen/util/test_suite.h:
+color_blue.h:
+color.h:
+color_red.h:
+shape_rectangle.h:
+shape.h:
+shape_circle.h:

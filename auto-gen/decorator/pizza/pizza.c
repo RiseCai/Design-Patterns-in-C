@@ -37,6 +37,6 @@ static struct pizza_ops pizza_ops = {0
 /** constructor(). */
 void pizza_init(struct pizza *pizza)
 {
-	memset(pizza, sizeof(*pizza), 0);
+	memset(pizza, 0, sizeof(*pizza));
 	pizza->ops = &pizza_ops;
 }

@@ -30,7 +30,7 @@ static struct factory_ops factory_ops = {
 
 void factory_init(struct factory *factory)
 {
-	memset(factory, sizeof(*factory), 0);
+	memset(factory, 0, sizeof(*factory));
 	factory->ops = &factory_ops;
 }
 

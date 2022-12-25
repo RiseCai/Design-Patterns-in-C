@@ -51,7 +51,7 @@ static struct template_method_ops template_method_ops = {
 void method_b_init(struct method_b *method_b)
 {
 	_MY_TRACE_STR("method_b_init()\n");
-	memset(method_b, sizeof(*method_b), 0);
+	memset(method_b, 0, sizeof(*method_b));
 	template_method_init(&method_b->template_method);
 	CLASS_OPS_INIT(method_b->template_method.ops, template_method_ops);
 }

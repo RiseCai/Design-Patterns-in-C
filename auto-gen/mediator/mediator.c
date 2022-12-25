@@ -44,7 +44,7 @@
 void mediator_init(struct mediator *mediator)
 {
 	_MY_TRACE_STR("mediator_init()\n");
-	memset(mediator, sizeof(*mediator), 0);
+	memset(mediator, 0, sizeof(*mediator));
 }
 
 void mediator_register_widget_one(struct mediator *mediator, struct widget_one *widget_one)

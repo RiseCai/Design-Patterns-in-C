@@ -49,7 +49,7 @@ static struct animal_builder_ops animal_builder_ops = {
 
 void animal_builder_init(struct animal_builder *animal_builder)
 {
-	memset(animal_builder, sizeof(*animal_builder), 0);
+	memset(animal_builder, 0, sizeof(*animal_builder));
 	animal_builder->ops = &animal_builder_ops;
 }
 

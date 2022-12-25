@@ -62,7 +62,7 @@ Sample 2:
 				<br>void color_init(struct color *color)
 				<br>{
 				<br>	printf(\"color_init\\n\");
-				<br>	memset(color, sizeof(*color), 0);
+				<br>	memset(color, 0, sizeof(*color));
 				<br>	color->ops = &color_ops;
 				<br>}
 			"""],

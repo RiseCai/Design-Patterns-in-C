@@ -29,5 +29,5 @@
 void data_node_init(struct data_node *data_node)
 {
 	_MY_TRACE_STR("data_node_init()\n");
-	memset(data_node, sizeof(*data_node), 0);
+	memset(data_node, 0, sizeof(*data_node));
 }

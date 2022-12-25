@@ -19,13 +19,13 @@
 
 void bridge_init(struct bridge *bridge)
 {
-	memset(bridge, sizeof(*bridge), 0);
+	memset(bridge, 0, sizeof(*bridge));
 }
 
 void bridge_main_entry(void)
 {
 	struct stack *s1;
-	s1 = malloc(sizeof(*s1));
+	s1 = malloc( sizeof(*s1));
 	stack_init(s1, "array");
 	stack_push(s1, 1);
 	stack_push(s1, 2);

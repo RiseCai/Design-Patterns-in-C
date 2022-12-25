@@ -1,0 +1,7 @@
+/home/caiyuanjia/software/project/Design-Patterns-in-C/auto-gen/out_debug/builder/animal_builder_monkey.o: \
+ animal_builder_monkey.c \
+ /home/caiyuanjia/software/project/Design-Patterns-in-C/auto-gen/util/myobj.h \
+ animal_builder_monkey.h animal_builder.h
+/home/caiyuanjia/software/project/Design-Patterns-in-C/auto-gen/util/myobj.h:
+animal_builder_monkey.h:
+animal_builder.h:

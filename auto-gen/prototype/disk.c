@@ -41,7 +41,7 @@ static struct product_ops product_ops = {
 
 void disk_init(struct disk *disk)
 {
-	memset(disk, sizeof(*disk), 0);
+	memset(disk, 0, sizeof(*disk));
 	product_init(&disk->product);
 	CLASS_OPS_INIT(disk->product.ops, product_ops);
 }

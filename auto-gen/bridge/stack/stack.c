@@ -86,17 +86,17 @@ void stack_init(struct stack *stack, const char *stack_impl)
 {
 	struct stack_impl_array *array;
 	struct stack_impl_list *list;
-	memset(stack, sizeof(*stack), 0);
+	memset(stack, 0, sizeof(*stack));
 	stack->ops = &stack_ops;
 
 	stack->_impl = 0;
 	if (0 == strcmp("array", stack_impl)) {
-		array = malloc(sizeof(*array));
+		array = malloc( sizeof(*array));
 		stack_impl_array_init(array);
 		stack->_impl = &array->stack_impl;
 	}
 	else if (0 == strcmp("list", stack_impl)) {
-		list = malloc(sizeof(*list));
+		list = malloc( sizeof(*list));
 		stack_impl_list_init(list);
 		stack->_impl = &list->stack_impl;
 	}

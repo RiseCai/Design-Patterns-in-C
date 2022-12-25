@@ -31,6 +31,6 @@ static struct subject_ops subject_ops = {0
 void subject_init(struct subject *subject)
 {
 	_MY_TRACE_STR("subject_init()\n");
-	memset(subject, sizeof(*subject), 0);
+	memset(subject, 0, sizeof(*subject));
 	subject->ops = &subject_ops;
 }

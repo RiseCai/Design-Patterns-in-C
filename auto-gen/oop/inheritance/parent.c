@@ -83,7 +83,7 @@ static struct parent_ops parent_ops = {
 
 void parent_init(struct parent *parent)
 {
-	memset(parent, sizeof(*parent), 0);
+	memset(parent, 0, sizeof(*parent));
 	parent->ops = &parent_ops;
 }
 

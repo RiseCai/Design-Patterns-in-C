@@ -1,0 +1,19 @@
+/home/caiyuanjia/software/project/Design-Patterns-in-C/auto-gen/out_debug/decorator/pizza/test.o: \
+ test.c \
+ /home/caiyuanjia/software/project/Design-Patterns-in-C/auto-gen/util/mycommon.h \
+ /home/caiyuanjia/software/project/Design-Patterns-in-C/auto-gen/util/myobj.h \
+ /home/caiyuanjia/software/project/Design-Patterns-in-C/auto-gen/util/mytrace.h \
+ /home/caiyuanjia/software/project/Design-Patterns-in-C/auto-gen/util/test_suite.h \
+ margherita_pizza.h pizza.h gourmet_pizza.h extra_cheese_topping.h \
+ toppings_decorator.h jalapeno_topping.h mushroom_topping.h
+/home/caiyuanjia/software/project/Design-Patterns-in-C/auto-gen/util/mycommon.h:
+/home/caiyuanjia/software/project/Design-Patterns-in-C/auto-gen/util/myobj.h:
+/home/caiyuanjia/software/project/Design-Patterns-in-C/auto-gen/util/mytrace.h:
+/home/caiyuanjia/software/project/Design-Patterns-in-C/auto-gen/util/test_suite.h:
+margherita_pizza.h:
+pizza.h:
+gourmet_pizza.h:
+extra_cheese_topping.h:
+toppings_decorator.h:
+jalapeno_topping.h:
+mushroom_topping.h:

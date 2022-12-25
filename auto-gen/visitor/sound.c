@@ -52,7 +52,7 @@ static struct animal_do_ops animal_do_ops = {
 /** constructor(). */
 void sound_init(struct sound *sound)
 {
-	memset(sound, sizeof(*sound), 0);
+	memset(sound, 0, sizeof(*sound));
 	animal_do_init(&sound->animal_do);
 	CLASS_OPS_INIT(sound->animal_do.ops, animal_do_ops);
 }

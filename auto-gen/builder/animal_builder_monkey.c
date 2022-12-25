@@ -51,7 +51,7 @@ static struct animal_builder_ops animal_builder_ops = {
 
 void animal_builder_monkey_init(struct animal_builder_monkey *animal_builder_monkey)
 {
-	memset(animal_builder_monkey, sizeof(*animal_builder_monkey), 0);
+	memset(animal_builder_monkey, 0, sizeof(*animal_builder_monkey));
 	animal_builder_init(&animal_builder_monkey->animal_builder);
 	CLASS_OPS_INIT(animal_builder_monkey->animal_builder.ops, animal_builder_ops);
 }

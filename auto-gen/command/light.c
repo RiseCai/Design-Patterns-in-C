@@ -29,7 +29,7 @@
 void light_init(struct light *light)
 {
 	_MY_TRACE_STR("light_init()\n");
-	memset(light, sizeof(*light), 0);
+	memset(light, 0, sizeof(*light));
 }
 
 void light_turnon(struct light *light)

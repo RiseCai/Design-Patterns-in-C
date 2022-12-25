@@ -16,7 +16,7 @@ static struct product_ops product_ops = {
 
 void product_init(struct product *product)
 {
-	memset(product, sizeof(*product), 0);
+	memset(product, 0, sizeof(*product));
 	product->ops = &product_ops;
 }
 

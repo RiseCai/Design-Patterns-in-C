@@ -52,7 +52,7 @@ static struct shape_ops shape_ops = {
 void shape_rectangle_init(struct shape_rectangle *shape_rectangle, struct color *color)
 {
 	_MY_TRACE_STR("shape_rectangle_init()\n");
-	memset(shape_rectangle, sizeof(*shape_rectangle), 0);
+	memset(shape_rectangle, 0, sizeof(*shape_rectangle));
 	shape_init(&shape_rectangle->shape, color);
 	CLASS_OPS_INIT_SUPER(shape_rectangle->shape.ops, shape_ops);
 }

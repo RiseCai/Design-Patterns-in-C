@@ -27,7 +27,7 @@
 /** constructor(). */
 void student_controller_init(struct student_controller *student_controller, struct student *model, struct student_view *view)
 {
-	memset(student_controller, sizeof(*student_controller), 0);
+	memset(student_controller, 0, sizeof(*student_controller));
 	student_controller->_model = model;
 	student_controller->_view = view;
 }
@@ -35,7 +35,7 @@ void student_controller_init(struct student_controller *student_controller, stru
 void student_controller_set_student_name(struct student_controller *controller, const char * student_name)
 {
 	_MY_TRACE_STR("student_controller::set_student_name()\n");
-	student_set_name(controller->_model, student_name, 0);
+	student_set_name(controller->_model, student_name);
 }
 
 char * student_controller_get_student_name(struct student_controller *controller)

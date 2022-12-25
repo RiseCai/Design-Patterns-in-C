@@ -36,6 +36,6 @@ static struct animal_do_ops animal_do_ops = {0
 /** constructor(). */
 void animal_do_init(struct animal_do *animal_do)
 {
-	memset(animal_do, sizeof(*animal_do), 0);
+	memset(animal_do, 0, sizeof(*animal_do));
 	animal_do->ops = &animal_do_ops;
 }

@@ -1,0 +1,11 @@
+/home/caiyuanjia/software/project/Design-Patterns-in-C/auto-gen/out_debug/factory/abstract_factory/GoF_family_object/widget_factory_motif.o: \
+ widget_factory_motif.c \
+ /home/caiyuanjia/software/project/Design-Patterns-in-C/auto-gen/util/myobj.h \
+ widget_motif_button.h widget.h widget_motif_menu.h \
+ widget_factory_motif.h widget_factory.h
+/home/caiyuanjia/software/project/Design-Patterns-in-C/auto-gen/util/myobj.h:
+widget_motif_button.h:
+widget.h:
+widget_motif_menu.h:
+widget_factory_motif.h:
+widget_factory.h:
