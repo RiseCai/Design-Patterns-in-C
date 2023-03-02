@@ -521,38 +521,47 @@ def render_namespace(input_file, code_style, output_dir):
 		json_file = open(input_file).read()
 		#input_dict = json.loads(json_file.replace('\t', '    '), object_pairs_hook=collections.OrderedDict)
 		input_dict = JsonComment(json).loads(json_file.replace('\t', '    '), object_pairs_hook=collections.OrderedDict)
-		#print '"LOADING":\n',json.dumps(input_dict, sort_keys=False, indent=3)
+		f = open("./debug/step1_loading.txt", 'w+')
+		print>>f,'"LOADING":\n',json.dumps(input_dict, sort_keys=False, indent=3)
 
 		context_dict_tree = convert_namespace_to_tree(\
 		  os.path.splitext(os.path.basename(input_file))[0], input_dict)
-		#print '"JSON CONVERT TO TREE":\n',json.dumps(context_dict_tree, sort_keys=False, indent=3)
+		f = open("./debug/step2_convert_tree.txt", 'w+')
+		print>>f,  '"JSON CONVERT TO TREE":\n',json.dumps(context_dict_tree, sort_keys=False, indent=3)
 
 		myclasses_array_dict = odict()
 		convert_to_array_dict(myclasses_array_dict, context_dict_tree)
-		#print '"JSON CONVERT TO ARRAY":\n',json.dumps(myclasses_array_dict, sort_keys=False, indent=3)
+		f = open("./debug/step3_convert_to_array.txt", 'w+')
+		print>>f, '"JSON CONVERT TO ARRAY":\n',json.dumps(myclasses_array_dict, sort_keys=False, indent=3)
 
 		parse_override_function(myclasses_array_dict)
-		#print '"JSON PARSE OVERRIDE":\n',json.dumps(myclasses_array_dict, sort_keys=False, indent=3)
+		f = open("./debug/step4_parse_override.txt", 'w+')
+		print>>f, '"JSON PARSE OVERRIDE":\n',json.dumps(myclasses_array_dict, sort_keys=False, indent=3)
 
 		parse_helper_flag(myclasses_array_dict)
-		#print '"JSON PARSE SUPPORT FLAGS":\n',json.dumps(myclasses_array_dict, sort_keys=False, indent=3)
+		f = open("./debug/step5_parse_flags.txt", 'w+')
+		print>>f, '"JSON PARSE SUPPORT FLAGS":\n',json.dumps(myclasses_array_dict, sort_keys=False, indent=3)
 
 		parse_init_constructor(myclasses_array_dict)
-		#print '"JSON INIT-CONSTRUCTOR":\n',json.dumps(myclasses_array_dict, sort_keys=False, indent=3)
+		f = open("./debug/step6_init_construct.txt", 'w+')
+		print>>f, '"JSON INIT-CONSTRUCTOR":\n',json.dumps(myclasses_array_dict, sort_keys=False, indent=3)
 
 		gen_pynsource_graphic_nodes(myclasses_array_dict)
-		#print '"JSON GRAPHIC":\n',json.dumps(myclasses_array_dict, sort_keys=False, indent=3)
+		f = open("./debug/step7_graphic.txt", 'w+')
+		print>>f, '"JSON GRAPHIC":\n',json.dumps(myclasses_array_dict, sort_keys=False, indent=3)
 
 		flush_unused_and_makeup(myclasses_array_dict)
 		if code_style == 'c':  # language not support oop
-			print '"JSON FINAL":\n',json.dumps(myclasses_array_dict, sort_keys=False, indent=3)
+			f = open("./debug/step8_final.txt", 'w+')
+			print>>f, '"JSON FINAL":\n',json.dumps(myclasses_array_dict, sort_keys=False, indent=3)
 			#print '"YAML FINAL":\n',json.dump(myclasses_array_dict, default_flow_style=False, indent=3)
 		elif code_style == 'cplus' or \
 		     code_style == 'java' or \
 		     code_style == 'csharp' or \
 			 code_style == 'python' :
 			makeeasy_for_oop_language(myclasses_array_dict)
-			print 'JSON FINAL:',json.dumps(myclasses_array_dict, sort_keys=False, indent=3)
+			f = open("./debug/step8_final.txt", 'w+')
+			print>>f, 'JSON FINAL:',json.dumps(myclasses_array_dict, sort_keys=False, indent=3)
 
 		render_array_to_file(myclasses_array_dict, code_style, output_dir)
 	except Exception, e:
