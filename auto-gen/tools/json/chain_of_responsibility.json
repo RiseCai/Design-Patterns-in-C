@@ -1,0 +1,48 @@
+{
+"file_note":"True",
+"trace":    "True",
+"summary":  "",
+"note":     """
+<br>The info will insert to every source file explaining the pattern's design details.
+<br>    We also can append lists like this:
+<br>      - list 1, give point one
+<br>          detail provide for point one
+<br>      - list 2, offer point two
+""",
+
+"classes": {
+	"chain_handle":{
+		"comment":"",
+		"includes":[],
+		"enable_super":"True",
+		"members": [
+			["var", "next", "struct chain_handle *", "", "private"],
+			["virtual", "_add", "void", "struct chain_handle *next"],
+			["virtual", "_handle",  "void", "int"],
+			["virtual", "_close",  "void"],
+			["override",  "_handle"],
+			["override",  "_add"],
+		],
+		"inheritances": {
+			"chain_handle1, chain_handle2, chain_handle3":{
+				"includes":[],
+				"members":[
+					["override",  "_handle"],
+					["override",  "_close"],
+				],
+			},
+		},
+	},
+
+	"test":{
+		"templates":["_test"],
+		"includes":["chain_handle1", "chain_handle2", "chain_handle3"],
+		"members": [
+			["static_method", "main", "int", "", "private", "", """
+				<br>printf(\"Hello world\");
+			"""
+			],
+		],
+	}
+}
+}
