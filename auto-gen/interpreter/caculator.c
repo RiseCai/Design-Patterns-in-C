@@ -79,15 +79,15 @@ char * caculator_convert_to_postfix(char *expr)
 
 	for (ii=0; ii < token_i; ii++) {
 		if (strchr(opers, tokens[ii][0]) == NULL) {
-			strncat(out_buf, tokens[ii], 0, sizeof(out_buf));
-			strncat(out_buf, " ", 0, sizeof(out_buf));
+			strncat(out_buf, tokens[ii], sizeof(out_buf));
+			strncat(out_buf, " ", sizeof(out_buf));
 		}
 		else {
 			while (!(is_empty=stack_is_empty())
 			       && caculator_precedence(top_sym=stack_pop(), tokens[ii][0])) {
 				char2str[0] = top_sym;
-				strncat(out_buf, char2str, 0, sizeof(out_buf));
-				strncat(out_buf, " ", 0, sizeof(out_buf));
+				strncat(out_buf, char2str, sizeof(out_buf));
+				strncat(out_buf, " ", sizeof(out_buf));
 			}
 			if (! is_empty)
 				stack_push(top_sym);
@@ -100,8 +100,8 @@ char * caculator_convert_to_postfix(char *expr)
 
 	while (!stack_is_empty()) {
 		char2str[0] = stack_pop();
-		strncat(out_buf, char2str, 0, sizeof(out_buf));
-		strncat(out_buf, " ", 0, sizeof(out_buf));
+		strncat(out_buf, char2str, sizeof(out_buf));
+		strncat(out_buf, " ", sizeof(out_buf));
 	}
 
 	return out_buf;

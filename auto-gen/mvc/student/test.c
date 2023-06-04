@@ -34,7 +34,7 @@ static struct student *test_retrive_student_from_database(void)
 	struct student *stu;
 	stu = malloc(sizeof(*stu));
 	student_init(stu);
-	student_set_name(stu, "Robert", 0);
+	student_set_name(stu, "Robert");
 	student_set_roll_no(stu, 10);
 	return stu;
 }

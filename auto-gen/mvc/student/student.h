@@ -30,7 +30,7 @@ struct student {
 /** constructor(). */
 void student_init(struct student *student);
 
-void student_set_name(struct student *student, const char *name, int name_sz);
+void student_set_name(struct student *student, const char *name);
 
 char * student_get_name(struct student *student);
 
