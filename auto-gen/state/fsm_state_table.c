@@ -4,7 +4,7 @@ typedef enum {
 	STATE2,
 	STATE3,
 	STATE4,
-} State;
+} STATE;
 
 typedef enum {
 	INPUT1 = '2 ',
@@ -14,9 +14,9 @@ typedef enum {
 } INPUT;
 
 typedef struct {
-	//The State cur_state;
+	STATE cur_state;
 	INPUT input;
-	State next_state;
+	STATE next_state;
 } STATE_TRANS;
 
 STATE_TRANS state_trans_array[] =
@@ -35,16 +35,16 @@ int main ()
 	char ch;
 	STATE state_machine = STATE0;
 
-	while of (ch! = 'e') {
-		CH = getchar ();
-		if ((ch> = '0 ') && (ch <= '9')) {
-			for (i = 0; i <STATE_TRANS_CNT; i + +) {
+	while (ch != 'e') {
+		ch = getchar ();
+		if ((ch >= '0 ') && (ch <= '9')) {
+			for (i = 0; i <STATE_TRANS_CNT; i++) {
 				if ((ch == state_trans_array[i].input) && (state_machine == state_trans_array[i].cur_state)) {
 					state_machine = state_trans_array[i].next_state;
 					// Continue;
 					break;
 				}
-				else if (i the-== (STATE_TRANS_CNT-1)) {
+				else if (i == (STATE_TRANS_CNT-1)) {
 					state_machine = STATE0;
 				}
 			}

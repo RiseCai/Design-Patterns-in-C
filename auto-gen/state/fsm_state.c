@@ -8,7 +8,7 @@ typedef enum {
 	STATE2,
 	STATE3,
 	STATE4,
-} State;
+} STATE;
 
 typedef enum {
 	INPUT1 = '2 ',
@@ -24,13 +24,13 @@ int main ()
 	while (1)
 	{
 		printf ("please input number to decode:");
-		while ((ch = getchar ())! = '\n') {
-			if ((ch <'0 ') | | (ch> '9')) {
+		while ((ch = getchar ()) != '\n') {
+			if ((ch <'0 ') || (ch> '9')) {
 				printf ("not number, please input again! \n");
 				break;
 			}
 
-			switch (the current_state) {
+			switch (current_state) {
 				case STATE0:
 					if (ch == '2 ') current_state = STATE1;
 					break;
