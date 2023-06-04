@@ -1,0 +1,10 @@
+{'type':'node', 'id':'interface', 'attrs':'', 'meths':'+ interface()|=0|=0', 'x':1, 'y':1, 'width':1, 'height':1}
+{'type':'node', 'id':'core', 'attrs':'', 'meths':'- init()|~ write(interface)|~ read(interface)', 'x':61, 'y':61, 'width':1, 'height':1}
+{'type':'node', 'id':'decorator', 'attrs':'- _inner', 'meths':'+ init()|~ _destructor()|~ free()|~ write(interface)|~ read(interface)', 'x':121, 'y':121, 'width':1, 'height':1}
+{'type':'node', 'id':'wrapper', 'attrs':'', 'meths':'+ init()|~ _destructor(decorator)|~ free(decorator)', 'x':181, 'y':181, 'width':1, 'height':1}
+{'type':'edge', 'id':'core_to_interface', 'source':'core', 'target':'interface', 'uml_edge_type':'generalisation'}
+{'type':'edge', 'id':'decorator_to_interface', 'source':'decorator', 'target':'interface', 'uml_edge_type':'composition'}
+{'type':'edge', 'id':'decorator_to_interface', 'source':'decorator', 'target':'interface', 'uml_edge_type':'composition'}
+{'type':'edge', 'id':'decorator_to_interface', 'source':'decorator', 'target':'interface', 'uml_edge_type':'generalisation'}
+{'type':'edge', 'id':'wrapper_to_interface', 'source':'wrapper', 'target':'interface', 'uml_edge_type':'composition'}
+{'type':'edge', 'id':'wrapper_to_decorator', 'source':'wrapper', 'target':'decorator', 'uml_edge_type':'generalisation'}

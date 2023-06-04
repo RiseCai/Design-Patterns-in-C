@@ -1,0 +1,11 @@
+{'type':'node', 'id':'component', 'attrs':'', 'meths':'+ component()|~ traverse()', 'x':1, 'y':1, 'width':1, 'height':1}
+{'type':'node', 'id':'primitive', 'attrs':'+ value', 'meths':'+ primitive()|~ traverse(component)', 'x':61, 'y':61, 'width':1, 'height':1}
+{'type':'node', 'id':'composite', 'attrs':'+ value|- children|+ children_sz', 'meths':'+ composite()|+ add()|~ traverse(component)', 'x':121, 'y':121, 'width':1, 'height':1}
+{'type':'node', 'id':'row', 'attrs':'', 'meths':'+ row()', 'x':181, 'y':181, 'width':1, 'height':1}
+{'type':'node', 'id':'column', 'attrs':'', 'meths':'+ column()', 'x':241, 'y':241, 'width':1, 'height':1}
+{'type':'edge', 'id':'primitive_to_component', 'source':'primitive', 'target':'component', 'uml_edge_type':'generalisation'}
+{'type':'edge', 'id':'composite_to_component', 'source':'composite', 'target':'component', 'uml_edge_type':'composition'}
+{'type':'edge', 'id':'composite_to_component', 'source':'composite', 'target':'component', 'uml_edge_type':'composition'}
+{'type':'edge', 'id':'composite_to_component', 'source':'composite', 'target':'component', 'uml_edge_type':'generalisation'}
+{'type':'edge', 'id':'row_to_composite', 'source':'row', 'target':'composite', 'uml_edge_type':'generalisation'}
+{'type':'edge', 'id':'column_to_composite', 'source':'column', 'target':'composite', 'uml_edge_type':'generalisation'}

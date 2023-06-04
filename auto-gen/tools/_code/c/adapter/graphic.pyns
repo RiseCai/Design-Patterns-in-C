@@ -1,0 +1,5 @@
+{'type':'node', 'id':'target', 'attrs':'', 'meths':'+ target()|~ request()', 'x':1, 'y':1, 'width':1, 'height':1}
+{'type':'node', 'id':'adapter', 'attrs':'- _adaptee', 'meths':'+ adapter()|~ request(target)', 'x':61, 'y':61, 'width':1, 'height':1}
+{'type':'node', 'id':'adaptee', 'attrs':'', 'meths':'+ adaptee()|+ specific_request()', 'x':121, 'y':121, 'width':1, 'height':1}
+{'type':'edge', 'id':'adapter_to_adaptee', 'source':'adapter', 'target':'adaptee', 'uml_edge_type':'composition'}
+{'type':'edge', 'id':'adapter_to_target', 'source':'adapter', 'target':'target', 'uml_edge_type':'generalisation'}

@@ -1,0 +1,12 @@
+{'type':'node', 'id':'animal', 'attrs':'', 'meths':'+ animal()|~ eat()', 'x':1, 'y':1, 'width':1, 'height':1}
+{'type':'node', 'id':'kitten', 'attrs':'', 'meths':'+ kitten()|~ eat(animal)', 'x':61, 'y':61, 'width':1, 'height':1}
+{'type':'node', 'id':'monkey', 'attrs':'', 'meths':'+ monkey()|~ eat(animal)', 'x':121, 'y':121, 'width':1, 'height':1}
+{'type':'node', 'id':'animal_builder', 'attrs':'', 'meths':'+ animal_builder()|~ build_header()|~ build_body()|~ build_leg()|~ build_arm()|~ build_tail()', 'x':181, 'y':181, 'width':1, 'height':1}
+{'type':'node', 'id':'animal_builder_monkey', 'attrs':'', 'meths':'+ animal_builder_monkey()|~ build_header(animal_builder)|~ build_body(animal_builder)|~ build_leg(animal_builder)|~ build_arm(animal_builder)|~ build_tail(animal_builder)', 'x':241, 'y':241, 'width':1, 'height':1}
+{'type':'node', 'id':'animal_builder_kitten', 'attrs':'', 'meths':'+ animal_builder_kitten()|~ build_header(animal_builder)|~ build_body(animal_builder)|~ build_leg(animal_builder)|~ build_arm(animal_builder)|~ build_tail(animal_builder)', 'x':301, 'y':301, 'width':1, 'height':1}
+{'type':'node', 'id':'kid', 'attrs':'+ name', 'meths':'+ kid()|+ make_animal()', 'x':361, 'y':361, 'width':1, 'height':1}
+{'type':'edge', 'id':'kitten_to_animal', 'source':'kitten', 'target':'animal', 'uml_edge_type':'generalisation'}
+{'type':'edge', 'id':'monkey_to_animal', 'source':'monkey', 'target':'animal', 'uml_edge_type':'generalisation'}
+{'type':'edge', 'id':'animal_builder_monkey_to_animal_builder', 'source':'animal_builder_monkey', 'target':'animal_builder', 'uml_edge_type':'generalisation'}
+{'type':'edge', 'id':'animal_builder_kitten_to_animal_builder', 'source':'animal_builder_kitten', 'target':'animal_builder', 'uml_edge_type':'generalisation'}
+{'type':'edge', 'id':'kid_to_animal_builder', 'source':'kid', 'target':'animal_builder', 'uml_edge_type':'composition'}

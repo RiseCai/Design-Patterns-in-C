@@ -1,0 +1,9 @@
+{'type':'node', 'id':'product', 'attrs':'+ description|+ sku', 'meths':'+ product()|~ clone()|~ set_description()|~ set_sku()|~ get_description()|~ get_sku()', 'x':1, 'y':1, 'width':1, 'height':1}
+{'type':'node', 'id':'book', 'attrs':'+ pages_num', 'meths':'+ book()|+ set_pages_num()|+ get_pages_num()|~ clone(product)|~ set_description(product)|~ set_sku(product)|~ get_description(product)|~ get_sku(product)', 'x':61, 'y':61, 'width':1, 'height':1}
+{'type':'node', 'id':'disk', 'attrs':'+ duration', 'meths':'+ disk()|+ set_duration()|+ get_duration()|~ clone(product)|~ set_description(product)|~ set_sku(product)|~ get_description(product)|~ get_sku(product)', 'x':121, 'y':121, 'width':1, 'height':1}
+{'type':'node', 'id':'product_cache', 'attrs':'- product_list_sz|- product_list', 'meths':'+ product_cache()|+ load_cache()|+ get_product()', 'x':181, 'y':181, 'width':1, 'height':1}
+{'type':'edge', 'id':'product_to_product', 'source':'product', 'target':'product', 'uml_edge_type':'composition'}
+{'type':'edge', 'id':'book_to_product', 'source':'book', 'target':'product', 'uml_edge_type':'generalisation'}
+{'type':'edge', 'id':'disk_to_product', 'source':'disk', 'target':'product', 'uml_edge_type':'generalisation'}
+{'type':'edge', 'id':'product_cache_to_product', 'source':'product_cache', 'target':'product', 'uml_edge_type':'composition'}
+{'type':'edge', 'id':'product_cache_to_product', 'source':'product_cache', 'target':'product', 'uml_edge_type':'composition'}

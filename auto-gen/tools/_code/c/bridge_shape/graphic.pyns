@@ -1,0 +1,11 @@
+{'type':'node', 'id':'shape', 'attrs':'- _color', 'meths':'+ shape()|~ _destructor()|~ free()|~ draw()', 'x':1, 'y':1, 'width':1, 'height':1}
+{'type':'node', 'id':'shape_rectangle', 'attrs':'', 'meths':'+ shape_rectangle()|~ _destructor(shape)|~ free(shape)|~ draw(shape)', 'x':61, 'y':61, 'width':1, 'height':1}
+{'type':'node', 'id':'shape_circle', 'attrs':'', 'meths':'+ shape_circle()|~ _destructor(shape)|~ free(shape)|~ draw(shape)', 'x':121, 'y':121, 'width':1, 'height':1}
+{'type':'node', 'id':'color', 'attrs':'', 'meths':'+ color()|~ render()', 'x':181, 'y':181, 'width':1, 'height':1}
+{'type':'node', 'id':'color_blue', 'attrs':'', 'meths':'+ color_blue()|~ render(color)', 'x':241, 'y':241, 'width':1, 'height':1}
+{'type':'node', 'id':'color_red', 'attrs':'', 'meths':'+ color_red()|~ render(color)', 'x':301, 'y':301, 'width':1, 'height':1}
+{'type':'edge', 'id':'shape_to_color', 'source':'shape', 'target':'color', 'uml_edge_type':'composition'}
+{'type':'edge', 'id':'shape_rectangle_to_shape', 'source':'shape_rectangle', 'target':'shape', 'uml_edge_type':'generalisation'}
+{'type':'edge', 'id':'shape_circle_to_shape', 'source':'shape_circle', 'target':'shape', 'uml_edge_type':'generalisation'}
+{'type':'edge', 'id':'color_blue_to_color', 'source':'color_blue', 'target':'color', 'uml_edge_type':'generalisation'}
+{'type':'edge', 'id':'color_red_to_color', 'source':'color_red', 'target':'color', 'uml_edge_type':'generalisation'}

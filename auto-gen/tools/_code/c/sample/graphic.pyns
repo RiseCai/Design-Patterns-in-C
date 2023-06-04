@@ -1,0 +1,6 @@
+{'type':'node', 'id':'class1', 'attrs':'- _count|- _value', 'meths':'+ class1()|+ showthis()|+ showthat()|+ set_value()|+ get_value()', 'x':1, 'y':1, 'width':1, 'height':1}
+{'type':'node', 'id':'base_class', 'attrs':'', 'meths':'+ base_class()|~ eval()|=0', 'x':61, 'y':61, 'width':1, 'height':1}
+{'type':'node', 'id':'extend_calss1', 'attrs':'+ _name', 'meths':'+ init()|~ eval(base_class)|~ eval(base_class)', 'x':121, 'y':121, 'width':1, 'height':1}
+{'type':'node', 'id':'extend_class2', 'attrs':'+ _name', 'meths':'+ init()|~ eval(base_class)|~ eval(base_class)', 'x':181, 'y':181, 'width':1, 'height':1}
+{'type':'edge', 'id':'extend_calss1_to_base_class', 'source':'extend_calss1', 'target':'base_class', 'uml_edge_type':'generalisation'}
+{'type':'edge', 'id':'extend_class2_to_base_class', 'source':'extend_class2', 'target':'base_class', 'uml_edge_type':'generalisation'}

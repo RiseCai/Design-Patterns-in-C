@@ -1,5 +1,5 @@
 /**
- * switcher.h  2022-12-24
+ * switcher.h  2023-02-18
  * anonymouse(anonymouse@email)
  *
  * Copyright (C) 2000-2014 All Right Reserved

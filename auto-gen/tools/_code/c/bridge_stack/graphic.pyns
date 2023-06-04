@@ -1,0 +1,15 @@
+{'type':'node', 'id':'node', 'attrs':'+ val|+ prev|+ next', 'meths':'+ node()', 'x':1, 'y':1, 'width':1, 'height':1}
+{'type':'node', 'id':'stack', 'attrs':'- _impl', 'meths':'+ stack()|~ _destructor()|~ free()|~ push()|~ pop()|~ top()|~ is_empty()|~ is_full()', 'x':61, 'y':61, 'width':1, 'height':1}
+{'type':'node', 'id':'stack_hanoi', 'attrs':'', 'meths':'+ stack_hanoi()|~ _destructor(stack)|~ free(stack)|~ push(stack)', 'x':121, 'y':121, 'width':1, 'height':1}
+{'type':'node', 'id':'stack_fifo', 'attrs':'', 'meths':'+ stack_fifo()|~ _destructor(stack)|~ free(stack)|~ pop(stack)', 'x':181, 'y':181, 'width':1, 'height':1}
+{'type':'node', 'id':'stack_impl', 'attrs':'', 'meths':'+ stack_impl()|~ _destructor()|~ free()|~ push()|~ pop()|~ top()|~ is_empty()|~ is_full()', 'x':241, 'y':241, 'width':1, 'height':1}
+{'type':'node', 'id':'stack_impl_array', 'attrs':'- items|- total', 'meths':'+ stack_impl_array()|~ _destructor(stack_impl)|~ free(stack_impl)|~ push(stack_impl)|~ pop(stack_impl)|~ top(stack_impl)|~ is_empty(stack_impl)|~ is_full(stack_impl)', 'x':301, 'y':301, 'width':1, 'height':1}
+{'type':'node', 'id':'stack_impl_list', 'attrs':'- nodes', 'meths':'+ stack_impl_list()|~ _destructor(stack_impl)|~ free(stack_impl)|~ push(stack_impl)|~ pop(stack_impl)|~ top(stack_impl)|~ is_empty(stack_impl)|~ is_full(stack_impl)', 'x':361, 'y':361, 'width':1, 'height':1}
+{'type':'edge', 'id':'node_to_node', 'source':'node', 'target':'node', 'uml_edge_type':'composition'}
+{'type':'edge', 'id':'node_to_node', 'source':'node', 'target':'node', 'uml_edge_type':'composition'}
+{'type':'edge', 'id':'stack_to_stack_impl', 'source':'stack', 'target':'stack_impl', 'uml_edge_type':'composition'}
+{'type':'edge', 'id':'stack_hanoi_to_stack', 'source':'stack_hanoi', 'target':'stack', 'uml_edge_type':'generalisation'}
+{'type':'edge', 'id':'stack_fifo_to_stack', 'source':'stack_fifo', 'target':'stack', 'uml_edge_type':'generalisation'}
+{'type':'edge', 'id':'stack_impl_array_to_stack_impl', 'source':'stack_impl_array', 'target':'stack_impl', 'uml_edge_type':'generalisation'}
+{'type':'edge', 'id':'stack_impl_list_to_node', 'source':'stack_impl_list', 'target':'node', 'uml_edge_type':'composition'}
+{'type':'edge', 'id':'stack_impl_list_to_stack_impl', 'source':'stack_impl_list', 'target':'stack_impl', 'uml_edge_type':'generalisation'}

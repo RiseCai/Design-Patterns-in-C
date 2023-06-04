@@ -1,0 +1,11 @@
+{'type':'node', 'id':'factory', 'attrs':'', 'meths':'+ factory()|~ create()', 'x':1, 'y':1, 'width':1, 'height':1}
+{'type':'node', 'id':'factory_product', 'attrs':'- serializer|- file_access_handler', 'meths':'+ factory_product()|~ create(factory)', 'x':61, 'y':61, 'width':1, 'height':1}
+{'type':'node', 'id':'serializer', 'attrs':'', 'meths':'+ serializer()', 'x':121, 'y':121, 'width':1, 'height':1}
+{'type':'node', 'id':'file_access_handler', 'attrs':'', 'meths':'+ file_access_handler()', 'x':181, 'y':181, 'width':1, 'height':1}
+{'type':'node', 'id':'domain_class', 'attrs':'', 'meths':'+ domain_class()', 'x':241, 'y':241, 'width':1, 'height':1}
+{'type':'node', 'id':'product', 'attrs':'+ name', 'meths':'+ product()|+ do_something()', 'x':301, 'y':301, 'width':1, 'height':1}
+{'type':'edge', 'id':'factory_to_product', 'source':'factory', 'target':'product', 'uml_edge_type':'composition'}
+{'type':'edge', 'id':'factory_to_domain_class', 'source':'factory', 'target':'domain_class', 'uml_edge_type':'composition'}
+{'type':'edge', 'id':'factory_product_to_serializer', 'source':'factory_product', 'target':'serializer', 'uml_edge_type':'composition'}
+{'type':'edge', 'id':'factory_product_to_file_access_handler', 'source':'factory_product', 'target':'file_access_handler', 'uml_edge_type':'composition'}
+{'type':'edge', 'id':'factory_product_to_factory', 'source':'factory_product', 'target':'factory', 'uml_edge_type':'generalisation'}

@@ -1,0 +1,18 @@
+{'type':'node', 'id':'pizza', 'attrs':'- _pizza_price', 'meths':'+ pizza()|=0', 'x':1, 'y':1, 'width':1, 'height':1}
+{'type':'node', 'id':'margherita_pizza', 'attrs':'', 'meths':'+ init()|~ price(pizza)', 'x':61, 'y':61, 'width':1, 'height':1}
+{'type':'node', 'id':'gourmet_pizza', 'attrs':'', 'meths':'+ init()|~ price(pizza)', 'x':121, 'y':121, 'width':1, 'height':1}
+{'type':'node', 'id':'toppings_decorator', 'attrs':'- _inner|- _topping_price', 'meths':'+ init()|~ price(pizza)', 'x':181, 'y':181, 'width':1, 'height':1}
+{'type':'node', 'id':'extra_cheese_topping', 'attrs':'', 'meths':'+ init()', 'x':241, 'y':241, 'width':1, 'height':1}
+{'type':'node', 'id':'jalapeno_topping', 'attrs':'', 'meths':'+ init()', 'x':301, 'y':301, 'width':1, 'height':1}
+{'type':'node', 'id':'mushroom_topping', 'attrs':'', 'meths':'+ init()', 'x':361, 'y':361, 'width':1, 'height':1}
+{'type':'edge', 'id':'margherita_pizza_to_pizza', 'source':'margherita_pizza', 'target':'pizza', 'uml_edge_type':'generalisation'}
+{'type':'edge', 'id':'gourmet_pizza_to_pizza', 'source':'gourmet_pizza', 'target':'pizza', 'uml_edge_type':'generalisation'}
+{'type':'edge', 'id':'toppings_decorator_to_pizza', 'source':'toppings_decorator', 'target':'pizza', 'uml_edge_type':'composition'}
+{'type':'edge', 'id':'toppings_decorator_to_pizza', 'source':'toppings_decorator', 'target':'pizza', 'uml_edge_type':'composition'}
+{'type':'edge', 'id':'toppings_decorator_to_pizza', 'source':'toppings_decorator', 'target':'pizza', 'uml_edge_type':'generalisation'}
+{'type':'edge', 'id':'extra_cheese_topping_to_pizza', 'source':'extra_cheese_topping', 'target':'pizza', 'uml_edge_type':'composition'}
+{'type':'edge', 'id':'extra_cheese_topping_to_toppings_decorator', 'source':'extra_cheese_topping', 'target':'toppings_decorator', 'uml_edge_type':'generalisation'}
+{'type':'edge', 'id':'jalapeno_topping_to_pizza', 'source':'jalapeno_topping', 'target':'pizza', 'uml_edge_type':'composition'}
+{'type':'edge', 'id':'jalapeno_topping_to_toppings_decorator', 'source':'jalapeno_topping', 'target':'toppings_decorator', 'uml_edge_type':'generalisation'}
+{'type':'edge', 'id':'mushroom_topping_to_pizza', 'source':'mushroom_topping', 'target':'pizza', 'uml_edge_type':'composition'}
+{'type':'edge', 'id':'mushroom_topping_to_toppings_decorator', 'source':'mushroom_topping', 'target':'toppings_decorator', 'uml_edge_type':'generalisation'}
