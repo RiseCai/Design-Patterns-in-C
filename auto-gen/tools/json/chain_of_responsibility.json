@@ -11,24 +11,24 @@
 """,
 
 "classes": {
-	"chain_handle":{
+	"chain_base":{
 		"comment":"",
 		"includes":[],
 		"enable_super":"True",
 		"members": [
-			["var", "next", "struct chain_handle *", "", "private"],
-			["virtual", "_add", "void", "struct chain_handle *next"],
-			["virtual", "_handle",  "void", "int"],
-			["virtual", "_close",  "void"],
-			["override",  "_handle"],
-			["override",  "_add"],
+			["property", "next", "struct chain_base *"],
+			["virtual", "add", "void", "struct chain_base *next"],
+			["virtual", "handle", "void", "int num"],
+			["virtual", "close",  "void"],
+			["override",  "handle"],
+			["override",  "add"],
 		],
 		"inheritances": {
 			"chain_handle1, chain_handle2, chain_handle3":{
 				"includes":[],
 				"members":[
-					["override",  "_handle"],
-					["override",  "_close"],
+					["override",  "handle"],
+					["override",  "close"],
 				],
 			},
 		},
