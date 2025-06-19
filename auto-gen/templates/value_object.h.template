@@ -1,0 +1,16 @@
+#ifndef DDD_VALUE_OBJECT_H
+#define DDD_VALUE_OBJECT_H
+
+#include "entity.h"
+
+typedef struct {
+    Entity base;
+    int (*equals)(const void* self, const void* other);
+} ValueObject;
+
+#define VALUE_OBJECT_INITIALIZER { \
+    .base = ENTITY_INITIALIZER, \
+    .equals = NULL \
+}
+
+#endif // DDD_VALUE_OBJECT_H

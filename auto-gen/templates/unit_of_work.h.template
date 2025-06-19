@@ -1,0 +1,14 @@
+#ifndef DDD_UNIT_OF_WORK_H
+#define DDD_UNIT_OF_WORK_H
+
+#include "repository.h"
+
+typedef struct {
+    int (*begin)();
+    int (*commit)();
+    void (*rollback)();
+    void (*register_repository)(Repository* repo);
+    void (*destroy)();
+} UnitOfWork;
+
+#endif // DDD_UNIT_OF_WORK_H

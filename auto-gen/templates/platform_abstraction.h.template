@@ -1,0 +1,26 @@
+#ifndef DDD_PLATFORM_ABSTRACTION_H
+#define DDD_PLATFORM_ABSTRACTION_H
+
+// 平台抽象层配置
+typedef struct {
+    // 内存管理接口
+    void* (*malloc)(size_t size);
+    void (*free)(void* ptr);
+    
+    // 线程同步接口
+    void* (*mutex_create)();
+    void (*mutex_lock)(void* mutex);
+    void (*mutex_unlock)(void* mutex);
+    void (*mutex_destroy)(void* mutex);
+    
+    // 时间接口
+    long (*get_current_time)(); // 毫秒时间戳
+    
+    // 日志接口
+    void (*log)(const char* message);
+} PlatformAbstraction;
+
+// 全局平台接口设置函数
+void ddd_set_platform_abstraction(const PlatformAbstraction* pa);
+
+#endif // DDD_PLATFORM_ABSTRACTION_H

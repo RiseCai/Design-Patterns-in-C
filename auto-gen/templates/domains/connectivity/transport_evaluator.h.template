@@ -1,0 +1,27 @@
+#ifndef TRANSPORT_EVALUATOR_H
+#define TRANSPORT_EVALUATOR_H
+
+#include "../domain_model.h"
+
+typedef struct {
+    // 评估指标权重
+    float latency_weight;
+    float bandwidth_weight; 
+    float stability_weight;
+
+    // 监控数据
+    float* latency_history;
+    float* bandwidth_history;
+    float* stability_history;
+    int history_size;
+
+    // 评估方法
+    float (*evaluate)(void* transport);
+    void (*update_weights)(void* self);
+    void (*visualize)(void* self);
+} TransportEvaluator;
+
+// 默认评估器实例
+extern TransportEvaluator default_evaluator;
+
+#endif

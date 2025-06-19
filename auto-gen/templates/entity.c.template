@@ -1,0 +1,20 @@
+#include "entity.h"
+#include "platform_abstraction.h"
+
+static int default_equals(const void* self, const void* other) {
+    const Entity* e1 = (const Entity*)self;
+    const Entity* e2 = (const Entity*)other;
+    return e1->id == e2->id;
+}
+
+void entity_init(Entity* entity) {
+    if(!entity) return;
+    
+    entity->id = 0;
+    entity->equals = default_equals;
+    
+    // 使用平台抽象层日志
+    if(global_platform_abstraction && global_platform_abstraction->log) {
+        global_platform_abstraction->log("Entity initialized");
+    }
+}

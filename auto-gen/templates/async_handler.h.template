@@ -1,0 +1,48 @@
+#ifndef DDD_ASYNC_HANDLER_H
+#define DDD_ASYNC_HANDLER_H
+
+#include "platform_abstraction.h"
+
+typedef enum {
+    TASK_PRIORITY_LOW = 0,
+    TASK_PRIORITY_NORMAL,
+    TASK_PRIORITY_HIGH,
+    TASK_PRIORITY_CRITICAL
+} TaskPriority;
+
+typedef enum {
+    TASK_STATUS_PENDING,
+    TASK_STATUS_RUNNING,
+    TASK_STATUS_COMPLETED,
+    TASK_STATUS_FAILED
+} TaskStatus;
+
+typedef struct {
+    int task_id;
+    TaskPriority priority;
+    TaskStatus status;
+    void* context;
+} TaskInfo;
+
+typedef struct {
+    // 异步任务提交接口
+    int (*submit_task)(void (*task_func)(void*), void* arg, TaskPriority priority);
+    
+    // 任务完成回调接口
+    void (*set_completion_callback)(void (*callback)(void* result, void* arg), void* arg);
+    
+    // 线程池控制接口
+    int (*init_thread_pool)(int thread_count);
+    void (*shutdown_thread_pool)();
+    
+    // 任务管理接口
+    int (*adjust_task_priority)(int task_id, TaskPriority new_priority);
+    TaskStatus (*get_task_status)(int task_id);
+    TaskInfo* (*get_task_list)(int* count);
+    int (*cancel_task)(int task_id);
+} AsyncHandler;
+
+// 全局异步处理器配置
+void ddd_set_async_handler(const AsyncHandler* handler);
+
+#endif // DDD_ASYNC_HANDLER_H

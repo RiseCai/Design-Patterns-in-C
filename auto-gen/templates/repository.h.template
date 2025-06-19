@@ -1,0 +1,13 @@
+#ifndef DDD_REPOSITORY_H
+#define DDD_REPOSITORY_H
+
+#include "aggregate.h"
+
+typedef struct {
+    int (*save)(Aggregate* aggregate);
+    Aggregate* (*find_by_id)(int id);
+    void (*delete)(int id);
+    void (*destroy)(void* repository);
+} Repository;
+
+#endif // DDD_REPOSITORY_H

@@ -1,0 +1,28 @@
+#ifndef LEARNING_MODULE_H
+#define LEARNING_MODULE_H
+
+#include "../domain_model.h"
+
+typedef struct {
+    // 数据存储配置
+    char* data_path;
+    int max_history;
+    
+    // 学习参数
+    float learning_rate;
+    int batch_size;
+    
+    // 监控接口
+    void (*visualize_progress)(void* self);
+    
+    // 核心方法
+    void (*collect_data)(void* context, void* data);
+    void (*train_model)(void* self);
+    void (*save_model)(const char* path);
+    void (*load_model)(const char* path);
+} LearningModule;
+
+// 默认学习模块实例
+extern LearningModule default_learner;
+
+#endif

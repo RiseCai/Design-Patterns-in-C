@@ -1,0 +1,18 @@
+#ifndef DDD_DOMAIN_EVENT_H
+#define DDD_DOMAIN_EVENT_H
+
+#include <time.h>
+
+typedef struct {
+    char* type;
+    time_t timestamp;
+    void (*destroy)(void* event);
+} DomainEvent;
+
+#define DOMAIN_EVENT_INITIALIZER { \
+    .type = NULL, \
+    .timestamp = 0, \
+    .destroy = NULL \
+}
+
+#endif // DDD_DOMAIN_EVENT_H

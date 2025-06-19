@@ -1,0 +1,30 @@
+#ifndef DDD_TASK_EXECUTOR_H
+#define DDD_TASK_EXECUTOR_H
+
+#include "task_specification.h"
+#include "async_handler.h"
+
+typedef enum {
+    TASK_STATE_PENDING,
+    TASK_STATE_RUNNING,
+    TASK_STATE_SUSPENDED,
+    TASK_STATE_COMPLETED,
+    TASK_STATE_FAILED
+} TaskState;
+
+typedef struct {
+    TaskSpecification* spec;
+    TaskState state;
+    void* context;
+    void (*save_context)(void* context);
+    void (*restore_context)(void* context);
+} Task;
+
+typedef struct {
+    int (*execute)(Task* task);
+    int (*suspend)(Task* task);
+    int (*resume)(Task* task);
+    TaskState (*get_state)(Task* task);
+} TaskExecutor;
+
+#endif // DDD_TASK_EXECUTOR_H

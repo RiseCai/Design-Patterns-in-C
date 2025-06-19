@@ -1,0 +1,33 @@
+#ifndef DDD_AGGREGATE_H
+#define DDD_AGGREGATE_H
+
+#include "entity.h"
+#include "domain_event.h"
+#include "async_handler.h"
+
+typedef struct {
+    Entity base;
+    int version;
+    DomainEvent** events;
+    size_t event_count;
+    void* async_context;
+} Aggregate;
+
+#define AGGREGATE_INITIALIZER { \
+    .base = ENTITY_INITIALIZER, \
+    .version = 0, \
+    .events = NULL, \
+    .event_count = 0, \
+    .async_context = NULL \
+}
+
+void aggregate_add_event(Aggregate* aggregate, DomainEvent* event);
+void aggregate_clear_events(Aggregate* aggregate);
+
+// 异步处理方法
+int aggregate_process_async(Aggregate* aggregate,
+                          void (*async_processor)(void*),
+                          void (*completion_callback)(void*),
+                          TaskPriority priority);
+
+#endif // DDD_AGGREGATE_H

@@ -1,0 +1,47 @@
+#include "aggregate.h"
+#include "async_handler.h"
+#include <stdlib.h>
+
+static void* global_async_handler = NULL;
+
+void aggregate_add_event(Aggregate* aggregate, DomainEvent* event) {
+    if (!aggregate || !event) return;
+    
+    aggregate->events = realloc(aggregate->events, 
+                             (aggregate->event_count + 1) * sizeof(DomainEvent*));
+    aggregate->events[aggregate->event_count++] = event;
+}
+
+void aggregate_clear_events(Aggregate* aggregate) {
+    if (!aggregate) return;
+    
+    for (size_t i = 0; i < aggregate->event_count; i++) {
+        if (aggregate->events[i]->destroy) {
+            aggregate->events[i]->destroy(aggregate->events[i]);
+        }
+    }
+    free(aggregate->events);
+    aggregate->events = NULL;
+    aggregate->event_count = 0;
+}
+
+int aggregate_process_async(Aggregate* aggregate,
+                          void (*async_processor)(void*),
+                          void (*completion_callback)(void*),
+                          TaskPriority priority) {
+    if (!aggregate || !async_processor || !global_async_handler) return -1;
+
+    AsyncHandler* handler = (AsyncHandler*)global_async_handler;
+    
+    // 设置回调
+    if (completion_callback) {
+        handler->set_completion_callback(completion_callback, aggregate);
+    }
+    
+    // 提交带优先级的任务
+    return handler->submit_task(async_processor, aggregate, priority);
+}
+
+void ddd_set_async_handler(const AsyncHandler* handler) {
+    global_async_handler = (void*)handler;
+}

@@ -1,0 +1,30 @@
+#ifndef DOMAIN_ANALYSIS_H
+#define DOMAIN_ANALYSIS_H
+
+#include "task_specification.h"
+
+typedef struct {
+    // 需求分解方法
+    TaskSpecification** (*decompose)(const char* requirement);
+    
+    // 领域映射方法
+    void (*map_to_domains)(TaskSpecification* spec);
+    
+    // 任务生成方法
+    Task** (*generate_tasks)(TaskSpecification* spec);
+} DomainAnalyzer;
+
+// 示例：录音转文字需求分解
+static TaskSpecification** decompose_audio_transcription(const char* req) {
+    TaskSpecification* audio_task = create_task_specification();
+    audio_task->description = "音频录制";
+    audio_task->objective_metrics = create_metrics("quality", 0.9);
+    
+    TaskSpecification* text_task = create_task_specification(); 
+    text_task->description = "文字提取";
+    text_task->objective_metrics = create_metrics("accuracy", 0.95);
+    
+    return combine_tasks(audio_task, text_task);
+}
+
+#endif

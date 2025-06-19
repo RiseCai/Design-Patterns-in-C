@@ -1,0 +1,16 @@
+#ifndef DDD_ENTITY_H
+#define DDD_ENTITY_H
+
+#include "platform_abstraction.h"
+
+typedef struct {
+    int id;
+    int (*equals)(const void* self, const void* other);
+} Entity;
+
+#define ENTITY_INITIALIZER { \
+    .id = 0, \
+    .equals = NULL \
+}
+
+#endif // DDD_ENTITY_H

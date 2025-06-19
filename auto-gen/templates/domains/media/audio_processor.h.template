@@ -1,0 +1,22 @@
+#ifndef AUDIO_PROCESSOR_H
+#define AUDIO_PROCESSOR_H
+
+#include "../domain_model.h"
+
+typedef struct {
+    // 音频录制接口
+    void (*start_recording)(const char* filename);
+    void (*stop_recording)();
+    
+    // 文字提取接口
+    char* (*transcribe_audio)(const char* audio_file);
+    
+    // 质量评估
+    float (*evaluate_quality)(const char* audio_file);
+    float (*evaluate_accuracy)(const char* text);
+} AudioProcessor;
+
+// 默认音频处理器实例
+extern AudioProcessor default_audio_processor;
+
+#endif

@@ -1,0 +1,27 @@
+#ifndef CHARGING_TEMPLATE_H
+#define CHARGING_TEMPLATE_H
+
+#include "../domain_model.h"
+
+typedef struct {
+    char* name;
+    float* current_curve;
+    float* voltage_curve;
+    int curve_length;
+    float thermal_limit;
+    
+    // 学习相关
+    float* historical_data;
+    int data_count;
+    float learning_rate;
+    
+    int (*apply)(void* battery, void* charger);
+    void (*update_from_history)(void* self);
+} ChargingTemplate;
+
+// 内置模板
+extern ChargingTemplate fast_charge_template;
+extern ChargingTemplate balanced_template;
+extern ChargingTemplate trickle_template;
+
+#endif

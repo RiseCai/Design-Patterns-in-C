@@ -1,0 +1,26 @@
+#ifndef DDD_TASK_SPECIFICATION_H
+#define DDD_TASK_SPECIFICATION_H
+
+#include "value_object.h"
+
+typedef struct {
+    char* task_id;
+    char* description;
+    ValueObject** objective_metrics;
+    size_t metrics_count;
+    char* subjective_description;
+    int (*validate_feasibility)(void* domain_model);
+    ValueObject** (*convert_to_objectives)(void* domain_model);
+} TaskSpecification;
+
+#define TASK_SPEC_INITIALIZER { \
+    .task_id = NULL, \
+    .description = NULL, \
+    .objective_metrics = NULL, \
+    .metrics_count = 0, \
+    .subjective_description = NULL, \
+    .validate_feasibility = NULL, \
+    .convert_to_objectives = NULL \
+}
+
+#endif // DDD_TASK_SPECIFICATION_H
