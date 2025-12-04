@@ -77,6 +77,9 @@ A CSV file `state_machine_mapping.csv` provides a quick reference for each scena
 ### Requirements Mapping Table
 A CSV file `state_machine_mapping_requirements.csv` provides a more detailed mapping with priority levels (1-5) and key features, including entry/do/exit action columns.
 
+### Bidirectional Mapping Table
+A CSV file `state_machine_bidirectional_mapping.csv` provides explicit mapping directions (Type->Code and Code->Type) for each scenario, with priority and implementation status.
+
 ### JSON Configuration Mapping
 A JSON file `fsm_config_mapping.json` provides a complete bidirectional mapping between state machine types and code files, including API functions, state structs, entry/do/exit actions, and priority levels.
 

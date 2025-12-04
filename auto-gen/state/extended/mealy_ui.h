@@ -21,9 +21,17 @@
 #include "../state/mealy_machine.h"
 
 /** Concrete states */
-struct mealy_state_idle;
-struct mealy_state_hovered;
-struct mealy_state_pressed;
+struct mealy_state_idle {
+    struct mealy_state base;
+};
+
+struct mealy_state_hovered {
+    struct mealy_state base;
+};
+
+struct mealy_state_pressed {
+    struct mealy_state base;
+};
 
 /** State constructors */
 void mealy_state_idle_init(struct mealy_state_idle *s);

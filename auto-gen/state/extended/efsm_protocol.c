@@ -96,53 +96,45 @@ typedef enum {
 
 /** Process events based on current state */
 static void handle_event(struct efsm_processor *p, efsm_event_t event, void *data) {
-    switch ((intptr_t)p->current_state) {
-        case (intptr_t)&idle_state:
-            if (event == EVENT_PACKET_ARRIVAL) {
-                _MY_TRACE_STR("Idle -> Receiving (packet_arrival)\n");
-                change_state(p, &receiving_state);
-                // Store packet
-                p->context.buffer = data;
-                p->context.sequence_number++;
-            }
-            break;
-        case (intptr_t)&receiving_state:
-            if (event == EVENT_PACKET_COMPLETE) {
-                _MY_TRACE_STR("Receiving -> Processing (packet_complete)\n");
-                change_state(p, &processing_state);
-            }
-            break;
-        case (intptr_t)&processing_state:
-            if (event == EVENT_VALID) {
-                _MY_TRACE_STR("Processing -> Sending (valid)\n");
-                change_state(p, &sending_state);
-            } else if (event == EVENT_INVALID) {
-                _MY_TRACE_STR("Processing -> Idle (invalid)\n");
-                change_state(p, &idle_state);
-                p->context.buffer = NULL;
-            }
-            break;
-        case (intptr_t)&sending_state:
-            if (event == EVENT_SENT) {
-                _MY_TRACE_STR("Sending -> WaitingAck (sent)\n");
-                change_state(p, &waiting_ack_state);
-                p->context.timeout_counter = 10; // 10 ticks timeout
-            }
-            break;
-        case (intptr_t)&waiting_ack_state:
-            if (event == EVENT_ACK_RECEIVED) {
-                _MY_TRACE_STR("WaitingAck -> Idle (ack_received)\n");
-                change_state(p, &idle_state);
-                p->context.buffer = NULL;
-                p->context.timeout_counter = 0;
-            } else if (event == EVENT_TIMEOUT) {
-                _MY_TRACE_STR("WaitingAck -> Sending (timeout)\n");
-                change_state(p, &sending_state);
-                p->context.timeout_counter = 10;
-            }
-            break;
-        default:
-            break;
+    if (p->current_state == &idle_state) {
+        if (event == EVENT_PACKET_ARRIVAL) {
+            _MY_TRACE_STR("Idle -> Receiving (packet_arrival)\n");
+            change_state(p, &receiving_state);
+            // Store packet
+            p->context.buffer = data;
+            p->context.sequence_number++;
+        }
+    } else if (p->current_state == &receiving_state) {
+        if (event == EVENT_PACKET_COMPLETE) {
+            _MY_TRACE_STR("Receiving -> Processing (packet_complete)\n");
+            change_state(p, &processing_state);
+        }
+    } else if (p->current_state == &processing_state) {
+        if (event == EVENT_VALID) {
+            _MY_TRACE_STR("Processing -> Sending (valid)\n");
+            change_state(p, &sending_state);
+        } else if (event == EVENT_INVALID) {
+            _MY_TRACE_STR("Processing -> Idle (invalid)\n");
+            change_state(p, &idle_state);
+            p->context.buffer = NULL;
+        }
+    } else if (p->current_state == &sending_state) {
+        if (event == EVENT_SENT) {
+            _MY_TRACE_STR("Sending -> WaitingAck (sent)\n");
+            change_state(p, &waiting_ack_state);
+            p->context.timeout_counter = 10; // 10 ticks timeout
+        }
+    } else if (p->current_state == &waiting_ack_state) {
+        if (event == EVENT_ACK_RECEIVED) {
+            _MY_TRACE_STR("WaitingAck -> Idle (ack_received)\n");
+            change_state(p, &idle_state);
+            p->context.buffer = NULL;
+            p->context.timeout_counter = 0;
+        } else if (event == EVENT_TIMEOUT) {
+            _MY_TRACE_STR("WaitingAck -> Sending (timeout)\n");
+            change_state(p, &sending_state);
+            p->context.timeout_counter = 10;
+        }
     }
 }
 
