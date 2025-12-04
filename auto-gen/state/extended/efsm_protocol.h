@@ -42,4 +42,11 @@ void efsm_processor_init(struct efsm_processor *p);
 void efsm_processor_dispatch_packet(struct efsm_processor *p, void *packet);
 void efsm_processor_tick(struct efsm_processor *p);
 
+/* Additional event functions for testing */
+void efsm_processor_packet_complete(struct efsm_processor *p);
+void efsm_processor_valid(struct efsm_processor *p);
+void efsm_processor_invalid(struct efsm_processor *p);
+void efsm_processor_sent(struct efsm_processor *p);
+void efsm_processor_ack_received(struct efsm_processor *p);
+
 #endif /* __EFSM_PROTOCOL_H__ */
