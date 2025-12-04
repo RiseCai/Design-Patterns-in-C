@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Acceptor FSM for Regular Expression "ab*" with API Mapping</title>
+    <script src="https://cdn.jsdelivr.net/npm/plantuml-encoder@1.4.0/dist/plantuml-encoder.min.js"></script>
+    <script>
+        const plantuml = `@startuml
+title Acceptor FSM for Regular Expression "ab*" (with API Mapping)
+
+skinparam state {
+  BackgroundColor<<accepting>> LightGreen
+  BorderColor<<accepting>> DarkGreen
+  BackgroundColor<<reject>> LightPink
+  BorderColor<<reject>> DarkRed
+  BackgroundColor<<normal>> White
+  BorderColor<<normal>> Black
+  FontSize 13
+}
+
+state "q0 (initial)" as q0 <<normal>> {
+  state "q0_Entry" as q0Entry <<entry>>
+  state "q0_Do" as q0Do <<do>>
+  state "q0_Exit" as q0Exit <<exit>>
+}
+
+state "q1 (accepting)" as q1 <<accepting>> {
+  state "q1_Entry" as q1Entry <<entry>>
+  state "q1_Do" as q1Do <<do>>
+  state "q1_Exit" as q1Exit <<exit>>
+}
+
+state "reject" as reject <<reject>> {
+  state "reject_Entry" as rejectEntry <<entry>>
+  state "reject_Do" as rejectDo <<do>>
+  state "reject_Exit" as rejectExit <<exit>>
+}
+
+[*] --> q0
+
+q0 --> q1 : 'a'\nAPI: acceptor_machine_feed(am, 'a')
+q0 --> reject : 'b'\nAPI: acceptor_machine_feed(am, 'b')
+
+q1 --> q1 : 'b'\nAPI: acceptor_machine_feed(am, 'b')
+q1 --> reject : 'a'\nAPI: acceptor_machine_feed(am, 'a')
+
+reject --> reject : any\nAPI: acceptor_machine_feed(am, any)
+
+' Labels
+q0Entry : "reset counter"
+q0Do : "wait for input"
+q0Exit : "clear"
+
+q1Entry : "set accepting flag"
+q1Do : "count b's"
+q1Exit : "reset accepting flag"
+
+rejectEntry : "enter dead state"
+rejectDo : "ignore input"
+rejectExit : "reset"
+
+note right of q0
+  <b>Start state</b>
+  <b>State struct:</b> acceptor_state (q0)
+  <b>Transition table:</b> transitions[0] = {'a', q1}
+  <b>API:</b> acceptor_machine_init(am, q0)
+end note
+
+note right of q1
+  <b>Accepting state</b>
+  <b>Matches "ab*"</b>
+  <b>is_accepting = 1</b>
+  <b>API:</b> acceptor_machine_is_accepting(am)
+end note
+
+note right of reject
+  <b>Dead state (no acceptance)</b>
+  <b>is_accepting = 0</b>
+  <b>No outgoing transitions</b>
+end note
+
+@enduml`;
+
+        function renderDiagram() {
+            const encoded = plantumlEncoder.encode(plantuml);
+            const img = document.getElementById('diagram');
+            img.src = 'http://www.plantuml.com/plantuml/svg/' + encoded;
+        }
+        window.onload = renderDiagram;
+    </script>
+</head>
+<body>
+    <h1>Acceptor FSM for Regular Expression "ab*" with API Mapping</h1>
+    <p>Diagram showing acceptor FSM states with entry/do/exit sub‑states and corresponding C API functions.</p>
+    <img id="diagram" alt="State Diagram" />
+    <hr>
+    <h2>Mapping Table</h2>
+    <table border="1" cellpadding="5">
+        <thead>
+            <tr>
+                <th>State</th>
+                <th>Event</th>
+                <th>Next State</th>
+                <th>API Function</th>
+                <th>Entry Action</th>
+                <th>Do Action</th>
+                <th>Exit Action</th>
+                <th>Accepting</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>q0 (initial)</td>
+                <td>'a'</td>
+                <td>q1</td>
+                <td><code>acceptor_machine_feed(am, 'a')</code></td>
+                <td>reset counter</td>
+                <td>wait for input</td>
+                <td>clear</td>
+                <td>No</td>
+            </tr>
+            <tr>
+                <td>q0 (initial)</td>
+                <td>'b'</td>
+                <td>reject</td>
+                <td><code>acceptor_machine_feed(am, 'b')</code></td>
+                <td>reset counter</td>
+                <td>wait for input</td>
+                <td>clear</td>
+                <td>No</td>
+            </tr>
+            <tr>
+                <td>q1 (accepting)</td>
+                <td>'b'</td>
+                <td>q1</td>
+                <td><code>acceptor_machine_feed(am, 'b')</code></td>
+                <td>set accepting flag</td>
+                <td>count b's</td>
+                <td>reset accepting flag</td>
+                <td>Yes</td>
+            </tr>
+            <tr>
+                <td>q1 (accepting)</td>
+                <td>'a'</td>
+                <td>reject</td>
+                <td><code>acceptor_machine_feed(am, 'a')</code></td>
+                <td>set accepting flag</td>
+                <td>count b's</td>
+                <td>reset accepting flag</td>
+                <td>Yes</td>
+            </tr>
+            <tr>
+                <td>reject</td>
+                <td>any</td>
+                <td>reject</td>
+                <td><code>acceptor_machine_feed(am, any)</code></td>
+                <td>enter dead state</td>
+                <td>ignore input</td>
+                <td>reset</td>
+                <td>No</td>
+            </tr>
+        </tbody>
+    </table>
+    <hr>
+    <h2>PlantUML Source</h2>
+    <pre style="background: #f0f0f0; padding: 10px; overflow: auto;">${plantuml}</pre>
+</body>
+</html>

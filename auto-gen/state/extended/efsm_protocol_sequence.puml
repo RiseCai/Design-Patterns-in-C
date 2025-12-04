@@ -1,0 +1,55 @@
+@startuml
+title EFSM Protocol State Machine API Call Sequence (Single‑Threaded)
+
+actor "Network Driver" as ND
+participant "Protocol Stack" as PS
+participant "EFSM Machine" as EM
+participant "State Handler" as SH
+participant "Timer" as T
+
+ND -> PS : packet_arrival event
+PS -> EM : efsm_dispatch_event(packet_arrival)
+EM -> SH : idle_event_packet_arrival()
+SH -> SH : entry_action()
+SH -> SH : do_action()
+SH -> SH : exit_action()
+EM -> PS : output = "start receiving"
+PS -> ND : ack
+
+ND -> PS : packet_complete event
+PS -> EM : efsm_dispatch_event(packet_complete)
+EM -> SH : receiving_event_packet_complete()
+SH -> SH : entry_action()
+SH -> SH : do_action()
+SH -> SH : exit_action()
+EM -> PS : output = "process packet"
+PS -> EM : efsm_set_variable(sequence_number, 1)
+
+PS -> EM : efsm_dispatch_event(valid)
+EM -> SH : processing_event_valid()
+SH -> SH : entry_action()
+SH -> SH : do_action()
+SH -> SH : exit_action()
+EM -> PS : output = "send packet"
+PS -> ND : send_packet()
+
+PS -> T : start_timeout(100ms)
+T -> PS : timeout
+PS -> EM : efsm_dispatch_event(timeout)
+EM -> SH : waiting_ack_event_timeout()
+SH -> SH : entry_action()
+SH -> SH : do_action()
+SH -> SH : exit_action()
+EM -> PS : output = "retransmit"
+PS -> ND : retransmit_packet()
+
+ND -> PS : ack_received event
+PS -> EM : efsm_dispatch_event(ack_received)
+EM -> SH : waiting_ack_event_ack_received()
+SH -> SH : entry_action()
+SH -> SH : do_action()
+SH -> SH : exit_action()
+EM -> PS : output = "return to idle"
+PS -> EM : efsm_set_variable(timeout_counter, 0)
+
+@enduml

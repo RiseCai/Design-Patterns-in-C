@@ -1,0 +1,6 @@
+Scenario,Recommended FSM Type,Variant,Input Events,Output Actions,Number of States,Hierarchy Depth,Concurrency,Code File,Configuration Mapping
+UI Interface Control,Mealy Event-Driven,Mealy,User events (click, hover, keypress),UI updates (render, animate),Medium (5-20),Shallow (1),Single thread,mealy_ui.c,ui_mapping.json
+Communication Protocol,EFSM + Three-stage,EFSM,Data packets,Protocol actions (send ACK, timeout),Small (3-10),Medium (2),Single thread,efsm_protocol.c,protocol_mapping.json
+Embedded Control,Moore + Hierarchical,Moore,Sensor readings,Actuator commands,Medium (10-30),Deep (3+),Single thread,moore_hierarchical.c,embedded_mapping.json
+Concurrent System,Parallel State Machine,Parallel,Multiple concurrent events,Coordinated outputs,Multiple (per component),Shallow (1),Multi-thread,parallel_fsm.c,parallel_mapping.json
+Regex Matching,Acceptor FSM,Acceptor,Character stream,Accept/Reject,Variable (NFA/DFA),Shallow (1),Single thread,acceptor_regex.c,regex_mapping.json

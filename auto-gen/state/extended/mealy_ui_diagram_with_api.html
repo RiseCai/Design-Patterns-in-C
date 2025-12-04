@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Mealy UI State Machine with API Mapping</title>
+    <script src="https://cdn.jsdelivr.net/npm/plantuml-encoder@1.4.0/dist/plantuml-encoder.min.js"></script>
+    <script>
+        const plantuml = `@startuml
+title Mealy UI State Machine - Button Control (with API Mapping)
+
+skinparam state {
+  BackgroundColor<<normal>> White
+  BorderColor<<normal>> Black
+  FontSize 13
+}
+
+state "Idle" as Idle {
+  state "Idle_Entry" as IdleEntry <<entry>>
+  state "Idle_Do" as IdleDo <<do>>
+  state "Idle_Exit" as IdleExit <<exit>>
+}
+
+state "Hovered" as Hovered {
+  state "Hovered_Entry" as HoveredEntry <<entry>>
+  state "Hovered_Do" as HoveredDo <<do>>
+  state "Hovered_Exit" as HoveredExit <<exit>>
+}
+
+state "Pressed" as Pressed {
+  state "Pressed_Entry" as PressedEntry <<entry>>
+  state "Pressed_Do" as PressedDo <<do>>
+  state "Pressed_Exit" as PressedExit <<exit>>
+}
+
+[*] --> Idle
+
+Idle --> Hovered : hover / "button hover effect"\nAPI: idle_event_hover()
+Idle --> Pressed : click / "button pressed visual feedback"\nAPI: idle_event_click()
+Idle --> Idle : keypress / (ignored)\nAPI: idle_event_keypress()
+
+Hovered --> Pressed : click / "button pressed from hover"\nAPI: hovered_event_click()
+Hovered --> Hovered : hover / (no transition)\nAPI: hovered_event_hover()
+
+Pressed --> Idle : click / "button released"\nAPI: pressed_event_click()
+
+' Labels
+IdleEntry : "initialize button"
+IdleDo : "display normal"
+IdleExit : "cleanup"
+
+HoveredEntry : "highlight button"
+HoveredDo : "display hover"
+HoveredExit : "remove highlight"
+
+PressedEntry : "press animation"
+PressedDo : "display pressed"
+PressedExit : "release animation"
+
+note right of Idle
+  <b>State struct:</b> mealy_state_idle
+  <b>Ops:</b> idle_ops
+  <b>Render:</b> idle_render()
+end note
+
+note right of Hovered
+  <b>State struct:</b> mealy_state_hovered
+  <b>Ops:</b> hovered_ops
+  <b>Render:</b> hovered_render()
+end note
+
+note right of Pressed
+  <b>State struct:</b> mealy_state_pressed
+  <b>Ops:</b> pressed_ops
+  <b>Render:</b> pressed_render()
+end note
+
+@enduml`;
+
+        function renderDiagram() {
+            const encoded = plantumlEncoder.encode(plantuml);
+            const img = document.getElementById('diagram');
+            img.src = 'http://www.plantuml.com/plantuml/svg/' + encoded;
+        }
+        window.onload = renderDiagram;
+    </script>
+</head>
+<body>
+    <h1>Mealy UI State Machine with API Mapping</h1>
+    <p>Diagram showing Mealy states with entry/do/exit sub‑states and corresponding C API functions.</p>
+    <img id="diagram" alt="State Diagram" />
+    <hr>
+    <h2>Mapping Table</h2>
+    <table border="1" cellpadding="5">
+        <thead>
+            <tr>
+                <th>State</th>
+                <th>Event</th>
+                <th>Next State</th>
+                <th>Output Action</th>
+                <th>API Function</th>
+                <th>State Struct</th>
+                <th>Entry Action</th>
+                <th>Do Action</th>
+                <th>Exit Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Idle</td>
+                <td>hover</td>
+                <td>Hovered</td>
+                <td>button hover effect</td>
+                <td><code>idle_event_hover()</code></td>
+                <td><code>mealy_state_idle</code></td>
+                <td>initialize button</td>
+                <td>display normal</td>
+                <td>cleanup</td>
+            </tr>
+            <tr>
+                <td>Idle</td>
+                <td>click</td>
+                <td>Pressed</td>
+                <td>button pressed visual feedback</td>
+                <td><code>idle_event_click()</code></td>
+                <td><code>mealy_state_idle</code></td>
+                <td>initialize button</td>
+                <td>display normal</td>
+                <td>cleanup</td>
+            </tr>
+            <tr>
+                <td>Hovered</td>
+                <td>click</td>
+                <td>Pressed</td>
+                <td>button pressed from hover</td>
+                <td><code>hovered_event_click()</code></td>
+                <td><code>mealy_state_hovered</code></td>
+                <td>highlight button</td>
+                <td>display hover</td>
+                <td>remove highlight</td>
+            </tr>
+            <tr>
+                <td>Pressed</td>
+                <td>click</td>
+                <td>Idle</td>
+                <td>button released</td>
+                <td><code>pressed_event_click()</code></td>
+                <td><code>mealy_state_pressed</code></td>
+                <td>press animation</td>
+                <td>display pressed</td>
+                <td>release animation</td>
+            </tr>
+        </tbody>
+    </table>
+    <hr>
+    <h2>PlantUML Source</h2>
+    <pre style="background: #f0f0f0; padding: 10px; overflow: auto;">${plantuml}</pre>
+</body>
+</html>

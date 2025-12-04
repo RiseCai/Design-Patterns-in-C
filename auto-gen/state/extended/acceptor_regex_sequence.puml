@@ -1,0 +1,50 @@
+@startuml
+title Acceptor FSM API Call Sequence (Single‑Threaded)
+
+actor "Input Stream" as IS
+participant "Regex Engine" as RE
+participant "Acceptor FSM" as AF
+participant "State Handler" as SH
+
+IS -> RE : character 'a'
+RE -> AF : acceptor_dispatch_event('a')
+AF -> SH : q0_event_a()
+SH -> SH : entry_action()
+SH -> SH : do_action()
+SH -> SH : exit_action()
+AF -> RE : transition to q1
+RE -> IS : consume 'a'
+
+IS -> RE : character 'b'
+RE -> AF : acceptor_dispatch_event('b')
+AF -> SH : q1_event_b()
+SH -> SH : entry_action()
+SH -> SH : do_action()
+SH -> SH : exit_action()
+AF -> RE : stay in q1 (self‑loop)
+RE -> IS : consume 'b'
+
+IS -> RE : character 'b'
+RE -> AF : acceptor_dispatch_event('b')
+AF -> SH : q1_event_b()
+SH -> SH : entry_action()
+SH -> SH : do_action()
+SH -> SH : exit_action()
+AF -> RE : stay in q1
+RE -> IS : consume 'b'
+
+IS -> RE : character 'c'
+RE -> AF : acceptor_dispatch_event('c')
+AF -> SH : q1_event_c()
+SH -> SH : entry_action()
+SH -> SH : do_action()
+SH -> SH : exit_action()
+AF -> RE : transition to reject
+RE -> IS : reject input
+
+AF -> RE : is_accepting? (false)
+RE -> IS : reject decision
+
+note over AF : Accepting state q1 reached after 'a' and zero or more 'b's
+
+@enduml

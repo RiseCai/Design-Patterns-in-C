@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>EFSM Protocol State Machine Diagram</title>
+    <script src="https://cdn.jsdelivr.net/npm/plantuml-encoder@1.4.0/dist/plantuml-encoder.min.js"></script>
+    <script>
+        const plantuml = `@startuml
+title Extended Finite State Machine (EFSM) - Communication Protocol
+
+skinparam state {
+  BackgroundColor<<normal>> White
+  BorderColor<<normal>> Black
+  FontSize 13
+}
+
+state "Idle" as Idle
+state "Receiving" as Receiving
+state "Processing" as Processing
+state "Sending" as Sending
+state "WaitingAck" as WaitingAck
+
+[*] --> Idle
+
+Idle --> Receiving : packet_arrival / "store packet"
+Receiving --> Processing : packet_complete / "validate"
+Processing --> Sending : valid / "send packet"
+Processing --> Idle : invalid / "discard"
+Sending --> WaitingAck : sent / "start timer"
+WaitingAck --> Idle : ack_received / "stop timer"
+WaitingAck --> Sending : timeout / "retransmit"
+
+note right of Idle : Extended variables:\nsequence_number, timeout_counter
+note right of Processing : Three-stage processing:\ninput → process → output
+note right of WaitingAck : Timer‑based retransmission
+
+@enduml`;
+
+        function renderDiagram() {
+            const encoded = plantumlEncoder.encode(plantuml);
+            const img = document.getElementById('diagram');
+            img.src = 'http://www.plantuml.com/plantuml/svg/' + encoded;
+        }
+        window.onload = renderDiagram;
+    </script>
+</head>
+<body>
+    <h1>Extended Finite State Machine (EFSM) - Communication Protocol</h1>
+    <p>EFSM with three‑stage processing (input‑process‑output) and extended variables.</p>
+    <img id="diagram" alt="State Diagram" />
+    <hr>
+    <h2>PlantUML Source</h2>
+    <pre style="background: #f0f0f0; padding: 10px; overflow: auto;">${plantuml}</pre>
+</body>
+</html>

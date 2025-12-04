@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>EFSM Protocol State Machine with API Mapping</title>
+    <script src="https://cdn.jsdelivr.net/npm/plantuml-encoder@1.4.0/dist/plantuml-encoder.min.js"></script>
+    <script>
+        const plantuml = `@startuml
+title Extended Finite State Machine (EFSM) - Communication Protocol (with API Mapping)
+
+skinparam state {
+  BackgroundColor<<normal>> White
+  BorderColor<<normal>> Black
+  FontSize 13
+}
+
+state "Idle" as Idle {
+  state "Idle_Entry" as IdleEntry <<entry>>
+  state "Idle_Do" as IdleDo <<do>>
+  state "Idle_Exit" as IdleExit <<exit>>
+}
+
+state "Receiving" as Receiving {
+  state "Receiving_Entry" as ReceivingEntry <<entry>>
+  state "Receiving_Do" as ReceivingDo <<do>>
+  state "Receiving_Exit" as ReceivingExit <<exit>>
+}
+
+state "Processing" as Processing {
+  state "Processing_Entry" as ProcessingEntry <<entry>>
+  state "Processing_Do" as ProcessingDo <<do>>
+  state "Processing_Exit" as ProcessingExit <<exit>>
+}
+
+state "Sending" as Sending {
+  state "Sending_Entry" as SendingEntry <<entry>>
+  state "Sending_Do" as SendingDo <<do>>
+  state "Sending_Exit" as SendingExit <<exit>>
+}
+
+state "WaitingAck" as WaitingAck {
+  state "WaitingAck_Entry" as WaitingAckEntry <<entry>>
+  state "WaitingAck_Do" as WaitingAckDo <<do>>
+  state "WaitingAck_Exit" as WaitingAckExit <<exit>>
+}
+
+[*] --> Idle
+
+Idle --> Receiving : packet_arrival / "store packet"\nAPI: efsm_processor_dispatch_packet()
+Receiving --> Processing : packet_complete / "validate"\nAPI: efsm_processor_dispatch_packet()
+Processing --> Sending : valid / "send packet"\nAPI: efsm_processor_dispatch_packet()
+Processing --> Idle : invalid / "discard"\nAPI: efsm_processor_dispatch_packet()
+Sending --> WaitingAck : sent / "start timer"\nAPI: efsm_processor_dispatch_packet()
+WaitingAck --> Idle : ack_received / "stop timer"\nAPI: efsm_processor_dispatch_packet()
+WaitingAck --> Sending : timeout / "retransmit"\nAPI: efsm_processor_tick()
+
+' Labels
+IdleEntry : "reset timer"
+IdleDo : "listen for packets"
+IdleExit : "stop listening"
+
+ReceivingEntry : "allocate buffer"
+ReceivingDo : "accumulate data"
+ReceivingExit : "release buffer"
+
+ProcessingEntry : "validate header"
+ProcessingDo : "process payload"
+ProcessingExit : "cleanup"
+
+SendingEntry : "prepare packet"
+SendingDo : "transmit"
+SendingExit : "finalize"
+
+WaitingAckEntry : "start timer"
+WaitingAckDo : "wait for ack"
+WaitingAckExit : "stop timer"
+
+note right of Idle
+  <b>State struct:</b> efsm_state (idle_state)
+  <b>Functions:</b> idle_process(), idle_entry(), idle_exit()
+  <b>Extended variables:</b>
+  sequence_number, timeout_counter, buffer
+end note
+
+note right of Processing
+  <b>Three‑stage processing:</b>
+  input → process → output
+  <b>API:</b> efsm_processor_dispatch_packet()
+  calls current_state->process()
+end note
+
+note right of WaitingAck
+  <b>Timer handling:</b>
+  efsm_processor_tick() decrements timeout_counter
+end note
+
+@enduml`;
+
+        function renderDiagram() {
+            const encoded = plantumlEncoder.encode(plantuml);
+            const img = document.getElementById('diagram');
+            img.src = 'http://www.plantuml.com/plantuml/svg/' + encoded;
+        }
+        window.onload = renderDiagram;
+    </script>
+</head>
+<body>
+    <h1>EFSM Protocol State Machine with API Mapping</h1>
+    <p>Diagram showing EFSM states with entry/do/exit sub‑states and corresponding C API functions.</p>
+    <img id="diagram" alt="State Diagram" />
+    <hr>
+    <h2>Mapping Table</h2>
+    <table border="1" cellpadding="5">
+        <thead>
+            <tr>
+                <th>State</th>
+                <th>Event</th>
+                <th>Next State</th>
+                <th>Output Action</th>
+                <th>API Function</th>
+                <th>State Struct</th>
+                <th>Entry Action</th>
+                <th>Do Action</th>
+                <th>Exit Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Idle</td>
+                <td>packet_arrival</td>
+                <td>Receiving</td>
+                <td>store packet</td>
+                <td><code>efsm_processor_dispatch_packet()</code></td>
+                <td><code>efsm_state (idle_state)</code></td>
+                <td>reset timer</td>
+                <td>listen for packets</td>
+                <td>stop listening</td>
+            </tr>
+            <tr>
+                <td>Receiving</td>
+                <td>packet_complete</td>
+                <td>Processing</td>
+                <td>validate</td>
+                <td><code>efsm_processor_dispatch_packet()</code></td>
+                <td><code>efsm_state (receiving_state)</code></td>
+                <td>allocate buffer</td>
+                <td>accumulate data</td>
+                <td>release buffer</td>
+            </tr>
+            <tr>
+                <td>Processing</td>
+                <td>valid</td>
+                <td>Sending</td>
+                <td>send packet</td>
+                <td><code>efsm_processor_dispatch_packet()</code></td>
+                <td><code>efsm_state (processing_state)</code></td>
+                <td>validate header</td>
+                <td>process payload</td>
+                <td>cleanup</td>
+            </tr>
+            <tr>
+                <td>Processing</td>
+                <td>invalid</td>
+                <td>Idle</td>
+                <td>discard</td>
+                <td><code>efsm_processor_dispatch_packet()</code></td>
+                <td><code>efsm_state (processing_state)</code></td>
+                <td>validate header</td>
+                <td>process payload</td>
+                <td>cleanup</td>
+            </tr>
+            <tr>
+                <td>Sending</td>
+                <td>sent</td>
+                <td>WaitingAck</td>
+                <td>start timer</td>
+                <td><code>efsm_processor_dispatch_packet()</code></td>
+                <td><code>efsm_state (sending_state)</code></td>
+                <td>prepare packet</td>
+                <td>transmit</td>
+                <td>finalize</td>
+            </tr>
+            <tr>
+                <td>WaitingAck</td>
+                <td>ack_received</td>
+                <td>Idle</td>
+                <td>stop timer</td>
+                <td><code>efsm_processor_dispatch_packet()</code></td>
+                <td><code>efsm_state (waiting_ack_state)</code></td>
+                <td>start timer</td>
+                <td>wait for ack</td>
+                <td>stop timer</td>
+            </tr>
+            <tr>
+                <td>WaitingAck</td>
+                <td>timeout</td>
+                <td>Sending</td>
+                <td>retransmit</td>
+                <td><code>efsm_processor_tick()</code></td>
+                <td><code>efsm_state (waiting_ack_state)</code></td>
+                <td>start timer</td>
+                <td>wait for ack</td>
+                <td>stop timer</td>
+            </tr>
+        </tbody>
+    </table>
+    <hr>
+    <h2>PlantUML Source</h2>
+    <pre style="background: #f0f0f0; padding: 10px; overflow: auto;">${plantuml}</pre>
+</body>
+</html>

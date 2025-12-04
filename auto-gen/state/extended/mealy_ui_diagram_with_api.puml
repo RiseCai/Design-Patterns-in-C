@@ -1,0 +1,70 @@
+@startuml
+title Mealy UI State Machine - Button Control (with API Mapping)
+
+skinparam state {
+  BackgroundColor<<normal>> White
+  BorderColor<<normal>> Black
+  FontSize 13
+}
+
+state "Idle" as Idle {
+  state "Idle_Entry" as IdleEntry <<entry>>
+  state "Idle_Do" as IdleDo <<do>>
+  state "Idle_Exit" as IdleExit <<exit>>
+}
+
+state "Hovered" as Hovered {
+  state "Hovered_Entry" as HoveredEntry <<entry>>
+  state "Hovered_Do" as HoveredDo <<do>>
+  state "Hovered_Exit" as HoveredExit <<exit>>
+}
+
+state "Pressed" as Pressed {
+  state "Pressed_Entry" as PressedEntry <<entry>>
+  state "Pressed_Do" as PressedDo <<do>>
+  state "Pressed_Exit" as PressedExit <<exit>>
+}
+
+[*] --> Idle
+
+Idle --> Hovered : hover / "button hover effect"\nAPI: idle_event_hover()
+Idle --> Pressed : click / "button pressed visual feedback"\nAPI: idle_event_click()
+Idle --> Idle : keypress / (ignored)\nAPI: idle_event_keypress()
+
+Hovered --> Pressed : click / "button pressed from hover"\nAPI: hovered_event_click()
+Hovered --> Hovered : hover / (no transition)\nAPI: hovered_event_hover()
+
+Pressed --> Idle : click / "button released"\nAPI: pressed_event_click()
+
+' Labels
+IdleEntry : "initialize button"
+IdleDo : "display normal"
+IdleExit : "cleanup"
+
+HoveredEntry : "highlight button"
+HoveredDo : "display hover"
+HoveredExit : "remove highlight"
+
+PressedEntry : "press animation"
+PressedDo : "display pressed"
+PressedExit : "release animation"
+
+note right of Idle
+  <b>State struct:</b> mealy_state_idle
+  <b>Ops:</b> idle_ops
+  <b>Render:</b> idle_render()
+end note
+
+note right of Hovered
+  <b>State struct:</b> mealy_state_hovered
+  <b>Ops:</b> hovered_ops
+  <b>Render:</b> hovered_render()
+end note
+
+note right of Pressed
+  <b>State struct:</b> mealy_state_pressed
+  <b>Ops:</b> pressed_ops
+  <b>Render:</b> pressed_render()
+end note
+
+@enduml

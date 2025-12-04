@@ -1,0 +1,6 @@
+Scenario,Recommended FSM Type,State Machine Name,Number of States,Number of Events,Output Type,Extended Variables,Entry/Do/Exit Actions,Code File,API Function Prefix,Bidirectional Mapping Support
+UI interface control,Mealy event-driven,Mealy UI Button,3,3,Action on transition,None,Yes (entry/do/exit per state),mealy_ui.c,idle_,hovered_,pressed_,Yes (diagram with API)
+Communication protocol,EFSM + three-stage,EFSM Protocol,5,6,Action on transition + extended variables,sequence_number, timeout_counter,Yes (three-stage processing),efsm_protocol.c,efsm_,Yes (diagram with variables)
+Embedded control,Moore + hierarchical,Moore Hierarchical,4,4,Action on state entry,None,Yes (entry/do/exit per state),moore_hierarchical.c,moore_,Yes (hierarchical diagram)
+Concurrent system,Parallel FSM,Parallel Machine,3 components,1 broadcast,Broadcast event,None,Yes (entry/do/exit per component),parallel_fsm.c,parallel_,Yes (parallel diagram)
+Regular expression matching,Acceptor FSM,Acceptor Regex,3,2,Accept/reject,None,Yes (entry/do/exit per state),acceptor_regex.c,acceptor_,Yes (accepting states)

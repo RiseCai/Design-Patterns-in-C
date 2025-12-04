@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Mealy UI State Machine Diagram</title>
+    <script src="https://cdn.jsdelivr.net/npm/plantuml-encoder@1.4.0/dist/plantuml-encoder.min.js"></script>
+    <script>
+        const plantuml = `@startuml
+title Mealy UI State Machine - Button Control
+
+skinparam state {
+  BackgroundColor<<normal>> White
+  BorderColor<<normal>> Black
+  FontSize 13
+}
+
+state "Idle" as Idle
+state "Hovered" as Hovered
+state "Pressed" as Pressed
+
+[*] --> Idle
+
+Idle --> Hovered : hover / "button hover effect"
+Idle --> Pressed : click / "button pressed visual feedback"
+Idle --> Idle : keypress / (ignored)
+
+Hovered --> Pressed : click / "button pressed from hover"
+Hovered --> Hovered : hover / (no transition)
+
+Pressed --> Idle : click / "button released"
+
+note right of Idle : Mealy: output depends on event
+note right of Hovered : Hovered state with glow
+note right of Pressed : Pressed state (depressed)
+
+@enduml`;
+
+        function renderDiagram() {
+            const encoded = plantumlEncoder.encode(plantuml);
+            const img = document.getElementById('diagram');
+            img.src = 'http://www.plantuml.com/plantuml/svg/' + encoded;
+        }
+        window.onload = renderDiagram;
+    </script>
+</head>
+<body>
+    <h1>Mealy UI State Machine - Button Control</h1>
+    <p>Mealy‑type event‑driven state machine for UI button interaction.</p>
+    <img id="diagram" alt="State Diagram" />
+    <hr>
+    <h2>PlantUML Source</h2>
+    <pre style="background: #f0f0f0; padding: 10px; overflow: auto;">${plantuml}</pre>
+</body>
+</html>

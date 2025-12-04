@@ -1,0 +1,51 @@
+{
+  "fsm_types": {
+    "mealy_ui": {
+      "description": "Mealy event-driven FSM for UI control",
+      "header": "mealy_ui.h",
+      "source": "mealy_ui.c",
+      "states": ["idle", "hovered", "pressed"],
+      "events": ["click", "hover", "keypress"],
+      "outputs": ["render"]
+    },
+    "efsm_protocol": {
+      "description": "EFSM + three-stage for communication protocol",
+      "header": "efsm_protocol.h",
+      "source": "efsm_protocol.c",
+      "states": ["idle", "waiting_ack", "timeout", "success"],
+      "events": ["packet_received", "timer_expired", "ack_received"],
+      "outputs": ["send_packet", "start_timer", "stop_timer"]
+    },
+    "moore_hierarchical": {
+      "description": "Moore hierarchical FSM for embedded control",
+      "header": "moore_hierarchical.h",
+      "source": "moore_hierarchical.c",
+      "states": ["off", "on", "error", "substate1", "substate2"],
+      "events": ["sensor_high", "sensor_low", "command"],
+      "outputs": ["actuator_on", "actuator_off", "led_indicate"]
+    },
+    "parallel": {
+      "description": "Parallel state machine for concurrent systems",
+      "header": "parallel_fsm.h",
+      "source": "parallel_fsm.c",
+      "states": ["running", "paused", "stopped"],
+      "events": ["start", "pause", "resume", "stop"],
+      "outputs": ["spawn_thread", "sync", "broadcast"]
+    },
+    "acceptor": {
+      "description": "Acceptor FSM for regex matching",
+      "header": "acceptor_regex.h",
+      "source": "acceptor_regex.c",
+      "states": ["q0", "q1", "q2", "accept", "reject"],
+      "events": ["char_a", "char_b", "char_other"],
+      "outputs": ["accept", "reject"]
+    }
+  },
+  "mapping": {
+    "scenario_ui": "mealy_ui",
+    "scenario_protocol": "efsm_protocol",
+    "scenario_embedded": "moore_hierarchical",
+    "scenario_concurrent": "parallel",
+    "scenario_regex": "acceptor"
+  }
+}

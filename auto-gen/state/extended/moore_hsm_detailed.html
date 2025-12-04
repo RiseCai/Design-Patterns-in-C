@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Moore Hierarchical State Machine Detailed Diagram</title>
+    <script src="https://cdn.jsdelivr.net/npm/plantuml-encoder@1.4.0/dist/plantuml-encoder.min.js"></script>
+    <script>
+        const plantuml = `@startuml
+title Moore Hierarchical State Machine - Smart Thermostat (Detailed)
+
+skinparam state {
+  BackgroundColor<<super>> LightBlue
+  BorderColor<<super>> DarkBlue
+  BackgroundColor<<normal>> White
+  BorderColor<<normal>> Black
+  FontSize 13
+}
+
+state "Off" as Off <<normal>> {
+  state "Off_Entry" as OffEntry <<entry>>
+  state "Off_Do" as OffDo <<do>>
+  state "Off_Exit" as OffExit <<exit>>
+}
+
+state "On" as On <<super>> {
+  state "On_Entry" as OnEntry <<entry>>
+  state "On_Do" as OnDo <<do>>
+  state "On_Exit" as OnExit <<exit>>
+  
+  state "Idle" as Idle {
+    state "Idle_Entry" as IdleEntry <<entry>>
+    state "Idle_Do" as IdleDo <<do>>
+    state "Idle_Exit" as IdleExit <<exit>>
+  }
+  
+  state "Heating" as Heating {
+    state "Heating_Entry" as HeatingEntry <<entry>>
+    state "Heating_Do" as HeatingDo <<do>>
+    state "Heating_Exit" as HeatingExit <<exit>>
+  }
+  
+  state "Cooling" as Cooling {
+    state "Cooling_Entry" as CoolingEntry <<entry>>
+    state "Cooling_Do" as CoolingDo <<do>>
+    state "Cooling_Exit" as CoolingExit <<exit>>
+  }
+  
+  state "FanOnly" as FanOnly {
+    state "FanOnly_Entry" as FanOnlyEntry <<entry>>
+    state "FanOnly_Do" as FanOnlyDo <<do>>
+    state "FanOnly_Exit" as FanOnlyExit <<exit>>
+  }
+}
+
+[*] --> Off
+
+Off --> On : EV_POWER_ON
+On --> Off : EV_POWER_OFF
+
+Idle --> Heating : EV_TEMP_LOW
+Heating --> Idle : EV_TEMP_OK
+
+Idle --> Cooling : EV_TEMP_HIGH
+Cooling --> Idle : EV_TEMP_OK
+
+Idle --> FanOnly : EV_FAN_ON
+FanOnly --> Idle : EV_FAN_OFF
+
+Heating --> Off : EV_POWER_OFF
+Cooling --> Off : EV_POWER_OFF
+FanOnly --> Off : EV_POWER_OFF
+
+note right of Off : Output depends only on state (Moore)
+note right of On : Superstate with hierarchical children
+
+' Labels
+OffEntry : "system shutdown"
+OffDo : "no operation"
+OffExit : "(none)"
+
+OnEntry : "system startup"
+OnDo : "monitoring temperature"
+OnExit : "leaving ON"
+
+IdleEntry : "maintain temperature"
+IdleDo : "temperature stable"
+IdleExit : "(none)"
+
+HeatingEntry : "activate heater"
+HeatingDo : "heating..."
+HeatingExit : "deactivate heater"
+
+CoolingEntry : "activate cooler"
+CoolingDo : "cooling..."
+CoolingExit : "deactivate cooler"
+
+FanOnlyEntry : "fan running"
+FanOnlyDo : "circulating air"
+FanOnlyExit : "fan stopped"
+
+@enduml`;
+
+        function renderDiagram() {
+            const encoded = plantumlEncoder.encode(plantuml);
+            const img = document.getElementById('diagram');
+            img.src = 'http://www.plantuml.com/plantuml/svg/' + encoded;
+        }
+        window.onload = renderDiagram;
+    </script>
+</head>
+<body>
+    <h1>Moore Hierarchical State Machine - Detailed View</h1>
+    <p>Each state shows separate entry, do, exit boxes.</p>
+    <img id="diagram" alt="State Diagram" />
+    <hr>
+    <h2>PlantUML Source</h2>
+    <pre style="background: #f0f0f0; padding: 10px; overflow: auto;">${plantuml}</pre>
+</body>
+</html>

@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Parallel FSM State Machine with API Mapping</title>
+    <script src="https://cdn.jsdelivr.net/npm/plantuml-encoder@1.4.0/dist/plantuml-encoder.min.js"></script>
+    <script>
+        const plantuml = `@startuml
+title Parallel State Machine - Concurrent System (with API Mapping)
+
+skinparam state {
+  BackgroundColor<<normal>> White
+  BorderColor<<normal>> Black
+  FontSize 13
+}
+
+state "Parallel Machine" as Parallel {
+  state "Component A" as CompA {
+    state "A_Idle" as AIdle {
+      state "A_Idle_Entry" as AIdleEntry <<entry>>
+      state "A_Idle_Do" as AIdleDo <<do>>
+      state "A_Idle_Exit" as AIdleExit <<exit>>
+    }
+    state "A_Active" as AActive {
+      state "A_Active_Entry" as AActiveEntry <<entry>>
+      state "A_Active_Do" as AActiveDo <<do>>
+      state "A_Active_Exit" as AActiveExit <<exit>>
+    }
+    [*] --> AIdle
+    AIdle --> AActive : start\nAPI: parallel_machine_broadcast_event(pm, EVENT_START)
+    AActive --> AIdle : stop\nAPI: parallel_machine_broadcast_event(pm, EVENT_STOP)
+  }
+  --
+  state "Component B" as CompB {
+    state "B_Idle" as BIdle {
+      state "B_Idle_Entry" as BIdleEntry <<entry>>
+      state "B_Idle_Do" as BIdleDo <<do>>
+      state "B_Idle_Exit" as BIdleExit <<exit>>
+    }
+    state "B_Processing" as BProcessing {
+      state "B_Processing_Entry" as BProcessingEntry <<entry>>
+      state "B_Processing_Do" as BProcessingDo <<do>>
+      state "B_Processing_Exit" as BProcessingExit <<exit>>
+    }
+    state "B_Done" as BDone {
+      state "B_Done_Entry" as BDoneEntry <<entry>>
+      state "B_Done_Do" as BDoneDo <<do>>
+      state "B_Done_Exit" as BDoneExit <<exit>>
+    }
+    [*] --> BIdle
+    BIdle --> BProcessing : data_ready\nAPI: parallel_machine_broadcast_event(pm, EVENT_DATA_READY)
+    BProcessing --> BDone : finish\nAPI: parallel_machine_broadcast_event(pm, EVENT_FINISH)
+    BDone --> BIdle : reset\nAPI: parallel_machine_broadcast_event(pm, EVENT_RESET)
+  }
+  --
+  state "Component C" as CompC {
+    state "C_Off" as COff {
+      state "C_Off_Entry" as COffEntry <<entry>>
+      state "C_Off_Do" as COffDo <<do>>
+      state "C_Off_Exit" as COffExit <<exit>>
+    }
+    state "C_On" as COn {
+      state "C_On_Entry" as COnEntry <<entry>>
+      state "C_On_Do" as COnDo <<do>>
+      state "C_On_Exit" as COnExit <<exit>>
+    }
+    [*] --> COff
+    COff --> COn : enable\nAPI: parallel_machine_broadcast_event(pm, EVENT_ENABLE)
+    COn --> COff : disable\nAPI: parallel_machine_broadcast_event(pm, EVENT_DISABLE)
+  }
+}
+
+' Labels
+AIdleEntry : "initialize"
+AIdleDo : "wait for start"
+AIdleExit : "cleanup"
+
+AActiveEntry : "activate"
+AActiveDo : "perform task"
+AActiveExit : "deactivate"
+
+BIdleEntry : "reset data"
+BIdleDo : "idle"
+BIdleExit : "prepare"
+
+BProcessingEntry : "start processing"
+BProcessingDo : "process"
+BProcessingExit : "finish"
+
+BDoneEntry : "set done"
+BDoneDo : "hold result"
+BDoneExit : "reset"
+
+COffEntry : "power off"
+COffDo : "standby"
+COffExit : "shutdown"
+
+COnEntry : "power on"
+COnDo : "operate"
+COnExit : "turn off"
+
+note right of Parallel
+  <b>Parallel Machine struct:</b> parallel_machine
+  <b>Components:</b> parallel_component array
+  <b>Broadcast API:</b> parallel_machine_broadcast_event()
+  <b>Sync API:</b> parallel_machine_sync()
+  <b>Component step function:</b> component_step()
+end note
+
+[*] --> Parallel
+
+@enduml`;
+
+        function renderDiagram() {
+            const encoded = plantumlEncoder.encode(plantuml);
+            const img = document.getElementById('diagram');
+            img.src = 'http://www.plantuml.com/plantuml/svg/' + encoded;
+        }
+        window.onload = renderDiagram;
+    </script>
+</head>
+<body>
+    <h1>Parallel FSM State Machine with API Mapping</h1>
+    <p>Diagram showing parallel FSM states with entry/do/exit sub‑states and corresponding C API functions.</p>
+    <img id="diagram" alt="State Diagram" />
+    <hr>
+    <h2>Mapping Table</h2>
+    <table border="1" cellpadding="5">
+        <thead>
+            <tr>
+                <th>Component</th>
+                <th>State</th>
+                <th>Event</th>
+                <th>Next State</th>
+                <th>API Function</th>
+                <th>Entry Action</th>
+                <th>Do Action</th>
+                <th>Exit Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td rowspan="2">Component A</td>
+                <td>A_Idle</td>
+                <td>start</td>
+                <td>A_Active</td>
+                <td><code>parallel_machine_broadcast_event(pm, EVENT_START)</code></td>
+                <td>initialize</td>
+                <td>wait for start</td>
+                <td>cleanup</td>
+            </tr>
+            <tr>
+                <td>A_Active</td>
+                <td>stop</td>
+                <td>A_Idle</td>
+                <td><code>parallel_machine_broadcast_event(pm, EVENT_STOP)</code></td>
+                <td>activate</td>
+                <td>perform task</td>
+                <td>deactivate</td>
+            </tr>
+            <tr>
+                <td rowspan="3">Component B</td>
+                <td>B_Idle</td>
+                <td>data_ready</td>
+                <td>B_Processing</td>
+                <td><code>parallel_machine_broadcast_event(pm, EVENT_DATA_READY)</code></td>
+                <td>reset data</td>
+                <td>idle</td>
+                <td>prepare</td>
+            </tr>
+            <tr>
+                <td>B_Processing</td>
+                <td>finish</td>
+                <td>B_Done</td>
+                <td><code>parallel_machine_broadcast_event(pm, EVENT_FINISH)</code></td>
+                <td>start processing</td>
+                <td>process</td>
+                <td>finish</td>
+            </tr>
+            <tr>
+                <td>B_Done</td>
+                <td>reset</td>
+                <td>B_Idle</td>
+                <td><code>parallel_machine_broadcast_event(pm, EVENT_RESET)</code></td>
+                <td>set done</td>
+                <td>hold result</td>
+                <td>reset</td>
+            </tr>
+            <tr>
+                <td rowspan="2">Component C</td>
+                <td>C_Off</td>
+                <td>enable</td>
+                <td>C_On</td>
+                <td><code>parallel_machine_broadcast_event(pm, EVENT_ENABLE)</code></td>
+                <td>power off</td>
+                <td>standby</td>
+                <td>shutdown</td>
+            </tr>
+            <tr>
+                <td>C_On</td>
+                <td>disable</td>
+                <td>C_Off</td>
+                <td><code>parallel_machine_broadcast_event(pm, EVENT_DISABLE)</code></td>
+                <td>power on</td>
+                <td>operate</td>
+                <td>turn off</td>
+            </tr>
+        </tbody>
+    </table>
+    <hr>
+    <h2>PlantUML Source</h2>
+    <pre style="background: #f0f0f0; padding: 10px; overflow: auto;">${plantuml}</pre>
+</body>
+</html>

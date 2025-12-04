@@ -1,0 +1,46 @@
+@startuml
+title Parallel State Machine API Call Sequence (Multi‑Threaded)
+
+actor "Supervisor" as SV
+participant "Broadcast Manager" as BM
+participant "Component A" as CA
+participant "Component B" as CB
+participant "Component C" as CC
+participant "Parallel Machine" as PM
+
+SV -> BM : broadcast_event(start)
+BM -> CA : parallel_component_dispatch_event(start)
+CA -> CA : entry_action()
+CA -> CA : do_action()
+BM -> CB : parallel_component_dispatch_event(start)
+CB -> CB : entry_action()
+CB -> CB : do_action()
+BM -> CC : parallel_component_dispatch_event(start)
+CC -> CC : entry_action()
+CC -> CC : do_action()
+BM -> SV : all components started
+
+SV -> BM : broadcast_event(data_ready)
+BM -> CA : parallel_component_dispatch_event(data_ready)
+CA -> CA : do_action()
+CA -> PM : send_data()
+BM -> CB : parallel_component_dispatch_event(data_ready)
+CB -> CB : do_action()
+CB -> PM : send_data()
+BM -> CC : parallel_component_dispatch_event(data_ready)
+CC -> CC : do_action()
+CC -> PM : send_data()
+PM -> SV : data collected
+
+SV -> BM : broadcast_event(finish)
+BM -> CA : parallel_component_dispatch_event(finish)
+CA -> CA : exit_action()
+BM -> CB : parallel_component_dispatch_event(finish)
+CB -> CB : exit_action()
+BM -> CC : parallel_component_dispatch_event(finish)
+CC -> CC : exit_action()
+BM -> SV : all components finished
+
+note over CA,CC : Parallel execution with synchronization via broadcast
+
+@enduml

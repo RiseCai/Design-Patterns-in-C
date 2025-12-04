@@ -1,0 +1,36 @@
+@startuml
+title Mealy UI State Machine API Call Sequence (Single‑Threaded)
+
+actor User
+participant "UI Thread" as UI
+participant "Mealy Machine" as MM
+participant "State Handler" as SH
+
+User -> UI : hover event
+UI -> MM : mealy_machine_dispatch_event(hover)
+MM -> SH : idle_event_hover()
+SH -> SH : entry_action()
+SH -> SH : do_action()
+SH -> SH : exit_action()
+MM -> UI : output = "hover effect"
+UI -> User : visual feedback
+
+User -> UI : click event
+UI -> MM : mealy_machine_dispatch_event(click)
+MM -> SH : hovered_event_click()
+SH -> SH : entry_action()
+SH -> SH : do_action()
+SH -> SH : exit_action()
+MM -> UI : output = "click action"
+UI -> User : button pressed
+
+User -> UI : keypress event
+UI -> MM : mealy_machine_dispatch_event(keypress)
+MM -> SH : pressed_event_keypress()
+SH -> SH : entry_action()
+SH -> SH : do_action()
+SH -> SH : exit_action()
+MM -> UI : output = "keypress handled"
+UI -> User : UI updated
+
+@enduml

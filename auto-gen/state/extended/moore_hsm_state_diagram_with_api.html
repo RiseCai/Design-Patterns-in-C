@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Moore Hierarchical State Machine with API Mapping</title>
+    <script src="https://cdn.jsdelivr.net/npm/plantuml-encoder@1.4.0/dist/plantuml-encoder.min.js"></script>
+    <script>
+        const plantuml = `@startuml
+title Moore Hierarchical State Machine - Smart Thermostat (with API Mapping)
+
+skinparam state {
+  BackgroundColor<<super>> LightBlue
+  BorderColor<<super>> DarkBlue
+  BackgroundColor<<normal>> White
+  BorderColor<<normal>> Black
+  FontSize 13
+}
+
+state "Off" as Off <<normal>> {
+  state "Off_Entry" as OffEntry <<entry>>
+  state "Off_Do" as OffDo <<do>>
+  state "Off_Exit" as OffExit <<exit>>
+}
+
+state "On" as On <<super>> {
+  state "On_Entry" as OnEntry <<entry>>
+  state "On_Do" as OnDo <<do>>
+  state "On_Exit" as OnExit <<exit>>
+  
+  state "Idle" as Idle {
+    state "Idle_Entry" as IdleEntry <<entry>>
+    state "Idle_Do" as IdleDo <<do>>
+    state "Idle_Exit" as IdleExit <<exit>>
+  }
+  
+  state "Heating" as Heating {
+    state "Heating_Entry" as HeatingEntry <<entry>>
+    state "Heating_Do" as HeatingDo <<do>>
+    state "Heating_Exit" as HeatingExit <<exit>>
+  }
+  
+  state "Cooling" as Cooling {
+    state "Cooling_Entry" as CoolingEntry <<entry>>
+    state "Cooling_Do" as CoolingDo <<do>>
+    state "Cooling_Exit" as CoolingExit <<exit>>
+  }
+  
+  state "FanOnly" as FanOnly {
+    state "FanOnly_Entry" as FanOnlyEntry <<entry>>
+    state "FanOnly_Do" as FanOnlyDo <<do>>
+    state "FanOnly_Exit" as FanOnlyExit <<exit>>
+  }
+}
+
+[*] --> Off
+
+Off --> On : EV_POWER_ON\nAPI: moore_hsm_dispatch_event(hsm, EV_POWER_ON)
+On --> Off : EV_POWER_OFF\nAPI: moore_hsm_dispatch_event(hsm, EV_POWER_OFF)
+
+Idle --> Heating : EV_TEMP_LOW\nAPI: moore_hsm_dispatch_event(hsm, EV_TEMP_LOW)
+Heating --> Idle : EV_TEMP_OK\nAPI: moore_hsm_dispatch_event(hsm, EV_TEMP_OK)
+
+Idle --> Cooling : EV_TEMP_HIGH\nAPI: moore_hsm_dispatch_event(hsm, EV_TEMP_HIGH)
+Cooling --> Idle : EV_TEMP_OK\nAPI: moore_hsm_dispatch_event(hsm, EV_TEMP_OK)
+
+Idle --> FanOnly : EV_FAN_ON\nAPI: moore_hsm_dispatch_event(hsm, EV_FAN_ON)
+FanOnly --> Idle : EV_FAN_OFF\nAPI: moore_hsm_dispatch_event(hsm, EV_FAN_OFF)
+
+Heating --> Off : EV_POWER_OFF\nAPI: moore_hsm_dispatch_event(hsm, EV_POWER_OFF)
+Cooling --> Off : EV_POWER_OFF\nAPI: moore_hsm_dispatch_event(hsm, EV_POWER_OFF)
+FanOnly --> Off : EV_POWER_OFF\nAPI: moore_hsm_dispatch_event(hsm, EV_POWER_OFF)
+
+' Labels
+OffEntry : "system shutdown"
+OffDo : "no operation"
+OffExit : "(none)"
+
+OnEntry : "system startup"
+OnDo : "monitoring temperature"
+OnExit : "leaving ON"
+
+IdleEntry : "maintain temperature"
+IdleDo : "temperature stable"
+IdleExit : "(none)"
+
+HeatingEntry : "activate heater"
+HeatingDo : "heating..."
+HeatingExit : "deactivate heater"
+
+CoolingEntry : "activate cooler"
+CoolingDo : "cooling..."
+CoolingExit : "deactivate cooler"
+
+FanOnlyEntry : "fan running"
+FanOnlyDo : "circulating air"
+FanOnlyExit : "fan stopped"
+
+note right of Off
+  <b>State struct:</b> moore_state (off_state)
+  <b>Output function:</b> off_do()
+  <b>API:</b> moore_hsm_transition()
+end note
+
+note right of On
+  <b>Superstate with hierarchical children</b>
+  <b>State struct:</b> moore_state (on_state)
+  <b>Output function:</b> on_do()
+  <b>Hierarchy:</b> parent/child pointers
+end note
+
+note right of Idle
+  <b>Substate of On</b>
+  <b>Entry/exit actions:</b> defined in state struct
+  <b>Moore output:</b> executed via do_action
+end note
+
+@enduml`;
+
+        function renderDiagram() {
+            const encoded = plantumlEncoder.encode(plantuml);
+            const img = document.getElementById('diagram');
+            img.src = 'http://www.plantuml.com/plantuml/svg/' + encoded;
+        }
+        window.onload = renderDiagram;
+    </script>
+</head>
+<body>
+    <h1>Moore Hierarchical State Machine with API Mapping</h1>
+    <p>Diagram showing hierarchical states with corresponding C API functions and Moore outputs.</p>
+    <img id="diagram" alt="State Diagram" />
+    <hr>
+    <h2>Mapping Table</h2>
+    <table border="1" cellpadding="5">
+        <thead>
+            <tr>
+                <th>State</th>
+                <th>Event</th>
+                <th>Next State</th>
+                <th>Output Action</th>
+                <th>API Function</th>
+                <th>State Struct</th>
+                <th>Output Function</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Off</td>
+                <td>EV_POWER_ON</td>
+                <td>On</td>
+                <td>system startup</td>
+                <td><code>moore_hsm_dispatch_event(hsm, EV_POWER_ON)</code></td>
+                <td><code>off_state</code></td>
+                <td><code>off_do()</code></td>
+            </tr>
+            <tr>
+                <td>On</td>
+                <td>EV_POWER_OFF</td>
+                <td>Off</td>
+                <td>system shutdown</td>
+                <td><code>moore_hsm_dispatch_event(hsm, EV_POWER_OFF)</code></td>
+                <td><code>on_state</code></td>
+                <td><code>on_do()</code></td>
+            </tr>
+            <tr>
+                <td>Idle</td>
+                <td>EV_TEMP_LOW</td>
+                <td>Heating</td>
+                <td>activate heater</td>
+                <td><code>moore_hsm_dispatch_event(hsm, EV_TEMP_LOW)</code></td>
+                <td><code>idle_state</code></td>
+                <td><code>idle_do()</code></td>
+            </tr>
+            <tr>
+                <td>Heating</td>
+                <td>EV_TEMP_OK</td>
+                <td>Idle</td>
+                <td>deactivate heater</td>
+                <td><code>moore_hsm_dispatch_event(hsm, EV_TEMP_OK)</code></td>
+                <td><code>heating_state</code></td>
+                <td><code>heating_do()</code></td>
+            </tr>
+            <tr>
+                <td>Idle</td>
+                <td>EV_TEMP_HIGH</td>
+                <td>Cooling</td>
+                <td>activate cooler</td>
+                <td><code>moore_hsm_dispatch_event(hsm, EV_TEMP_HIGH)</code></td>
+                <td><code>idle_state</code></td>
+                <td><code>idle_do()</code></td>
+            </tr>
+            <tr>
+                <td>Cooling</td>
+                <td>EV_TEMP_OK</td>
+                <td>Idle</td>
+                <td>deactivate cooler</td>
+                <td><code>moore_hsm_dispatch_event(hsm, EV_TEMP_OK)</code></td>
+                <td><code>cooling_state</code></td>
+                <td><code>cooling_do()</code></td>
+            </tr>
+            <tr>
+                <td>Idle</td>
+                <td>EV_FAN_ON</td>
+                <td>FanOnly</td>
+                <td>fan running</td>
+                <td><code>moore_hsm_dispatch_event(hsm, EV_FAN_ON)</code></td>
+                <td><code>idle_state</code></td>
+                <td><code>idle_do()</code></td>
+            </tr>
+            <tr>
+                <td>FanOnly</td>
+                <td>EV_FAN_OFF</td>
+                <td>Idle</td>
+                <td>fan stopped</td>
+                <td><code>moore_hsm_dispatch_event(hsm, EV_FAN_OFF)</code></td>
+                <td><code>fanonly_state</code></td>
+                <td><code>fanonly_do()</code></td>
+            </tr>
+        </tbody>
+    </table>
+    <hr>
+    <h2>PlantUML Source</h2>
+    <pre style="background: #f0f0f0; padding: 10px; overflow: auto;">${plantuml}</pre>
+</body>
+</html>

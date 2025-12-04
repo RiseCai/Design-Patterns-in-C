@@ -1,0 +1,29 @@
+@startuml
+title Mealy UI State Machine - Button Control
+
+skinparam state {
+  BackgroundColor<<normal>> White
+  BorderColor<<normal>> Black
+  FontSize 13
+}
+
+state "Idle" as Idle
+state "Hovered" as Hovered
+state "Pressed" as Pressed
+
+[*] --> Idle
+
+Idle --> Hovered : hover / "button hover effect"
+Idle --> Pressed : click / "button pressed visual feedback"
+Idle --> Idle : keypress / (ignored)
+
+Hovered --> Pressed : click / "button pressed from hover"
+Hovered --> Hovered : hover / (no transition)
+
+Pressed --> Idle : click / "button released"
+
+note right of Idle : Mealy: output depends on event
+note right of Hovered : Hovered state with glow
+note right of Pressed : Pressed state (depressed)
+
+@enduml

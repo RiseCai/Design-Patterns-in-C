@@ -1,0 +1,30 @@
+@startuml
+title Extended Finite State Machine (EFSM) - Communication Protocol
+
+skinparam state {
+  BackgroundColor<<normal>> White
+  BorderColor<<normal>> Black
+  FontSize 13
+}
+
+state "Idle" as Idle
+state "Receiving" as Receiving
+state "Processing" as Processing
+state "Sending" as Sending
+state "WaitingAck" as WaitingAck
+
+[*] --> Idle
+
+Idle --> Receiving : packet_arrival / "store packet"
+Receiving --> Processing : packet_complete / "validate"
+Processing --> Sending : valid / "send packet"
+Processing --> Idle : invalid / "discard"
+Sending --> WaitingAck : sent / "start timer"
+WaitingAck --> Idle : ack_received / "stop timer"
+WaitingAck --> Sending : timeout / "retransmit"
+
+note right of Idle : Extended variables:\nsequence_number, timeout_counter
+note right of Processing : Three-stage processing:\ninput → process → output
+note right of WaitingAck : Timer‑based retransmission
+
+@enduml

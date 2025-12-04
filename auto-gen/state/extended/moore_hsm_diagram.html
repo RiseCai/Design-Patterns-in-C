@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Moore Hierarchical State Machine Diagram</title>
+    <script src="https://cdn.jsdelivr.net/npm/plantuml-encoder@1.4.0/dist/plantuml-encoder.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@plantuml/plantuml-encoder@1.4.0/dist/plantuml-encoder.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/plantuml-encoder@1.4.0/dist/plantuml-encoder.min.js"></script>
+    <script>
+        // PlantUML diagram source
+        const plantuml = `@startuml
+title Moore Hierarchical State Machine - Smart Thermostat
+
+skinparam state {
+  BackgroundColor<<super>> LightBlue
+  BorderColor<<super>> DarkBlue
+  BackgroundColor<<normal>> White
+  BorderColor<<normal>> Black
+  FontSize 13
+}
+
+state "Off" as Off <<normal>> {
+  entry : "system shutdown"
+  do : "no operation"
+  exit : (none)
+}
+
+state "On" as On <<super>> {
+  entry : "system startup"
+  do : "monitoring temperature"
+  exit : "leaving ON"
+  
+  state "Idle" as Idle {
+    entry : "maintain temperature"
+    do : "temperature stable"
+    exit : (none)
+  }
+  
+  state "Heating" as Heating {
+    entry : "activate heater"
+    do : "heating..."
+    exit : "deactivate heater"
+  }
+  
+  state "Cooling" as Cooling {
+    entry : "activate cooler"
+    do : "cooling..."
+    exit : "deactivate cooler"
+  }
+  
+  state "FanOnly" as FanOnly {
+    entry : "fan running"
+    do : "circulating air"
+    exit : "fan stopped"
+  }
+}
+
+[*] --> Off
+
+Off --> On : EV_POWER_ON
+On --> Off : EV_POWER_OFF
+
+Idle --> Heating : EV_TEMP_LOW
+Heating --> Idle : EV_TEMP_OK
+
+Idle --> Cooling : EV_TEMP_HIGH
+Cooling --> Idle : EV_TEMP_OK
+
+Idle --> FanOnly : EV_FAN_ON
+FanOnly --> Idle : EV_FAN_OFF
+
+Heating --> Off : EV_POWER_OFF
+Cooling --> Off : EV_POWER_OFF
+FanOnly --> Off : EV_POWER_OFF
+
+note right of Off : Output depends only on state (Moore)
+note right of On : Superstate with hierarchical children
+
+@enduml`;
+
+        function renderDiagram() {
+            const encoded = plantumlEncoder.encode(plantuml);
+            const img = document.getElementById('diagram');
+            img.src = 'http://www.plantuml.com/plantuml/svg/' + encoded;
+        }
+
+        window.onload = renderDiagram;
+    </script>
+</head>
+<body>
+    <h1>Moore Hierarchical State Machine - Smart Thermostat</h1>
+    <p>Generated from PlantUML source. If the diagram does not appear, check your internet connection.</p>
+    <img id="diagram" alt="State Diagram" />
+    <hr>
+    <h2>PlantUML Source</h2>
+    <pre style="background: #f0f0f0; padding: 10px; overflow: auto;">${plantuml}</pre>
+</body>
+</html>

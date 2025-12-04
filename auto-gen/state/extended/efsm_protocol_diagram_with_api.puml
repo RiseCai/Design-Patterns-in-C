@@ -1,0 +1,90 @@
+@startuml
+title Extended Finite State Machine (EFSM) - Communication Protocol (with API Mapping)
+
+skinparam state {
+  BackgroundColor<<normal>> White
+  BorderColor<<normal>> Black
+  FontSize 13
+}
+
+state "Idle" as Idle {
+  state "Idle_Entry" as IdleEntry <<entry>>
+  state "Idle_Do" as IdleDo <<do>>
+  state "Idle_Exit" as IdleExit <<exit>>
+}
+
+state "Receiving" as Receiving {
+  state "Receiving_Entry" as ReceivingEntry <<entry>>
+  state "Receiving_Do" as ReceivingDo <<do>>
+  state "Receiving_Exit" as ReceivingExit <<exit>>
+}
+
+state "Processing" as Processing {
+  state "Processing_Entry" as ProcessingEntry <<entry>>
+  state "Processing_Do" as ProcessingDo <<do>>
+  state "Processing_Exit" as ProcessingExit <<exit>>
+}
+
+state "Sending" as Sending {
+  state "Sending_Entry" as SendingEntry <<entry>>
+  state "Sending_Do" as SendingDo <<do>>
+  state "Sending_Exit" as SendingExit <<exit>>
+}
+
+state "WaitingAck" as WaitingAck {
+  state "WaitingAck_Entry" as WaitingAckEntry <<entry>>
+  state "WaitingAck_Do" as WaitingAckDo <<do>>
+  state "WaitingAck_Exit" as WaitingAckExit <<exit>>
+}
+
+[*] --> Idle
+
+Idle --> Receiving : packet_arrival / "store packet"\nAPI: efsm_processor_dispatch_packet()
+Receiving --> Processing : packet_complete / "validate"\nAPI: efsm_processor_dispatch_packet()
+Processing --> Sending : valid / "send packet"\nAPI: efsm_processor_dispatch_packet()
+Processing --> Idle : invalid / "discard"\nAPI: efsm_processor_dispatch_packet()
+Sending --> WaitingAck : sent / "start timer"\nAPI: efsm_processor_dispatch_packet()
+WaitingAck --> Idle : ack_received / "stop timer"\nAPI: efsm_processor_dispatch_packet()
+WaitingAck --> Sending : timeout / "retransmit"\nAPI: efsm_processor_tick()
+
+' Labels
+IdleEntry : "reset timer"
+IdleDo : "listen for packets"
+IdleExit : "stop listening"
+
+ReceivingEntry : "allocate buffer"
+ReceivingDo : "accumulate data"
+ReceivingExit : "release buffer"
+
+ProcessingEntry : "validate header"
+ProcessingDo : "process payload"
+ProcessingExit : "cleanup"
+
+SendingEntry : "prepare packet"
+SendingDo : "transmit"
+SendingExit : "finalize"
+
+WaitingAckEntry : "start timer"
+WaitingAckDo : "wait for ack"
+WaitingAckExit : "stop timer"
+
+note right of Idle
+  <b>State struct:</b> efsm_state (idle_state)
+  <b>Functions:</b> idle_process(), idle_entry(), idle_exit()
+  <b>Extended variables:</b>
+  sequence_number, timeout_counter, buffer
+end note
+
+note right of Processing
+  <b>Three‑stage processing:</b>
+  input → process → output
+  <b>API:</b> efsm_processor_dispatch_packet()
+  calls current_state->process()
+end note
+
+note right of WaitingAck
+  <b>Timer handling:</b>
+  efsm_processor_tick() decrements timeout_counter
+end note
+
+@enduml

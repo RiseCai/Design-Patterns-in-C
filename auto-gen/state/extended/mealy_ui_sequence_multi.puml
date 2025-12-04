@@ -1,0 +1,50 @@
+@startuml
+title Mealy UI State Machine API Call Sequence (Multi‑Threaded)
+
+actor "User Thread" as UT
+participant "UI Thread" as UI
+participant "Event Queue" as EQ
+participant "Worker Thread" as WT
+participant "Mealy Machine" as MM
+participant "State Handler" as SH
+
+UT -> UI : hover event (async)
+UI -> EQ : enqueue(hover)
+EQ -> WT : notify
+WT -> EQ : dequeue()
+WT -> MM : mealy_machine_dispatch_event(hover)
+MM -> SH : idle_event_hover()
+SH -> SH : entry_action()
+SH -> SH : do_action()
+SH -> SH : exit_action()
+MM -> WT : output = "hover effect"
+WT -> UI : postMessage(output)
+UI -> UT : visual feedback
+
+UT -> UI : click event (async)
+UI -> EQ : enqueue(click)
+EQ -> WT : notify
+WT -> EQ : dequeue()
+WT -> MM : mealy_machine_dispatch_event(click)
+MM -> SH : hovered_event_click()
+SH -> SH : entry_action()
+SH -> SH : do_action()
+SH -> SH : exit_action()
+MM -> WT : output = "click action"
+WT -> UI : postMessage(output)
+UI -> UT : button pressed
+
+UT -> UI : keypress event (async)
+UI -> EQ : enqueue(keypress)
+EQ -> WT : notify
+WT -> EQ : dequeue()
+WT -> MM : mealy_machine_dispatch_event(keypress)
+MM -> SH : pressed_event_keypress()
+SH -> SH : entry_action()
+SH -> SH : do_action()
+SH -> SH : exit_action()
+MM -> WT : output = "keypress handled"
+WT -> UI : postMessage(output)
+UI -> UT : UI updated
+
+@enduml

@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Extended State Machine Types Summary</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background-color: #f8f9fa;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 30px;
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+        h1 {
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border-left: 6px solid #2575fc;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.12);
+        }
+        .card h2 {
+            color: #2575fc;
+            margin-bottom: 15px;
+            font-size: 1.8rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .card h2 .icon {
+            font-size: 1.5rem;
+        }
+        .card p {
+            margin-bottom: 15px;
+            color: #555;
+        }
+        .features {
+            list-style: none;
+            margin: 15px 0;
+        }
+        .features li {
+            padding: 8px 0;
+            border-bottom: 1px dashed #eee;
+            display: flex;
+            align-items: center;
+        }
+        .features li:before {
+            content: "✓";
+            color: #28a745;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        .svg-container {
+            margin: 20px 0;
+            text-align: center;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            background: #f9f9f9;
+        }
+        .svg-container img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 4px;
+        }
+        .links {
+            margin-top: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .btn {
+            display: inline-block;
+            padding: 10px 18px;
+            background: #2575fc;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+        .btn:hover {
+            background: #1a5fd8;
+        }
+        .btn-secondary {
+            background: #6c757d;
+        }
+        .btn-secondary:hover {
+            background: #545b62;
+        }
+        .mapping-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 30px 0;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+        .mapping-table th, .mapping-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        .mapping-table th {
+            background: #2575fc;
+            color: white;
+            font-weight: 600;
+        }
+        .mapping-table tr:hover {
+            background: #f1f7ff;
+        }
+        .priority-5 { background-color: #d4edda; }
+        .priority-4 { background-color: #d1ecf1; }
+        .priority-3 { background-color: #fff3cd; }
+        .priority-2 { background-color: #f8d7da; }
+        .priority-1 { background-color: #f5c6cb; }
+        footer {
+            text-align: center;
+            margin-top: 50px;
+            padding: 20px;
+            color: #666;
+            border-top: 1px solid #ddd;
+        }
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+            h1 {
+                font-size: 2.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Extended State Machine Types</h1>
+        <p class="subtitle">Five specialized state machine implementations with bidirectional mapping between design diagrams and C code, supporting entry/do/exit actions and priority‑based configuration.</p>
+    </header>
+
+    <div class="container">
+        <!-- Mealy UI -->
+        <div class="card">
+            <h2><span class="icon">🖥️</span> 1. Mealy UI State Machine</h2>
+            <p><strong>Scenario:</strong> UI Interface Control</p>
+            <p><strong>Type:</strong> Mealy event‑driven</p>
+            <p><strong>Key Features:</strong> Output depends on event and state, entry/do/exit actions per state, visual feedback mapping.</p>
+            <ul class="features">
+                <li>States: Idle, Hovered, Pressed (with sub‑states)</li>
+                <li>Events: hover, click, keypress</li>
+                <li>API: mealy_machine_dispatch_event()</li>
+                <li>Code: mealy_ui.c / mealy_ui.h</li>
+            </ul>
+            <div class="svg-container">
+                <img src="mealy_ui_sequence.svg" alt="Mealy UI Sequence Diagram">
+                <p><em>API call sequence diagram</em></p>
+            </div>
+            <div class="links">
+                <a href="mealy_ui_diagram_with_api.html" class="btn">View Diagram with API</a>
+                <a href="mealy_ui.c" class="btn btn-secondary">View C Code</a>
+            </div>
+        </div>
+
+        <!-- EFSM Protocol -->
+        <div class="card">
+            <h2><span class="icon">📡</span> 2. EFSM Protocol State Machine</h2>
+            <p><strong>Scenario:</strong> Communication Protocol</p>
+            <p><strong>Type:</strong> EFSM + Three‑Stage</p>
+            <p><strong>Key Features:</strong> Extended variables (sequence_number, timeout_counter), guarded transitions, three‑stage processing.</p>
+            <ul class="features">
+                <li>States: Idle, Receiving, Processing, Sending, WaitingAck</li>
+                <li>Events: packet_arrival, packet_complete, valid, invalid, sent, ack_received, timeout</li>
+                <li>API: efsm_protocol_process()</li>
+                <li>Code: efsm_protocol.c / efsm_protocol.h</li>
+            </ul>
+            <div class="svg-container">
+                <img src="efsm_protocol_sequence.svg" alt="EFSM Protocol Sequence Diagram">
+                <p><em>API call sequence diagram</em></p>
+            </div>
+            <div class="links">
+                <a href="efsm_protocol_diagram_with_api.html" class="btn">View Diagram with API</a>
+                <a href="efsm_protocol.c" class="btn btn-secondary">View C Code</a>
+            </div>
+        </div>
+
+        <!-- Moore Hierarchical -->
+        <div class="card">
+            <h2><span class="icon">⚙️</span> 3. Moore Hierarchical State Machine</h2>
+            <p><strong>Scenario:</strong> Embedded Control</p>
+            <p><strong>Type:</strong> Moore + Hierarchical</p>
+            <p><strong>Key Features:</strong> Output depends only on state, hierarchical nesting, entry/do/exit actions per state.</p>
+            <ul class="features">
+                <li>States: Off, On (with substates Idle, Running, Error)</li>
+                <li>Events: power_on, start, stop, error, reset</li>
+                <li>API: moore_hsm_dispatch_event()</li>
+                <li>Code: moore_hierarchical.c / moore_hierarchical.h</li>
+            </ul>
+            <div class="svg-container">
+                <img src="moore_hierarchical_sequence.svg" alt="Moore Hierarchical Sequence Diagram">
+                <p><em>API call sequence diagram</em></p>
+            </div>
+            <div class="links">
+                <a href="moore_hsm_state_diagram_with_api.html" class="btn">View Diagram with API</a>
+                <a href="moore_hierarchical.c" class="btn btn-secondary">View C Code</a>
+            </div>
+        </div>
+
+        <!-- Parallel FSM -->
+        <div class="card">
+            <h2><span class="icon">🔀</span> 4. Parallel State Machine</h2>
+            <p><strong>Scenario:</strong> Concurrent System</p>
+            <p><strong>Type:</strong> Parallel FSM</p>
+            <p><strong>Key Features:</strong> Multiple independent FSMs, broadcast synchronization, entry/do/exit actions per component.</p>
+            <ul class="features">
+                <li>Components: A, B, C (each with Idle, Active, Done)</li>
+                <li>Events: start, data_ready, finish, enable</li>
+                <li>API: parallel_machine_broadcast_event()</li>
+                <li>Code: parallel_fsm.c / parallel_fsm.h</li>
+            </ul>
+            <div class="svg-container">
+                <img src="parallel_fsm_sequence.svg" alt="Parallel FSM Sequence Diagram">
+                <p><em>API call sequence diagram</em></p>
+            </div>
+            <div class="links">
+                <a href="parallel_fsm_diagram_with_api.html" class="btn">View Diagram with API</a>
+                <a href="parallel_fsm.c" class="btn btn-secondary">View C Code</a>
+            </div>
+        </div>
+
+        <!-- Acceptor Regex -->
+        <div class="card">
+            <h2><span class="icon">🔤</span> 5. Acceptor FSM (Regex)</h2>
+            <p><strong>Scenario:</strong> Regular Expression Matching</p>
+            <p><strong>Type:</strong> Acceptor (Receiver) FSM</p>
+            <p><strong>Key Features:</strong> Accepts/rejects input strings, character‑based transitions, entry/do/exit actions per state.</p>
+            <ul class="features">
+                <li>States: q0 (initial), q1 (accepting), reject</li>
+                <li>Events: characters 'a', 'b'</li>
+                <li>API: acceptor_machine_feed()</li>
+                <li>Code: acceptor_regex.c / acceptor_regex.h</li>
+            </ul>
+            <div class="svg-container">
+                <img src="acceptor_regex_sequence.svg" alt="Acceptor Regex Sequence Diagram">
+                <p><em>API call sequence diagram</em></p>
+            </div>
+            <div class="links">
+                <a href="acceptor_regex_diagram_with_api.html" class="btn">View Diagram with API</a>
+                <a href="acceptor_regex.c" class="btn btn-secondary">View C Code</a>
+            </div>
+        </div>
+    </div>
+
+    <h2>State Machine Mapping Requirements (Excel‑Style)</h2>
+    <p>The following table provides a priority‑based mapping between scenarios, state machine types, and implementation details. Use it to select the appropriate FSM for your project.</p>
+    <table class="mapping-table">
+        <thead>
+            <tr>
+                <th>Scenario</th>
+                <th>Recommended FSM Type</th>
+                <th>FSM Subtype</th>
+                <th>Key Features</th>
+                <th>API Functions</th>
+                <th>Mapping Level (1‑5)</th>
+                <th>Code File</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr class="priority-5">
+                <td>UI Interface Control</td>
+                <td>Mealy</td>
+                <td>Event‑Driven</td>
+                <td>Output depends on event and state</td>
+                <td>mealy_machine_dispatch_event()</td>
+                <td>5 (High)</td>
+                <td>mealy_ui.c</td>
+            </tr>
+            <tr class="priority-4">
+                <td>Communication Protocol</td>
+                <td>EFSM</td>
+                <td>Three‑Stage</td>
+                <td>Extended variables, three‑stage processing</td>
+                <td>efsm_protocol_process()</td>
+                <td>4 (Medium‑High)</td>
+                <td>efsm_protocol.c</td>
+            </tr>
+            <tr class="priority-5">
+                <td>Embedded Control</td>
+                <td>Moore</td>
+                <td>Hierarchical</td>
+                <td>Output depends only on state, hierarchical nesting</td>
+                <td>moore_hsm_dispatch_event()</td>
+                <td>5 (High)</td>
+                <td>moore_hierarchical.c</td>
+            </tr>
+            <tr class="priority-3">
+                <td>Concurrent System</td>
+                <td>Parallel</td>
+                <td>Parallel FSMs</td>
+                <td>Multiple independent FSMs, broadcast synchronization</td>
+                <td>parallel_machine_broadcast_event()</td>
+                <td>3 (Medium)</td>
+                <td>parallel_fsm.c</td>
+            </tr>
+            <tr class="priority-2">
+                <td>Regular Matching</td>
+                <td>Acceptor</td>
+                <td>Receiver FSM</td>
+                <td>Accepts/rejects input strings, character‑based transitions</td>
+                <td>acceptor_machine_feed()</td>
+                <td>2 (Low‑Medium)</td>
+                <td>acceptor_regex.c</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div style="margin: 40px 0; padding: 20px; background: #e7f3ff; border-radius: 10px;">
+        <h3>📊 Bidirectional Mapping & Configuration</h3>
+        <p>All five state machine types are accompanied by:</p>
+        <ul>
+            <li><strong>CSV mapping table</strong> (<a href="state_machine_mapping_requirements.csv">state_machine_mapping_requirements.csv</a>) – Excel‑compatible requirements with priority levels.</li>
+            <li><strong>JSON configuration</strong> (<a href="fsm_config_mapping.json">fsm_config_mapping.json</a>) – Machine‑readable mapping for automated code generation.</li>
+            <li><strong>PlantUML diagrams with API labels</strong> – Each diagram includes callouts that map directly to C functions and entry/do/exit actions.</li>
+            <li><strong>Sequence diagrams</strong> – SVG illustrations of API call flows (shown above).</li>
+        </ul>
+        <p>These artifacts ensure that design decisions are traceable from requirements to implementation and back.</p>
+    </div>
+
+    <footer>
+        <p>Generated as part of the <strong>Design Patterns in C</strong> project – Extended State Machine Types.</p>
+        <p>All diagrams are generated with PlantUML. Source code and diagrams are located in <code>auto-gen/state/extended/</code>.</p>
+        <p>Last updated: December 2025</p>
+    </footer>
+</body>
+</html>

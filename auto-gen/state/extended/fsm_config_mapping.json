@@ -1,0 +1,119 @@
+{
+  "version": "1.1",
+  "description": "State Machine Type Mapping and Code Bidirectional Mapping with Entry/Do/Exit Actions",
+  "scenarios": [
+    {
+      "id": 1,
+      "scenario": "UI Interface Control",
+      "recommended_fsm_type": "Mealy",
+      "subtype": "Event-Driven",
+      "key_features": ["Output depends on event and state", "Immediate reaction"],
+      "api_functions": ["mealy_machine_dispatch_event", "mealy_machine_get_output"],
+      "state_struct": "mealy_state",
+      "transition_model": "Transition with output action",
+      "entry_action": "entry_action",
+      "do_action": "do_action",
+      "exit_action": "exit_action",
+      "code_files": ["mealy_ui.c", "mealy_ui.h"],
+      "mapping_level": 5,
+      "priority": "High",
+      "notes": "Interactive UI requires low latency"
+    },
+    {
+      "id": 2,
+      "scenario": "Communication Protocol",
+      "recommended_fsm_type": "EFSM",
+      "subtype": "Three-Stage",
+      "key_features": ["Extended variables", "Three-stage processing (entry, do, exit)", "Guarded transitions"],
+      "api_functions": ["efsm_protocol_process", "efsm_protocol_set_variable"],
+      "state_struct": "efsm_state",
+      "transition_model": "Guarded transitions with variables",
+      "entry_action": "entry_action",
+      "do_action": "do_action",
+      "exit_action": "exit_action",
+      "code_files": ["efsm_protocol.c", "efsm_protocol.h"],
+      "mapping_level": 4,
+      "priority": "Medium",
+      "notes": "Protocol stacks need variable handling"
+    },
+    {
+      "id": 3,
+      "scenario": "Embedded Control",
+      "recommended_fsm_type": "Moore",
+      "subtype": "Hierarchical",
+      "key_features": ["Output depends only on state", "Hierarchical nesting", "State entry/exit actions"],
+      "api_functions": ["moore_hsm_dispatch_event", "moore_hsm_get_current_state"],
+      "state_struct": "moore_state",
+      "transition_model": "Moore output via do_action",
+      "entry_action": "entry_action",
+      "do_action": "do_action",
+      "exit_action": "exit_action",
+      "code_files": ["moore_hierarchical.c", "moore_hierarchical.h"],
+      "mapping_level": 5,
+      "priority": "High",
+      "notes": "Real-time control with predictable outputs"
+    },
+    {
+      "id": 4,
+      "scenario": "Concurrent System",
+      "recommended_fsm_type": "Parallel",
+      "subtype": "Parallel FSMs",
+      "key_features": ["Multiple independent FSMs", "Broadcast events", "Synchronization"],
+      "api_functions": ["parallel_machine_broadcast_event", "parallel_machine_sync", "component_step"],
+      "state_struct": "parallel_component",
+      "transition_model": "Component step functions",
+      "entry_action": "entry_action",
+      "do_action": "do_action",
+      "exit_action": "exit_action",
+      "code_files": ["parallel_fsm.c", "parallel_fsm.h"],
+      "mapping_level": 3,
+      "priority": "Medium",
+      "notes": "Concurrent systems need isolation"
+    },
+    {
+      "id": 5,
+      "scenario": "Regular Matching",
+      "recommended_fsm_type": "Acceptor",
+      "subtype": "Receiver FSM",
+      "key_features": ["Accepts/rejects input strings", "Character-based transitions", "Dead state"],
+      "api_functions": ["acceptor_machine_feed", "acceptor_machine_is_accepting", "acceptor_machine_init"],
+      "state_struct": "acceptor_state",
+      "transition_model": "Character-based transitions",
+      "entry_action": "entry_action",
+      "do_action": "do_action",
+      "exit_action": "exit_action",
+      "code_files": ["acceptor_regex.c", "acceptor_regex.h"],
+      "mapping_level": 2,
+      "priority": "Low",
+      "notes": "Pattern matching for text processing"
+    }
+  ],
+  "bidirectional_mapping": {
+    "fsm_type_to_code": {
+      "Mealy": ["mealy_ui.c", "mealy_ui.h"],
+      "EFSM": ["efsm_protocol.c", "efsm_protocol.h"],
+      "Moore": ["moore_hierarchical.c", "moore_hierarchical.h"],
+      "Parallel": ["parallel_fsm.c", "parallel_fsm.h"],
+      "Acceptor": ["acceptor_regex.c", "acceptor_regex.h"]
+    },
+    "code_to_fsm_type": {
+      "mealy_ui.c": "Mealy",
+      "mealy_ui.h": "Mealy",
+      "efsm_protocol.c": "EFSM",
+      "efsm_protocol.h": "EFSM",
+      "moore_hierarchical.c": "Moore",
+      "moore_hierarchical.h": "Moore",
+      "parallel_fsm.c": "Parallel",
+      "parallel_fsm.h": "Parallel",
+      "acceptor_regex.c": "Acceptor",
+      "acceptor_regex.h": "Acceptor"
+    }
+  },
+  "mapping_levels": {
+    "5": "Highest priority - Core business",
+    "4": "High priority - Important modules",
+    "3": "Medium priority - Supporting modules",
+    "2": "Low priority - Auxiliary functions",
+    "1": "Lowest priority - Experimental"
+  }
+}

@@ -1,0 +1,59 @@
+@startuml
+title Moore Hierarchical State Machine API Call Sequence (Single‑Threaded)
+
+actor "Operator" as OP
+participant "Control System" as CS
+participant "Moore HSM" as MH
+participant "State Handler" as SH
+participant "Substate Handler" as SSH
+
+OP -> CS : power_on event
+CS -> MH : moore_dispatch_event(power_on)
+MH -> SH : off_event_power_on()
+SH -> SH : entry_action()
+SH -> SH : do_action()
+SH -> SH : exit_action()
+MH -> CS : output = "LED on"
+CS -> OP : system powered on
+
+CS -> MH : moore_dispatch_event(start)
+MH -> SH : on_event_start()
+SH -> SH : entry_action()
+SH -> SH : do_action()
+SH -> SH : exit_action()
+MH -> SSH : transition to Running substate
+SSH -> SSH : entry_action()
+SSH -> SSH : do_action()
+MH -> CS : output = "motor start"
+CS -> OP : motor running
+
+OP -> CS : error event
+CS -> MH : moore_dispatch_event(error)
+MH -> SSH : running_event_error()
+SSH -> SSH : exit_action()
+MH -> SSH : transition to Error substate
+SSH -> SSH : entry_action()
+SSH -> SSH : do_action()
+MH -> CS : output = "alarm"
+CS -> OP : error indicated
+
+OP -> CS : reset event
+CS -> MH : moore_dispatch_event(reset)
+MH -> SSH : error_event_reset()
+SSH -> SSH : exit_action()
+MH -> SSH : transition to Idle substate
+SSH -> SSH : entry_action()
+SSH -> SSH : do_action()
+MH -> CS : output = "reset complete"
+CS -> OP : system idle
+
+OP -> CS : stop event
+CS -> MH : moore_dispatch_event(stop)
+MH -> SH : on_event_stop()
+SH -> SH : entry_action()
+SH -> SH : do_action()
+SH -> SH : exit_action()
+MH -> CS : output = "LED off"
+CS -> OP : system stopped
+
+@enduml

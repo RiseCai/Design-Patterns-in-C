@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Parallel State Machine Diagram</title>
+    <script src="https://cdn.jsdelivr.net/npm/plantuml-encoder@1.4.0/dist/plantuml-encoder.min.js"></script>
+    <script>
+        const plantuml = `@startuml
+title Parallel State Machine - Concurrent System
+
+skinparam state {
+  BackgroundColor<<normal>> White
+  BorderColor<<normal>> Black
+  FontSize 13
+}
+
+state "Parallel Machine" as Parallel {
+  state "Component A" as CompA {
+    state "A_Idle" as AIdle
+    state "A_Active" as AActive
+    [*] --> AIdle
+    AIdle --> AActive : start
+    AActive --> AIdle : stop
+  }
+  --
+  state "Component B" as CompB {
+    state "B_Idle" as BIdle
+    state "B_Processing" as BProcessing
+    state "B_Done" as BDone
+    [*] --> BIdle
+    BIdle --> BProcessing : data_ready
+    BProcessing --> BDone : finish
+    BDone --> BIdle : reset
+  }
+  --
+  state "Component C" as CompC {
+    state "C_Off" as COff
+    state "C_On" as COn
+    [*] --> COff
+    COff --> COn : enable
+    COn --> COff : disable
+  }
+}
+
+note right of Parallel : Broadcast events synchronize\nall components simultaneously
+
+[*] --> Parallel
+
+@enduml`;
+
+        function renderDiagram() {
+            const encoded = plantumlEncoder.encode(plantuml);
+            const img = document.getElementById('diagram');
+            img.src = 'http://www.plantuml.com/plantuml/svg/' + encoded;
+        }
+        window.onload = renderDiagram;
+    </script>
+</head>
+<body>
+    <h1>Parallel State Machine - Concurrent System</h1>
+    <p>Multiple independent FSMs running in parallel, synchronized via broadcast events.</p>
+    <img id="diagram" alt="State Diagram" />
+    <hr>
+    <h2>PlantUML Source</h2>
+    <pre style="background: #f0f0f0; padding: 10px; overflow: auto;">${plantuml}</pre>
+</body>
+</html>
