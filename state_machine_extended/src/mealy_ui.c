@@ -16,10 +16,10 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <mycommon.h>
-#include <mytrace.h>
+#include "mycommon.h"
+#include "mytrace.h"
 #include "mealy_ui.h"
-#include "../state/mealy_machine.h"
+#include "mealy_machine.h"
 
 /* Forward declarations */
 static void idle_event_click(struct mealy_state *state, struct mealy_machine *m);

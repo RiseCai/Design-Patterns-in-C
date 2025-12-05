@@ -18,7 +18,7 @@
 #include <mycommon.h>
 #include <mytrace.h>
 
-#include "../state/mealy_machine.h"
+#include "mealy_machine.h"
 
 /** Concrete states */
 struct mealy_state_idle {

@@ -1,14 +1,18 @@
 #ifndef __MY_TRACE_H__
 #define __MY_TRACE_H__
 
-/* On Windows, execinfo.h is not available */
-#ifdef _WIN32
+#include <stdio.h>   /* for printf */
+
+/* Determine platform: execinfo.h is available on Linux/macOS but not Windows */
+#if defined(_WIN32) || defined(_WIN64)
+/* Windows platform */
 #define _MY_TRACE_INIT_
 #define _MY_TRACE_STR(fmt, ...) printf(fmt, ##__VA_ARGS__)
 #define _MY_TRACE_PTR(param) printf("%s(%p)\n", __FUNCTION__, param)
 #define _MY_TRACE_2(param_p, param_int) printf("%s(%p, %d)\n", __FUNCTION__, param_p, param_int)
 #define _MY_TRACE_ printf("%s()\n", __FUNCTION__)
 #else
+/* Assume Linux/macOS with execinfo.h */
 #include <execinfo.h>   /* backtrace */
 
 void _my_trace_backtrace_init(void);

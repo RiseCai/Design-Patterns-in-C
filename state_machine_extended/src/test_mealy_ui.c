@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "mealy_ui.h"
-#include "../state/mealy_machine.h"
+#include "mealy_machine.h"
 
 static void render_current_state(struct mealy_machine *m) {
     struct mealy_state *state = mealy_machine_get_state(m);
