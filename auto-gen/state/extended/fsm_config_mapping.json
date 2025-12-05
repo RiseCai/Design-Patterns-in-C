@@ -41,8 +41,8 @@
       "scenario": "Embedded Control",
       "recommended_fsm_type": "Moore",
       "subtype": "Hierarchical",
-      "key_features": ["Output depends only on state", "Hierarchical nesting", "State entry/exit actions"],
-      "api_functions": ["moore_hsm_dispatch_event", "moore_hsm_get_current_state"],
+      "key_features": ["Output depends only on state", "Hierarchical nesting", "Temperature‑based transitions", "State entry/do/exit actions"],
+      "api_functions": ["moore_hsm_dispatch_event", "moore_hsm_set_temperature", "moore_hsm_get_current_state"],
       "state_struct": "moore_state",
       "transition_model": "Moore output via do_action",
       "entry_action": "entry_action",
@@ -51,7 +51,7 @@
       "code_files": ["moore_hierarchical.c", "moore_hierarchical.h"],
       "mapping_level": 5,
       "priority": "High",
-      "notes": "Real-time control with predictable outputs"
+      "notes": "Real‑time control with predictable outputs (complex thermostat example)"
     },
     {
       "id": 4,

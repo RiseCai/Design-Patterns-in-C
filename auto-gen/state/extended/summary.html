@@ -225,12 +225,12 @@
             <h2><span class="icon">⚙️</span> 3. Moore Hierarchical State Machine</h2>
             <p><strong>Scenario:</strong> Embedded Control</p>
             <p><strong>Type:</strong> Moore + Hierarchical</p>
-            <p><strong>Key Features:</strong> Output depends only on state, hierarchical nesting, entry/do/exit actions per state.</p>
+            <p><strong>Key Features:</strong> Output depends only on state, hierarchical nesting, entry/do/exit actions per state, temperature‑based transitions.</p>
             <ul class="features">
-                <li>States: Off, On (with substates Idle, Running, Error)</li>
-                <li>Events: power_on, start, stop, error, reset</li>
-                <li>API: moore_hsm_dispatch_event()</li>
-                <li>Code: moore_hierarchical.c / moore_hierarchical.h</li>
+                <li>States: Off, On (with substates Heating, Cooling, Idle, FanOnly)</li>
+                <li>Events: power_on, power_off, temp_high, temp_low, temp_ok, fan_on, fan_off</li>
+                <li>API: moore_hsm_dispatch_event(), moore_hsm_set_temperature()</li>
+                <li>Code: moore_hierarchical.c / moore_hierarchical.h (complex thermostat example)</li>
             </ul>
             <div class="svg-container">
                 <img src="moore_hierarchical_sequence.svg" alt="Moore Hierarchical Sequence Diagram">

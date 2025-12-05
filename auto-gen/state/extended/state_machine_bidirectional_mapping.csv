@@ -3,8 +3,8 @@ UI Interface Control,Mealy,Event-Driven,mealy_ui.c,struct mealy_state,mealy_mach
 UI Interface Control,Mealy,Event-Driven,mealy_ui.c,struct mealy_state,mealy_machine_dispatch_event(),Code->Type,5,Implemented,Reverse mapping from code to type
 Communication Protocol,EFSM,Three-Stage,efsm_protocol.c,struct efsm_state,efsm_protocol_process(),Type->Code,4,Implemented,Medium priority for protocol stacks
 Communication Protocol,EFSM,Three-Stage,efsm_protocol.c,struct efsm_state,efsm_protocol_process(),Code->Type,4,Implemented,Reverse mapping
-Embedded Control,Moore,Hierarchical,moore_hierarchical.c,struct moore_state,moore_hsm_dispatch_event(),Type->Code,5,Implemented,High priority for real-time control
-Embedded Control,Moore,Hierarchical,moore_hierarchical.c,struct moore_state,moore_hsm_dispatch_event(),Code->Type,5,Implemented,Reverse mapping
+Embedded Control,Moore,Hierarchical,moore_hierarchical.c,struct moore_state,"moore_hsm_dispatch_event(),moore_hsm_set_temperature()",Type->Code,5,Implemented,High priority for real-time control (complex thermostat)
+Embedded Control,Moore,Hierarchical,moore_hierarchical.c,struct moore_state,"moore_hsm_dispatch_event(),moore_hsm_set_temperature()",Code->Type,5,Implemented,Reverse mapping (complex thermostat)
 Concurrent System,Parallel,Parallel FSMs,parallel_fsm.c,struct parallel_component,parallel_machine_broadcast_event(),Type->Code,3,Implemented,Medium priority for concurrent systems
 Concurrent System,Parallel,Parallel FSMs,parallel_fsm.c,struct parallel_component,parallel_machine_broadcast_event(),Code->Type,3,Implemented,Reverse mapping
 Regular Matching,Acceptor,Receiver FSM,acceptor_regex.c,struct acceptor_state,acceptor_machine_feed(),Type->Code,2,Implemented,Low priority for pattern matching
