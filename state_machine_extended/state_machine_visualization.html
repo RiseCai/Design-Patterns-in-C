@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Coordinator State Machine - Extended Visualization</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background-color: #f8f9fa;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 30px;
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+        h1 {
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border-left: 6px solid #2575fc;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.12);
+        }
+        .card h2 {
+            color: #2575fc;
+            margin-bottom: 15px;
+            font-size: 1.8rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .card h2 .icon {
+            font-size: 1.5rem;
+        }
+        .card p {
+            margin-bottom: 15px;
+            color: #555;
+        }
+        .features {
+            list-style: none;
+            margin: 15px 0;
+        }
+        .features li {
+            padding: 8px 0;
+            border-bottom: 1px dashed #eee;
+            display: flex;
+            align-items: center;
+        }
+        .features li:before {
+            content: "✓";
+            color: #28a745;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        .svg-container {
+            margin: 20px 0;
+            text-align: center;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            background: #f9f9f9;
+        }
+        .svg-container img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 4px;
+        }
+        .links {
+            margin-top: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .btn {
+            display: inline-block;
+            padding: 10px 18px;
+            background: #2575fc;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+        .btn:hover {
+            background: #1a5fd8;
+        }
+        .btn-secondary {
+            background: #6c757d;
+        }
+        .btn-secondary:hover {
+            background: #545b62;
+        }
+        .mapping-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 30px 0;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+        .mapping-table th, .mapping-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        .mapping-table th {
+            background: #2575fc;
+            color: white;
+            font-weight: 600;
+        }
+        .mapping-table tr:hover {
+            background: #f1f7ff;
+        }
+        .priority-5 { background-color: #d4edda; }
+        .priority-4 { background-color: #d1ecf1; }
+        .priority-3 { background-color: #fff3cd; }
+        .priority-2 { background-color: #f8d7da; }
+        .priority-1 { background-color: #f5c6cb; }
+        .subsystem-container {
+            margin: 40px 0;
+        }
+        .subsystem-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .subsystem-header h2 {
+            font-size: 2.2rem;
+            color: #2575fc;
+            margin-bottom: 10px;
+        }
+        .subsystem-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+            gap: 25px;
+        }
+        .subsystem-card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border-top: 6px solid;
+        }
+        .subsystem-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.12);
+        }
+        .subsystem-card h3 {
+            font-size: 1.6rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .subsystem-card .card-icon {
+            font-size: 1.4rem;
+        }
+        .subsystem-card .state-list {
+            list-style: none;
+            margin: 15px 0;
+        }
+        .subsystem-card .state-list li {
+            padding: 6px 0;
+            border-bottom: 1px dashed #eee;
+        }
+        .subsystem-card .state-list li:before {
+            content: "●";
+            color: #2575fc;
+            margin-right: 10px;
+        }
+        .diagram-preview {
+            margin: 20px 0;
+            text-align: center;
+        }
+        .diagram-preview iframe {
+            width: 100%;
+            height: 300px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        footer {
+            text-align: center;
+            margin-top: 50px;
+            padding: 20px;
+            color: #666;
+            border-top: 1px solid #ddd;
+        }
+        @media (max-width: 768px) {
+            .container, .subsystem-grid {
+                grid-template-columns: 1fr;
+            }
+            h1 {
+                font-size: 2.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>System Coordinator State Machine</h1>
+        <p class="subtitle">Hierarchical FSM for TWS Earphone System with bidirectional mapping between design diagrams and C code, supporting entry/do/exit actions and subsystem coordination.</p>
+    </header>
+
+    <div class="container">
+        <!-- System Coordinator Overview -->
+        <div class="card">
+            <h2><span class="icon">🏗️</span> System Coordinator FSM</h2>
+            <p><strong>Scenario:</strong> TWS Earphone System Coordination</p>
+            <p><strong>Type:</strong> Moore Hierarchical + Coordinator Pattern</p>
+            <p><strong>Key Features:</strong> Coordinates multiple subsystem FSMs, manages system‑wide state transitions, error recovery, power management.</p>
+            <ul class="features">
+                <li>States: INIT, IDLE, RECORDING, UPLOADING, ERROR, SLEEP, SHUTDOWN</li>
+                <li>Events: 16 system events (POWER_ON, REC_START, ERROR, RESET, etc.)</li>
+                <li>API: system_coordinator_dispatch_event()</li>
+                <li>Code: system_coordinator.c / system_coordinator.h</li>
+                <li>Subsystems: Recording FSM, Communication FSM, Power FSM, Audio FSM</li>
+            </ul>
+            <div class="svg-container">
+                <img src="diagrams/moore_hierarchical_sequence.svg" alt="System Coordinator API Call Sequence">
+                <p><em>System Coordinator FSM API call sequence showing event dispatch, state transitions, and subsystem coordination</em></p>
+            </div>
+            <div class="links">
+                <a href="diagrams/system_coordinator_state_diagram_with_api.html" class="btn">View Diagram with API</a>
+                <a href="src/system_coordinator.c" class="btn btn-secondary">View C Code</a>
+                <a href="src/test_tws_system.c" class="btn btn-secondary">View Test Code</a>
+            </div>
+        </div>
+
+        <!-- Subsystem Mapping -->
+        <div class="card">
+            <h2><span class="icon">🔗</span> Subsystem Coordination</h2>
+            <p><strong>Architecture:</strong> Hierarchical coordination of specialized FSMs</p>
+            <p><strong>Coordination Pattern:</strong> Master‑slave with event broadcasting</p>
+            <p><strong>Key Features:</strong> Loose coupling between subsystems, centralized error handling, state synchronization.</p>
+            <ul class="features">
+                <li><strong>Recording FSM:</strong> Manages audio recording states (IDLE, RECORDING, PAUSED, STOPPED)</li>
+                <li><strong>Communication FSM:</strong> Handles Bluetooth/Wi‑Fi connectivity and data transfer</li>
+                <li><strong>Power FSM:</strong> Manages battery states, charging, low‑power modes</li>
+                <li><strong>Audio FSM:</strong> Controls audio playback, volume, equalizer settings</li>
+                <li><strong>Error Propagation:</strong> Subsystem errors bubble up to system coordinator</li>
+            </ul>
+            <div class="links">
+                <a href="src/recording_fsm.h" class="btn">Recording FSM Header</a>
+                <a href="tws_earphone_design.md" class="btn btn-secondary">Design Document</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Subsystem State Machines -->
+    <div class="subsystem-container">
+        <div class="subsystem-header">
+            <h2>Subsystem State Machines</h2>
+            <p>All subsystem FSMs coordinated by the System Coordinator, each with its own specialized functionality and API.</p>
+        </div>
+
+        <div class="subsystem-grid">
+            <!-- Recording FSM -->
+            <div class="subsystem-card" style="border-top-color: #28a745;">
+                <h3><span class="card-icon">🎤</span> Recording FSM</h3>
+                <p><strong>Purpose:</strong> Manages audio recording lifecycle for TWS earphones</p>
+                <p><strong>Type:</strong> Mealy Event-Driven State Machine</p>
+                <p><strong>Key Features:</strong> Recording control, pause/resume, audio buffer management, quality settings</p>
+                <ul class="state-list">
+                    <li>States: IDLE, RECORDING, PAUSED, STOPPED, ERROR</li>
+                    <li>Events: REC_START, REC_PAUSE, REC_RESUME, REC_STOP, ERROR</li>
+                    <li>API: recording_fsm_handle_event()</li>
+                    <li>Code: recording_fsm.c / recording_fsm.h</li>
+                </ul>
+                <div class="diagram-preview">
+                    <iframe src="diagrams/recording_fsm_diagram_with_api.html" title="Recording FSM Diagram"></iframe>
+                </div>
+                <div class="links">
+                    <a href="diagrams/recording_fsm_diagram_with_api.html" class="btn">View Diagram</a>
+                    <a href="src/recording_fsm.h" class="btn btn-secondary">View Header</a>
+                </div>
+            </div>
+
+            <!-- Mealy UI FSM -->
+            <div class="subsystem-card" style="border-top-color: #ff6b6b;">
+                <h3><span class="card-icon">🖥️</span> Mealy UI FSM</h3>
+                <p><strong>Purpose:</strong> Handles user interface interactions and visual feedback</p>
+                <p><strong>Type:</strong> Mealy State Machine with output on transitions</p>
+                <p><strong>Key Features:</strong> UI state management, button interactions, visual feedback, touch events</p>
+                <ul class="state-list">
+                    <li>States: idle, hovered, pressed, disabled</li>
+                    <li>Events: hover, click, keypress, timeout</li>
+                    <li>API: mealy_ui_dispatch_event()</li>
+                    <li>Code: mealy_ui.c / mealy_ui.h</li>
+                </ul>
+                <div class="diagram-preview">
+                    <iframe src="diagrams/mealy_ui_diagram_with_api.html" title="Mealy UI Diagram"></iframe>
+                </div>
+                <div class="links">
+                    <a href="diagrams/mealy_ui_diagram_with_api.html" class="btn">View Diagram</a>
+                    <a href="src/mealy_ui.c" class="btn btn-secondary">View C Code</a>
+                </div>
+            </div>
+
+            <!-- Parallel FSM -->
+            <div class="subsystem-card" style="border-top-color: #4ecdc4;">
+                <h3><span class="card-icon">🔄</span> Parallel FSM</h3>
+                <p><strong>Purpose:</strong> Manages concurrent independent state machines</p>
+                <p><strong>Type:</strong> Parallel/Orthogonal State Machine</p>
+                <p><strong>Key Features:</strong> Concurrent state execution, independent event handling, synchronization points</p>
+                <ul class="state-list">
+                    <li>Regions: Audio Processing, Network Communication, User Input</li>
+                    <li>States: Each region has its own state set</li>
+                    <li>API: parallel_fsm_dispatch_event()</li>
+                    <li>Code: parallel_fsm.c / parallel_fsm.h</li>
+                </ul>
+                <div class="diagram-preview">
+                    <iframe src="diagrams/parallel_fsm_diagram_with_api.html" title="Parallel FSM Diagram"></iframe>
+                </div>
+                <div class="links">
+                    <a href="diagrams/parallel_fsm_diagram_with_api.html" class="btn">View Diagram</a>
+                    <a href="auto-gen/state/extended/parallel_fsm.c" class="btn btn-secondary">View C Code</a>
+                </div>
+            </div>
+
+            <!-- EFSM Protocol FSM -->
+            <div class="subsystem-card" style="border-top-color: #ffd166;">
+                <h3><span class="card-icon">📡</span> EFSM Protocol FSM</h3>
+                <p><strong>Purpose:</strong> Handles communication protocols with extended variables</p>
+                <p><strong>Type:</strong> Extended Finite State Machine (EFSM)</p>
+                <p><strong>Key Features:</strong> Protocol state management, data validation, timeout handling, retry logic</p>
+                <ul class="state-list">
+                    <li>States: IDLE, CONNECTING, CONNECTED, TRANSFERRING, ERROR</li>
+                    <li>Extended Variables: timeout_counter, retry_count, packet_size</li>
+                    <li>API: efsm_protocol_process()</li>
+                    <li>Code: efsm_protocol.c / efsm_protocol.h</li>
+                </ul>
+                <div class="diagram-preview">
+                    <iframe src="diagrams/efsm_protocol_diagram_with_api.html" title="EFSM Protocol Diagram"></iframe>
+                </div>
+                <div class="links">
+                    <a href="diagrams/efsm_protocol_diagram_with_api.html" class="btn">View Diagram</a>
+                    <a href="auto-gen/state/extended/efsm_protocol.c" class="btn btn-secondary">View C Code</a>
+                </div>
+            </div>
+
+            <!-- Acceptor Regex FSM -->
+            <div class="subsystem-card" style="border-top-color: #9d4edd;">
+                <h3><span class="card-icon">🔤</span> Acceptor Regex FSM</h3>
+                <p><strong>Purpose:</strong> Pattern matching and validation using finite automata</p>
+                <p><strong>Type:</strong> Deterministic Finite Automaton (DFA)</p>
+                <p><strong>Key Features:</strong> Regular expression matching, input validation, pattern recognition</p>
+                <ul class="state-list">
+                    <li>States: S0 (start), S1, S2, S3 (accepting), S4 (error)</li>
+                    <li>Events: character input, end-of-string, reset</li>
+                    <li>API: acceptor_regex_process()</li>
+                    <li>Code: acceptor_regex.c / acceptor_regex.h</li>
+                </ul>
+                <div class="diagram-preview">
+                    <iframe src="diagrams/acceptor_regex_diagram_with_api.html" title="Acceptor Regex Diagram"></iframe>
+                </div>
+                <div class="links">
+                    <a href="diagrams/acceptor_regex_diagram_with_api.html" class="btn">View Diagram</a>
+                    <a href="auto-gen/state/extended/acceptor_regex.c" class="btn btn-secondary">View C Code</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Moore Hierarchical FSM -->
+    <div class="subsystem-container">
+        <div class="subsystem-header">
+            <h2>Moore Hierarchical State Machines</h2>
+            <p>Moore-style FSMs with output on states, supporting hierarchical nesting and complex state relationships.</p>
+        </div>
+
+        <div class="subsystem-grid">
+            <!-- Moore HSM -->
+            <div class="subsystem-card" style="border-top-color: #06d6a0;">
+                <h3><span class="card-icon">🏛️</span> Moore Hierarchical FSM</h3>
+                <p><strong>Purpose:</strong> Complex hierarchical state machine with nested states</p>
+                <p><strong>Type:</strong> Moore Hierarchical State Machine</p>
+                <p><strong>Key Features:</strong> State nesting, entry/exit actions, history states, orthogonal regions</p>
+                <ul class="state-list">
+                    <li>States: ROOT, S1, S2, S3, S1_1 (nested), S1_2 (nested)</li>
+                    <li>Events: E1, E2, E3, E4, E5</li>
+                    <li>API: moore_hierarchical_dispatch_event()</li>
+                    <li>Code: moore_hierarchical.c / moore_hierarchical.h</li>
+                </ul>
+                <div class="diagram-preview">
+                    <iframe src="diagrams/moore_hsm_state_diagram_with_api.html" title="Moore HSM Diagram"></iframe>
+                </div>
+                <div class="links">
+                    <a href="diagrams/moore_hsm_state_diagram_with_api.html" class="btn">View Diagram</a>
+                    <a href="auto-gen/state/extended/moore_hierarchical.c" class="btn btn-secondary">View C Code</a>
+                </div>
+            </div>
+
+            <!-- Moore HSM Complex -->
+            <div class="subsystem-card" style="border-top-color: #118ab2;">
+                <h3><span class="card-icon">🧩</span> Moore HSM Complex</h3>
+                <p><strong>Purpose:</strong> Advanced hierarchical FSM with complex transitions</p>
+                <p><strong>Type:</strong> Moore Hierarchical State Machine (Complex)</p>
+                <p><strong>Key Features:</strong> Deep nesting, conditional transitions, guard conditions, history states</p>
+                <ul class="state-list">
+                    <li>States: Multiple levels of nesting with 15+ states</li>
+                    <li>Events: Complex event set with parameters</li>
+                    <li>API: moore_hierarchical_complex_dispatch()</li>
+                    <li>Code: moore_hierarchical_complex.c</li>
+                </ul>
+                <div class="diagram-preview">
+                    <iframe src="diagrams/moore_hsm_detailed.html" title="Moore HSM Detailed Diagram"></iframe>
+                </div>
+                <div class="links">
+                    <a href="diagrams/moore_hsm_detailed.html" class="btn">View Diagram</a>
+                    <a href="auto-gen/state/extended/moore_hierarchical_complex.c" class="btn btn-secondary">View C Code</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p><strong>State Machine Extended Project</strong> | TWS Earphone System Coordination | Design Patterns in C</p>
+        <p>Generated on December 5, 2025 | All subsystem FSMs are fully functional and tested</p>
+        <p>Visualization includes bidirectional mapping between PlantUML diagrams and C code implementations</p>
+    </footer>
+</body>
+</html>

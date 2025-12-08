@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recording FSM State Diagram with API Calls</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            border-bottom: 2px solid #0066cc;
+            padding-bottom: 10px;
+        }
+        .diagram-container {
+            text-align: center;
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        .description {
+            margin: 20px 0;
+            padding: 15px;
+            background-color: #e6f3ff;
+            border-left: 4px solid #0066cc;
+            border-radius: 4px;
+        }
+        .api-list {
+            margin: 20px 0;
+            padding: 15px;
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            border-radius: 4px;
+        }
+        .state-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        .state-table th, .state-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        .state-table th {
+            background-color: #0066cc;
+            color: white;
+        }
+        .state-table tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        .note {
+            font-style: italic;
+            color: #666;
+            margin: 10px 0;
+        }
+        .plantuml-source {
+            margin-top: 30px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border: 1px dashed #ccc;
+            border-radius: 5px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Recording FSM State Diagram with API Calls</h1>
+        
+        <div class="description">
+            <h2>Overview</h2>
+            <p>This diagram illustrates the Recording Finite State Machine (FSM) used in the TWS earphone system. The FSM manages audio recording states, coordinates between earphone and charging case, handles synchronization, and provides error recovery mechanisms.</p>
+        </div>
+        
+        <div class="diagram-container">
+            <h2>State Diagram</h2>
+            <p><em>Note: The actual PlantUML diagram would be rendered here. Below is a textual representation.</em></p>
+            <img src="recording_fsm_diagram_with_api.svg" alt="Recording FSM State Diagram" style="max-width: 100%; border: 1px solid #ccc;">
+            <p class="note">If the SVG is not available, please generate it using PlantUML.</p>
+        </div>
+        
+        <div class="api-list">
+            <h2>Recording FSM API Functions</h2>
+            <ul>
+                <li><strong>recording_fsm_init()</strong> - Initialize the recording FSM</li>
+                <li><strong>recording_fsm_dispatch_event(event)</strong> - Dispatch an event to the FSM</li>
+                <li><strong>recording_fsm_get_state()</strong> - Get current state of the FSM</li>
+                <li><strong>recording_fsm_set_error()</strong> - Set error state</li>
+                <li><strong>recording_fsm_get_error_msg()</strong> - Get error message</li>
+            </ul>
+        </div>
+        
+        <h2>State Definitions</h2>
+        <table class="state-table">
+            <thead>
+                <tr>
+                    <th>State</th>
+                    <th>Description</th>
+                    <th>Entry Action</th>
+                    <th>Exit Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>REC_IDLE</td>
+                    <td>Initial idle state, waiting for recording start</td>
+                    <td>reset_recording_config()</td>
+                    <td>clear_recording_buffer()</td>
+                </tr>
+                <tr>
+                    <td>REC_WAIT_SYNC</td>
+                    <td>Waiting for device synchronization</td>
+                    <td>start_device_sync()</td>
+                    <td>stop_sync_timer()</td>
+                </tr>
+                <tr>
+                    <td>REC_RECORDING</td>
+                    <td>Active recording state</td>
+                    <td>start_audio_capture()</td>
+                    <td>stop_audio_capture()</td>
+                </tr>
+                <tr>
+                    <td>REC_PAUSED</td>
+                    <td>Recording paused state</td>
+                    <td>pause_audio_capture()</td>
+                    <td>resume_audio_capture()</td>
+                </tr>
+                <tr>
+                    <td>REC_STOPPING</td>
+                    <td>Finalizing recording and saving</td>
+                    <td>finalize_recording()</td>
+                    <td>cleanup_resources()</td>
+                </tr>
+                <tr>
+                    <td>REC_ERROR</td>
+                    <td>Error state for handling failures</td>
+                    <td>set_error_state()</td>
+                    <td>clear_error_state()</td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <h2>Event Transitions</h2>
+        <table class="state-table">
+            <thead>
+                <tr>
+                    <th>From State</th>
+                    <th>Event</th>
+                    <th>To State</th>
+                    <th>API Call</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>REC_IDLE</td>
+                    <td>REC_EVT_START</td>
+                    <td>REC_WAIT_SYNC</td>
+                    <td>recording_fsm_dispatch_event(REC_EVT_START)</td>
+                </tr>
+                <tr>
+                    <td>REC_WAIT_SYNC</td>
+                    <td>REC_EVT_SYNC_COMPLETE</td>
+                    <td>REC_RECORDING</td>
+                    <td>recording_fsm_dispatch_event(REC_EVT_SYNC_COMPLETE)</td>
+                </tr>
+                <tr>
+                    <td>REC_WAIT_SYNC</td>
+                    <td>REC_EVT_ERROR</td>
+                    <td>REC_ERROR</td>
+                    <td>recording_fsm_set_error()</td>
+                </tr>
+                <tr>
+                    <td>REC_RECORDING</td>
+                    <td>REC_EVT_PAUSE</td>
+                    <td>REC_PAUSED</td>
+                    <td>recording_fsm_dispatch_event(REC_EVT_PAUSE)</td>
+                </tr>
+                <tr>
+                    <td>REC_PAUSED</td>
+                    <td>REC_EVT_RESUME</td>
+                    <td>REC_RECORDING</td>
+                    <td>recording_fsm_dispatch_event(REC_EVT_RESUME)</td>
+                </tr>
+                <tr>
+                    <td>REC_RECORDING</td>
+                    <td>REC_EVT_STOP</td>
+                    <td>REC_STOPPING</td>
+                    <td>recording_fsm_dispatch_event(REC_EVT_STOP)</td>
+                </tr>
+                <tr>
+                    <td>REC_STOPPING</td>
+                    <td>[save complete]</td>
+                    <td>REC_IDLE</td>
+                    <td>recording_fsm_get_state() == REC_IDLE</td>
+                </tr>
+                <tr>
+                    <td>REC_ERROR</td>
+                    <td>REC_EVT_RESET</td>
+                    <td>REC_IDLE</td>
+                    <td>recording_fsm_dispatch_event(REC_EVT_RESET)</td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <div class="plantuml-source">
+            <h3>PlantUML Source Code</h3>
+            <code>
+@startuml
+
+title Recording FSM State Diagram with API Calls
+
+state "REC_IDLE" as idle
+state "REC_WAIT_SYNC" as wait_sync
+state "REC_RECORDING" as recording
+state "REC_PAUSED" as paused
+state "REC_STOPPING" as stopping
+state "REC_ERROR" as error
+
+idle -> wait_sync : REC_EVT_START
+wait_sync -> recording : REC_EVT_SYNC_COMPLETE
+wait_sync -> idle : REC_EVT_ERROR
+recording -> paused : REC_EVT_PAUSE
+paused -> recording : REC_EVT_RESUME
+recording -> stopping : REC_EVT_STOP
+stopping -> idle : [save complete]
+recording -> error : REC_EVT_ERROR
+paused -> error : REC_EVT_ERROR
+wait_sync -> error : REC_EVT_ERROR
+error -> idle : REC_EVT_RESET
+
+[*] -> idle
+
+note right of idle
+  <b>Recording FSM API:</b>
+  • recording_fsm_init()
+  • recording_fsm_dispatch_event()
+  • recording_fsm_get_state()
+  • recording_fsm_set_error()
+  • recording_fsm_get_error_msg()
+end note
+
+@enduml
+            </code>
+        </div>
+        
+        <div class="note">
+            <p><strong>Note:</strong> This HTML file provides a comprehensive view of the Recording FSM. To view the actual diagram, ensure the SVG file is generated and placed in the same directory.</p>
+        </div>
+    </div>
+</body>
+</html>

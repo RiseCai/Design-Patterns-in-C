@@ -1,0 +1,99 @@
+@startuml
+title System Coordinator API Call Sequence (TWS Earphone System)
+
+actor "User" as USER
+participant "Test Program" as TEST
+participant "System Coordinator" as SYS
+participant "Recording FSM" as REC
+participant "Power FSM" as PWR
+participant "Comm FSM" as COMM
+
+note over USER,COMM : Initialization Phase
+USER -> TEST : Start test program
+TEST -> SYS : system_coordinator_init()
+SYS -> SYS : enter_init()
+SYS -> SYS : do_action()
+SYS -> TEST : Initialized (SYS_INIT)
+
+note over USER,COMM : Scenario 1: Normal Recording Flow
+USER -> TEST : Press record button
+TEST -> SYS : system_coordinator_dispatch_event(SYS_EVT_REC_START)
+SYS -> SYS : exit_state() from SYS_INIT
+SYS -> SYS : enter_idle()
+SYS -> SYS : do_action()
+SYS -> REC : start_recording()
+REC -> REC : entry_action()
+REC -> REC : do_action()
+SYS -> TEST : Transition to SYS_IDLE
+
+TEST -> SYS : system_coordinator_dispatch_event(SYS_EVT_REC_START)
+SYS -> SYS : exit_state() from SYS_IDLE
+SYS -> SYS : enter_recording()
+SYS -> SYS : do_action()
+SYS -> REC : start_recording()
+REC -> REC : entry_action()
+REC -> REC : do_action()
+SYS -> TEST : Transition to SYS_RECORDING
+
+note over USER,COMM : Recording in progress...
+SYS -> SYS : do_action() periodic
+SYS -> REC : do_action()
+REC -> REC : capture_audio()
+
+USER -> TEST : Press stop button
+TEST -> SYS : system_coordinator_dispatch_event(SYS_EVT_REC_STOP)
+SYS -> SYS : exit_state() from SYS_RECORDING
+SYS -> SYS : enter_uploading()
+SYS -> SYS : do_action()
+SYS -> COMM : start_upload()
+COMM -> COMM : entry_action()
+COMM -> COMM : do_action()
+SYS -> TEST : Transition to SYS_UPLOADING
+
+note over USER,COMM : Upload completes
+COMM -> SYS : upload_complete_callback()
+SYS -> SYS : system_coordinator_dispatch_event(SYS_EVT_UPLOAD_COMPLETE)
+SYS -> SYS : exit_state() from SYS_UPLOADING
+SYS -> SYS : enter_idle()
+SYS -> SYS : do_action()
+SYS -> TEST : Transition to SYS_IDLE
+
+note over USER,COMM : Scenario 2: Error Recovery Flow
+USER -> TEST : Simulate error
+TEST -> SYS : system_coordinator_set_error(1001, "Buffer overflow")
+TEST -> SYS : system_coordinator_dispatch_event(SYS_EVT_ERROR)
+SYS -> SYS : exit_state() from SYS_RECORDING
+SYS -> SYS : enter_error()
+SYS -> SYS : do_action()
+SYS -> REC : stop_recording()
+REC -> REC : exit_action()
+SYS -> TEST : Transition to SYS_ERROR
+
+USER -> TEST : Reset system
+TEST -> SYS : system_coordinator_dispatch_event(SYS_EVT_RESET)
+SYS -> SYS : exit_state() from SYS_ERROR
+SYS -> SYS : enter_idle()
+SYS -> SYS : do_action()
+SYS -> TEST : Transition to SYS_IDLE
+
+note over USER,COMM : Scenario 3: Power Management Flow
+USER -> TEST : Low battery warning
+TEST -> SYS : system_coordinator_dispatch_event(SYS_EVT_LOW_BATTERY)
+SYS -> SYS : exit_state() from SYS_IDLE
+SYS -> SYS : enter_sleep()
+SYS -> SYS : do_action()
+SYS -> PWR : reduce_power()
+PWR -> PWR : entry_action()
+PWR -> PWR : do_action()
+SYS -> TEST : Transition to SYS_SLEEP
+
+USER -> TEST : Power off
+TEST -> SYS : system_coordinator_dispatch_event(SYS_EVT_POWER_OFF)
+SYS -> SYS : exit_state() from SYS_SLEEP
+SYS -> SYS : enter_shutdown()
+SYS -> SYS : do_action()
+SYS -> PWR : power_off()
+PWR -> PWR : exit_action()
+SYS -> TEST : Transition to SYS_SHUTDOWN
+
+@enduml

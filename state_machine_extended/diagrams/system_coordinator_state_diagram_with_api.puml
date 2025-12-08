@@ -1,0 +1,141 @@
+@startuml
+title System Coordinator FSM - TWS Earphone System (with API Mapping)
+
+skinparam state {
+  BackgroundColor<<normal>> White
+  BorderColor<<normal>> Black
+  BackgroundColor<<error>> LightCoral
+  BorderColor<<error>> DarkRed
+  BackgroundColor<<active>> LightGreen
+  BorderColor<<active>> DarkGreen
+  FontSize 13
+}
+
+' Define states
+state "SYS_INIT" as INIT <<normal>> {
+  state "INIT_Entry" as INIT_ENTRY <<entry>>
+  state "INIT_Do" as INIT_DO <<do>>
+  state "INIT_Exit" as INIT_EXIT <<exit>>
+}
+
+state "SYS_IDLE" as IDLE <<active>> {
+  state "IDLE_Entry" as IDLE_ENTRY <<entry>>
+  state "IDLE_Do" as IDLE_DO <<do>>
+  state "IDLE_Exit" as IDLE_EXIT <<exit>>
+}
+
+state "SYS_RECORDING" as RECORDING <<active>> {
+  state "RECORDING_Entry" as REC_ENTRY <<entry>>
+  state "RECORDING_Do" as REC_DO <<do>>
+  state "RECORDING_Exit" as REC_EXIT <<exit>>
+}
+
+state "SYS_UPLOADING" as UPLOADING <<active>> {
+  state "UPLOADING_Entry" as UPL_ENTRY <<entry>>
+  state "UPLOADING_Do" as UPL_DO <<do>>
+  state "UPLOADING_Exit" as UPL_EXIT <<exit>>
+}
+
+state "SYS_ERROR" as ERROR <<error>> {
+  state "ERROR_Entry" as ERR_ENTRY <<entry>>
+  state "ERROR_Do" as ERR_DO <<do>>
+  state "ERROR_Exit" as ERR_EXIT <<exit>>
+}
+
+state "SYS_SLEEP" as SLEEP <<normal>> {
+  state "SLEEP_Entry" as SLEEP_ENTRY <<entry>>
+  state "SLEEP_Do" as SLEEP_DO <<do>>
+  state "SLEEP_Exit" as SLEEP_EXIT <<exit>>
+}
+
+state "SYS_SHUTDOWN" as SHUTDOWN <<normal>> {
+  state "SHUTDOWN_Entry" as SHUT_ENTRY <<entry>>
+  state "SHUTDOWN_Do" as SHUT_DO <<do>>
+  state "SHUTDOWN_Exit" as SHUT_EXIT <<exit>>
+}
+
+' Initial transition
+[*] --> INIT
+
+' State transitions
+INIT --> IDLE : Auto transition after initialization\nAPI: system_coordinator_init(sys)
+
+IDLE --> RECORDING : SYS_EVT_REC_START\nAPI: system_coordinator_dispatch_event(sys, SYS_EVT_REC_START, NULL)
+IDLE --> SHUTDOWN : SYS_EVT_POWER_OFF\nAPI: system_coordinator_dispatch_event(sys, SYS_EVT_POWER_OFF, NULL)
+IDLE --> ERROR : SYS_EVT_ERROR\nAPI: system_coordinator_dispatch_event(sys, SYS_EVT_ERROR, error_data)
+IDLE --> SLEEP : SYS_EVT_LOW_BATTERY (optional)\nAPI: system_coordinator_dispatch_event(sys, SYS_EVT_LOW_BATTERY, NULL)
+
+RECORDING --> UPLOADING : SYS_EVT_REC_STOP\nAPI: system_coordinator_dispatch_event(sys, SYS_EVT_REC_STOP, NULL)
+RECORDING --> ERROR : SYS_EVT_ERROR\nAPI: system_coordinator_dispatch_event(sys, SYS_EVT_ERROR, error_data)
+RECORDING --> IDLE : SYS_EVT_REC_PAUSE (optional)\nAPI: system_coordinator_dispatch_event(sys, SYS_EVT_REC_PAUSE, NULL)
+
+UPLOADING --> IDLE : SYS_EVT_UPLOAD_COMPLETE\nAPI: system_coordinator_dispatch_event(sys, SYS_EVT_UPLOAD_COMPLETE, NULL)
+UPLOADING --> ERROR : SYS_EVT_ERROR\nAPI: system_coordinator_dispatch_event(sys, SYS_EVT_ERROR, error_data)
+UPLOADING --> IDLE : SYS_EVT_NETWORK_DISCONNECTED (fallback)\nAPI: system_coordinator_dispatch_event(sys, SYS_EVT_NETWORK_DISCONNECTED, NULL)
+
+ERROR --> INIT : SYS_EVT_RESET\nAPI: system_coordinator_dispatch_event(sys, SYS_EVT_RESET, NULL)
+ERROR --> SHUTDOWN : SYS_EVT_POWER_OFF\nAPI: system_coordinator_dispatch_event(sys, SYS_EVT_POWER_OFF, NULL)
+
+SLEEP --> IDLE : SYS_EVT_POWER_ON\nAPI: system_coordinator_dispatch_event(sys, SYS_EVT_POWER_ON, NULL)
+
+' Self-transitions (handled within state)
+IDLE --> IDLE : SYS_EVT_LOW_BATTERY (handled)\nAPI: system_coordinator_dispatch_event(sys, SYS_EVT_LOW_BATTERY, NULL)
+RECORDING --> RECORDING : SYS_EVT_REC_PAUSE (handled)\nAPI: system_coordinator_dispatch_event(sys, SYS_EVT_REC_PAUSE, NULL)
+
+' State labels
+INIT_ENTRY : "Initialize subsystems"
+INIT_DO : "Initialization process"
+INIT_EXIT : "Transition to IDLE"
+
+IDLE_ENTRY : "System ready"
+IDLE_DO : "Monitor battery, network"
+IDLE_EXIT : "Leaving IDLE"
+
+REC_ENTRY : "Start recording"
+REC_DO : "Record audio, process data"
+REC_EXIT : "Stop recording"
+
+UPL_ENTRY : "Start upload"
+UPL_DO : "Upload to cloud"
+UPL_EXIT : "Upload complete"
+
+ERR_ENTRY : "Handle error"
+ERR_DO : "Error recovery"
+ERR_EXIT : "Reset or shutdown"
+
+SLEEP_ENTRY : "Enter low-power"
+SLEEP_DO : "Sleep mode"
+SLEEP_EXIT : "Wake up"
+
+SHUT_ENTRY : "Shutdown system"
+SHUT_DO : "Power off"
+SHUT_EXIT : "System off"
+
+note right of INIT
+  <b>State:</b> SYS_INIT
+  <b>Entry function:</b> enter_init()
+  <b>API:</b> system_coordinator_init()
+end note
+
+note right of IDLE
+  <b>State:</b> SYS_IDLE
+  <b>Entry function:</b> enter_idle()
+  <b>Do action:</b> do_action() periodic checks
+  <b>Main operational state</b>
+end note
+
+note right of RECORDING
+  <b>State:</b> SYS_RECORDING
+  <b>Entry function:</b> enter_recording()
+  <b>Do action:</b> monitor recording progress
+  <b>Subsystems:</b> recording_fsm, audio_fsm active
+end note
+
+note right of ERROR
+  <b>State:</b> SYS_ERROR
+  <b>Entry function:</b> enter_error()
+  <b>Error handling:</b> error_code, error_msg
+  <b>Recovery:</b> Reset or shutdown
+end note
+
+@enduml

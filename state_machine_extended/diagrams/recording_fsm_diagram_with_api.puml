@@ -1,0 +1,35 @@
+@startuml
+
+title Recording FSM State Diagram with API Calls
+
+state "REC_IDLE" as idle
+state "REC_WAIT_SYNC" as wait_sync
+state "REC_RECORDING" as recording
+state "REC_PAUSED" as paused
+state "REC_STOPPING" as stopping
+state "REC_ERROR" as error
+
+idle -> wait_sync : REC_EVT_START
+wait_sync -> recording : REC_EVT_SYNC_COMPLETE
+wait_sync -> idle : REC_EVT_ERROR
+recording -> paused : REC_EVT_PAUSE
+paused -> recording : REC_EVT_RESUME
+recording -> stopping : REC_EVT_STOP
+stopping -> idle : [save complete]
+recording -> error : REC_EVT_ERROR
+paused -> error : REC_EVT_ERROR
+wait_sync -> error : REC_EVT_ERROR
+error -> idle : REC_EVT_RESET
+
+[*] -> idle
+
+note right of idle
+  <b>Recording FSM API:</b>
+  • recording_fsm_init()
+  • recording_fsm_dispatch_event()
+  • recording_fsm_get_state()
+  • recording_fsm_set_error()
+  • recording_fsm_get_error_msg()
+end note
+
+@enduml

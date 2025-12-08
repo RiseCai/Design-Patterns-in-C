@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>System Coordinator API Call Sequence</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        h1 { color: #333; }
+        iframe { border: 1px solid #ccc; width: 100%; height: 800px; }
+        .note { background: #f0f0f0; padding: 10px; border-radius: 5px; }
+        .section { margin-bottom: 30px; }
+    </style>
+</head>
+<body>
+    <h1>System Coordinator API Call Sequence (TWS Earphone System)</h1>
+    <p>This diagram shows the API call sequence for the System Coordinator state machine, coordinating multiple subsystem FSMs.</p>
+    
+    <div class="note">
+        <strong>Note:</strong> The diagram is generated from PlantUML source. If the diagram does not appear, you may need an internet connection to load the PlantUML online server.
+    </div>
+    
+    <div class="section">
+        <h2>Sequence Diagram</h2>
+        <iframe src="https://www.plantuml.com/plantuml/svg/zVfRbtowFH3PV1zxBFJXtdtbH6ZSmm5I0ERxGOqT5SamWEvszHHKuq_ftVOgQCgpnba9-hzb55x7fQOXpWHaVHnmGWEyDuSpNDyHgVI6FZIZpaEfDmHAsgwI_1FxmXDoxlMCPtPFXMnllp7nscTSO5OS6w6wEibEj7wCjxeJKJg00Il5aSDU6kGz3FFin8SblF0BjkjuyCYv4oljPMANGTtK5A82KaFacL2Cw-mWmIHK8xU6CMZjz5PKcFCPuMtqP7GLcAFDKYxgmfjFjFASwjkruWcJ8OGzc4AcYmMEY_0VtT_PIchA6UgonS-arH1Rged2e57FVzQuDW9GUkUxYBSwBp7vXunjKXQRosPbYdzb54YkXDItFJxfwK3SOcvgRZaZWmxbCzUvS9COA_eVMUoe9paKsmAmmVP-iJacKv9bTLFGlMT9KN62_VMYiq1oeLcHM61yWPpojCfNeIt48DIrzlaG6qVFhO36CsYT9dN66wa2P_JYM1kK1w5G1VqvR773t3KxdzXk8tLkfxUO7gii6-Htl31Nue5AIesHhD13enq61wYUHHs4Fcmmn5eiNtQmrDCV5pRVqVAINjd5aVTxZ1o8CFtVch1MQzmrIlOsZTmfc6zrWW9E0K2u0a1ybqFvKegkHAX91wo6cRIgUXmRcRyLq8tqB7VCuoRpgt-Xe5Z833baPvZaEcVrwpEf-63SX7s4fsgcGAgHZvDHC_C1xq-mfQDIemqcwETkVYbagVvu4c4suaGO2j0_Ozs_gc5VNZuhBHvDDM_v9I7ubj-Kguj9rV2raz-lVPHKkLLXty6LM7Dz_COOmT3H8I6XT_x2A7wW8a-a7hOOO_fTaMwke-A5Xt3YdiO1gHtmjG3LBdMSsz86m1EwpVf9OPaju3d94sqM86JFQvhrDwHN0yrhtLBuEbOLK2xrGG5gb4mcjHw_3P2euIDVbHZ0YmEw9SMa3Ny0yqtW0RTYvDKpWsjWmbmwKCrfCexN74x8ncTXwfTW8y65TO0fjN8"></iframe>
+        <p>PlantUML source: <a href="system_coordinator_sequence.puml">system_coordinator_sequence.puml</a></p>
+    </div>
+    
+    <div class="section">
+        <h2>Description</h2>
+        <p>This sequence diagram illustrates three main scenarios:</p>
+        <ol>
+            <li><strong>Normal Recording Flow:</strong> User starts recording, system transitions through IDLE → RECORDING → UPLOADING → IDLE states.</li>
+            <li><strong>Error Recovery Flow:</strong> Error occurs during recording, system enters ERROR state, then resets to IDLE.</li>
+            <li><strong>Power Management Flow:</strong> Low battery warning triggers SLEEP state, then power off leads to SHUTDOWN.</li>
+        </ol>
+        <p>The diagram shows interactions between:</p>
+        <ul>
+            <li><strong>User:</strong> Initiates actions via test program</li>
+            <li><strong>Test Program:</strong> Calls system coordinator API functions</li>
+            <li><strong>System Coordinator:</strong> Main coordinator FSM</li>
+            <li><strong>Recording FSM:</strong> Handles audio recording operations</li>
+            <li><strong>Power FSM:</strong> Manages power states</li>
+            <li><strong>Comm FSM:</strong> Handles communication and upload</li>
+        </ul>
+    </div>
+    
+    <div class="section">
+        <h2>Related Diagrams</h2>
+        <ul>
+            <li><a href="system_coordinator_state_diagram_with_api.html">System Coordinator State Diagram</a></li>
+            <li><a href="mealy_ui_sequence.html">Mealy UI Sequence Diagram</a></li>
+            <li><a href="moore_hierarchical_sequence.html">Moore Hierarchical Sequence Diagram</a></li>
+        </ul>
+    </div>
+</body>
+</html>
