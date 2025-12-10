@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Coordinator Sequence Diagram (Mermaid) - TWS Earphone System</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10.6.1/dist/mermaid.min.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background-color: #f8f9fa;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .diagram-container {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08);
+            margin-bottom: 30px;
+            min-height: 800px;
+        }
+        .mermaid {
+            text-align: center;
+            overflow-x: auto;
+        }
+        .description {
+            background: #f1f3f5;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        .description h3 {
+            color: #2575fc;
+            margin-bottom: 10px;
+        }
+        .links {
+            margin-top: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .btn {
+            display: inline-block;
+            padding: 10px 18px;
+            background: #2575fc;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+        .btn:hover {
+            background: #1a5fd8;
+        }
+        .btn-secondary {
+            background: #6c757d;
+        }
+        .btn-secondary:hover {
+            background: #545b62;
+        }
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+            color: #666;
+            border-top: 1px solid #ddd;
+        }
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+            .diagram-container {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>System Coordinator Sequence Diagram</h1>
+        <p class="subtitle">Interaction sequence between the system coordinator and subsystems, including external device control command flow.</p>
+    </header>
+
+    <div class="diagram-container">
+        <div class="mermaid">
+sequenceDiagram
+    participant User
+    participant TestProgram
+    participant SystemCoordinator
+    participant RecordingFSM
+    participant PowerFSM
+    participant CommFSM
+    participant ExternalDevice
+    participant ExternalCommandProcessor
+
+    Note over User,CommFSM: Initialization Phase
+    User->>TestProgram: Start test program
+    TestProgram->>SystemCoordinator: system_coordinator_init()
+    SystemCoordinator->>SystemCoordinator: enter_init()
+    SystemCoordinator->>SystemCoordinator: do_action()
+    SystemCoordinator-->>TestProgram: Initialized (SYS_INIT)
+
+    Note over User,CommFSM: Scenario 1: Normal Recording Flow
+    User->>TestProgram: Press record button
+    TestProgram->>SystemCoordinator: system_coordinator_dispatch_event(SYS_EVT_REC_START)
+    SystemCoordinator->>SystemCoordinator: exit_state() from SYS_INIT
+    SystemCoordinator->>SystemCoordinator: enter_idle()
+    SystemCoordinator->>SystemCoordinator: do_action()
+    SystemCoordinator->>RecordingFSM: start_recording()
+    RecordingFSM->>RecordingFSM: entry_action()
+    RecordingFSM->>RecordingFSM: do_action()
+    SystemCoordinator-->>TestProgram: Transition to SYS_IDLE
+
+    TestProgram->>SystemCoordinator: system_coordinator_dispatch_event(SYS_EVT_REC_START)
+    SystemCoordinator->>SystemCoordinator: exit_state() from SYS_IDLE
+    SystemCoordinator->>SystemCoordinator: enter_recording()
+    SystemCoordinator->>SystemCoordinator: do_action()
+    SystemCoordinator->>RecordingFSM: start_recording()
+    RecordingFSM->>RecordingFSM: entry_action()
+    RecordingFSM->>RecordingFSM: do_action()
+    SystemCoordinator-->>TestProgram: Transition to SYS_RECORDING
+
+    Note over User,CommFSM: Recording in progress...
+    SystemCoordinator->>SystemCoordinator: do_action() periodic
+    SystemCoordinator->>RecordingFSM: do_action()
+    RecordingFSM->>RecordingFSM: capture_audio()
+
+    User->>TestProgram: Press stop button
+    TestProgram->>SystemCoordinator: system_coordinator_dispatch_event(SYS_EVT_REC_STOP)
+    SystemCoordinator->>SystemCoordinator: exit_state() from SYS_RECORDING
+    SystemCoordinator->>SystemCoordinator: enter_uploading()
+    SystemCoordinator->>SystemCoordinator: do_action()
+    SystemCoordinator->>CommFSM: start_upload()
+    CommFSM->>CommFSM: entry_action()
+    CommFSM->>CommFSM: do_action()
+    SystemCoordinator-->>TestProgram: Transition to SYS_UPLOADING
+
+    Note over User,CommFSM: Upload completes
+    CommFSM->>SystemCoordinator: upload_complete_callback()
+    SystemCoordinator->>SystemCoordinator: system_coordinator_dispatch_event(SYS_EVT_UPLOAD_COMPLETE)
+    SystemCoordinator->>SystemCoordinator: exit_state() from SYS_UPLOADING
+    SystemCoordinator->>SystemCoordinator: enter_idle()
+    SystemCoordinator->>SystemCoordinator: do_action()
+    SystemCoordinator-->>TestProgram: Transition to SYS_IDLE
+
+    Note over User,CommFSM: Scenario 2: Error Recovery Flow
+    User->>TestProgram: Simulate error
+    TestProgram->>SystemCoordinator: system_coordinator_set_error(1001, "Buffer overflow")
+    TestProgram->>SystemCoordinator: system_coordinator_dispatch_event(SYS_EVT_ERROR)
+    SystemCoordinator->>SystemCoordinator: exit_state() from SYS_RECORDING
+    SystemCoordinator->>SystemCoordinator: enter_error()
+    SystemCoordinator->>SystemCoordinator: do_action()
+    SystemCoordinator->>RecordingFSM: stop_recording()
+    RecordingFSM->>RecordingFSM: exit_action()
+    SystemCoordinator-->>TestProgram: Transition to SYS_ERROR
+
+    User->>TestProgram: Reset system
+    TestProgram->>SystemCoordinator: system_coordinator_dispatch_event(SYS_EVT_RESET)
+    SystemCoordinator->>SystemCoordinator: exit_state() from SYS_ERROR
+    SystemCoordinator->>SystemCoordinator: enter_idle()
+    SystemCoordinator->>SystemCoordinator: do_action()
+    SystemCoordinator-->>TestProgram: Transition to SYS_IDLE
+
+    Note over User,CommFSM: Scenario 3: Power Management Flow
+    User->>TestProgram: Low battery warning
+    TestProgram->>SystemCoordinator: system_coordinator_dispatch_event(SYS_EVT_LOW_BATTERY)
+    SystemCoordinator->>SystemCoordinator: exit_state() from SYS_IDLE
+    SystemCoordinator->>SystemCoordinator: enter_sleep()
+    SystemCoordinator->>SystemCoordinator: do_action()
+    SystemCoordinator->>PowerFSM: reduce_power()
+    PowerFSM->>PowerFSM: entry_action()
+    PowerFSM->>PowerFSM: do_action()
+    SystemCoordinator-->>TestProgram: Transition to SYS_SLEEP
+
+    User->>TestProgram: Power off
+    TestProgram->>SystemCoordinator: system_coordinator_dispatch_event(SYS_EVT_POWER_OFF)
+    SystemCoordinator->>SystemCoordinator: exit_state() from SYS_SLEEP
+    SystemCoordinator->>SystemCoordinator: enter_shutdown()
+    SystemCoordinator->>SystemCoordinator: do_action()
+    SystemCoordinator->>PowerFSM: power_off()
+    PowerFSM->>PowerFSM: exit_action()
+    SystemCoordinator-->>TestProgram: Transition to SYS_SHUTDOWN
+
+    Note over User,CommFSM: Scenario 4: External Device Control Command Flow
+    ExternalDevice->>CommFSM: Send command via Bluetooth/4G
+    CommFSM->>CommFSM: COMM_EVT_DATA_RECEIVED
+    CommFSM->>ExternalCommandProcessor: Forward raw data
+    ExternalCommandProcessor->>ExternalCommandProcessor: external_command_processor_process_raw()
+    ExternalCommandProcessor->>ExternalCommandProcessor: Parse binary protocol
+    ExternalCommandProcessor->>ExternalCommandProcessor: Validate checksum
+    ExternalCommandProcessor->>ExternalCommandProcessor: Create command_message
+
+    Note over ExternalCommandProcessor: Mode: Direct Event
+    ExternalCommandProcessor->>SystemCoordinator: system_coordinator_dispatch_event(SYS_EVT_REC_START)
+    SystemCoordinator->>SystemCoordinator: exit_state() from SYS_IDLE
+    SystemCoordinator->>SystemCoordinator: enter_recording()
+    SystemCoordinator->>SystemCoordinator: do_action()
+    SystemCoordinator->>RecordingFSM: start_recording()
+    RecordingFSM->>RecordingFSM: entry_action()
+    RecordingFSM->>RecordingFSM: do_action()
+    SystemCoordinator-->>ExternalCommandProcessor: Transition to SYS_RECORDING
+
+    ExternalCommandProcessor->>CommFSM: Send acknowledgment
+    CommFSM-->>ExternalDevice: Command acknowledged
+
+    Note over ExternalDevice,ExternalCommandProcessor: Mode: Callback with Queue
+    ExternalDevice->>CommFSM: Send multiple commands
+    CommFSM->>ExternalCommandProcessor: Forward data
+    ExternalCommandProcessor->>ExternalCommandProcessor: Queue commands (priority based)
+    ExternalCommandProcessor->>ExternalCommandProcessor: Process queue periodically
+    ExternalCommandProcessor->>SystemCoordinator: system_coordinator_dispatch_event(SYS_EVT_REC_STOP)
+    SystemCoordinator->>SystemCoordinator: exit_state() from SYS_RECORDING
+    SystemCoordinator->>SystemCoordinator: enter_uploading()
+    SystemCoordinator->>SystemCoordinator: do_action()
+    SystemCoordinator->>CommFSM: start_upload()
+    CommFSM->>CommFSM: entry_action()
+    CommFSM->>CommFSM: do_action()
+    SystemCoordinator-->>ExternalCommandProcessor: Transition to SYS_UPLOADING
+
+    Note over ExternalDevice,ExternalCommandProcessor: Mode: Hybrid (Callback + Queue)
+    ExternalDevice->>CommFSM: Send high priority command
+    CommFSM->>ExternalCommandProcessor: Forward data
+    ExternalCommandProcessor->>ExternalCommandProcessor: Priority >= threshold
+    ExternalCommandProcessor->>ExternalCommandProcessor: Immediate callback
+    ExternalCommandProcessor->>SystemCoordinator: system_coordinator_dispatch_event(SYS_EVT_POWER_OFF)
+    SystemCoordinator->>SystemCoordinator: exit_state() from SYS_UPLOADING
+    SystemCoordinator->>SystemCoordinator: enter_sleep()
+    SystemCoordinator->>SystemCoordinator: do_action()
+    SystemCoordinator->>PowerFSM: reduce_power()
+    PowerFSM->>PowerFSM: entry_action()
+    PowerFSM->>PowerFSM: do_action()
+    SystemCoordinator-->>ExternalCommandProcessor: Transition to SYS_SLEEP
+
+    ExternalCommandProcessor->>CommFSM: Send status update
+    CommFSM-->>ExternalDevice: System status: SLEEP mode
+        </div>
+    </div>
+
+    <div class="description">
+        <h3>Sequence Description</h3>
+        <p>This sequence diagram illustrates four main scenarios:</p>
+        <ol>
+            <li><strong>Normal Recording Flow:</strong> User starts recording, system transitions through IDLE → RECORDING → UPLOADING → IDLE states.</li>
+            <li><strong>Error Recovery Flow:</strong> Error occurs during recording, system enters ERROR state, then resets to IDLE.</li>
+            <li><strong>Power Management Flow:</strong> Low battery warning triggers SLEEP state, then power off leads to SHUTDOWN.</li>
+            <li><strong>External Device Control Command Flow:</strong> External device sends commands via Bluetooth/4G, which are processed by an external command processor and dispatched to the system coordinator, demonstrating three modes: Direct Event, Callback with Queue, and Hybrid (Callback + Queue).</li>
+        </ol>
+        <p>The diagram shows interactions between:</p>
+        <ul>
+            <li><strong>User:</strong> Initiates actions via test program</li>
+            <li><strong>Test Program:</strong> Calls system coordinator API functions</li>
+            <li><strong>System Coordinator:</strong> Main coordinator FSM</li>
+            <li><strong>Recording FSM:</strong> Handles audio recording operations</li>
+            <li><strong>Power FSM:</strong> Manages power states</li>
+            <li><strong>Comm FSM:</strong> Handles communication and upload</li>
+            <li><strong>External Device:</strong> Sends control commands via wireless</li>
+            <li><strong>External Command Processor:</strong> Parses and forwards commands to system coordinator</li>
+        </ul>
+        <p>This coordinated sequence ensures all subsystems are properly initialized and ready before recording begins, and demonstrates how external device control commands can be integrated into the system.</p>
+    </div>
+
+    <div class="links">

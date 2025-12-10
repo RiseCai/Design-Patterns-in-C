@@ -16,6 +16,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include "system_coordinator.h"
+#include "recording_fsm.h"
+#include "ota_fsm.h"
 
 /* Static operations structure */
 static struct system_coordinator_ops sys_ops;
@@ -25,6 +27,7 @@ static const char *state_names[] = {
     "SYS_INIT",
     "SYS_IDLE",
     "SYS_RECORDING",
+    "SYS_RECORDING_AND_UPLOADING",
     "SYS_UPLOADING",
     "SYS_ERROR",
     "SYS_SLEEP",
@@ -48,12 +51,26 @@ static const char *event_names[] = {
     "SYS_EVT_LOW_BATTERY",
     "SYS_EVT_CHARGING",
     "SYS_EVT_ERROR",
-    "SYS_EVT_RESET"
+    "SYS_EVT_RESET",
+    "SYS_EVT_TRANSFER_MODE_CHANGE",
+    "SYS_EVT_STREAMING_START",
+    "SYS_EVT_STREAMING_STOP",
+    "SYS_EVT_FILE_UPLOAD_START",
+    "SYS_EVT_FILE_UPLOAD_COMPLETE",
+    /* OTA events */
+    "SYS_EVT_OTA_START",
+    "SYS_EVT_OTA_CANCEL",
+    "SYS_EVT_OTA_CHECK",
+    "SYS_EVT_OTA_STATUS",
+    "SYS_EVT_OTA_PROGRESS",
+    "SYS_EVT_OTA_COMPLETE",
+    "SYS_EVT_OTA_ERROR"
 };
 
 /* Internal helper functions */
 static void transition_to_state(struct system_coordinator *sys, enum system_state new_state);
 static void handle_event_in_state(struct system_coordinator *sys, enum system_event event, void *data);
+static void forward_ota_event(struct system_coordinator *sys, enum system_event event, void *data);
 
 /* State entry handlers */
 static void enter_init(struct system_coordinator *sys) {
@@ -71,6 +88,14 @@ static void enter_init(struct system_coordinator *sys) {
     if (sys->audio_fsm) {
         /* Initialize audio FSM */
     }
+    if (sys->efsm_protocol) {
+        /* Initialize EFSM Protocol State Machine */
+        /* Note: efsm_processor_init would be called by the owner */
+    }
+    if (sys->ota_fsm) {
+        /* Initialize OTA FSM */
+        /* Note: ota_fsm_init would be called by the owner */
+    }
     
     /* After initialization, transition to IDLE */
     transition_to_state(sys, SYS_IDLE);
@@ -87,12 +112,22 @@ static void enter_recording(struct system_coordinator *sys) {
     /* Start recording process */
     /* Activate audio processing */
     /* Establish Bluetooth connection if needed */
+    /* Start recording FSM */
+    if (sys->recording_fsm) {
+        recording_fsm_dispatch_event(sys->recording_fsm, REC_EVT_START, NULL);
+    }
 }
 
 static void enter_uploading(struct system_coordinator *sys) {
     printf("System entering UPLOADING state\n");
     /* Start file upload process */
     /* Activate 4G network connection */
+}
+
+static void enter_recording_and_uploading(struct system_coordinator *sys) {
+    printf("System entering RECORDING_AND_UPLOADING state\n");
+    /* Start both recording and streaming transfer */
+    /* Activate audio processing and network connection */
 }
 
 static void enter_error(struct system_coordinator *sys) {
@@ -120,6 +155,10 @@ static void do_action(struct system_coordinator *sys) {
         case SYS_RECORDING:
             /* Monitor recording progress */
             /* Check for errors */
+            break;
+        case SYS_RECORDING_AND_UPLOADING:
+            /* Monitor both recording and streaming */
+            /* Check network status and recording quality */
             break;
         case SYS_UPLOADING:
             /* Monitor upload progress */
@@ -171,7 +210,20 @@ static void handle_recording_state(struct system_coordinator *sys, enum system_e
             break;
         case SYS_EVT_REC_PAUSE:
             printf("Pausing recording\n");
-            /* Handle pause - could transition to a PAUSED substate */
+            if (sys->recording_fsm) {
+                recording_fsm_dispatch_event(sys->recording_fsm, REC_EVT_PAUSE, data);
+            }
+            /* System stays in RECORDING state but recording FSM will be paused */
+            break;
+        case SYS_EVT_REC_RESUME:
+            printf("Resuming recording\n");
+            if (sys->recording_fsm) {
+                recording_fsm_dispatch_event(sys->recording_fsm, REC_EVT_RESUME, data);
+            }
+            break;
+        case SYS_EVT_STREAMING_START:
+            printf("Starting streaming while recording\n");
+            transition_to_state(sys, SYS_RECORDING_AND_UPLOADING);
             break;
         case SYS_EVT_ERROR:
             printf("Error during recording\n");
@@ -183,6 +235,36 @@ static void handle_recording_state(struct system_coordinator *sys, enum system_e
             break;
         default:
             printf("Unhandled event %s in RECORDING state\n", event_names[event]);
+            break;
+    }
+}
+
+static void handle_recording_and_uploading_state(struct system_coordinator *sys, enum system_event event, void *data) {
+    switch (event) {
+        case SYS_EVT_REC_STOP:
+            printf("Stopping recording in RECORDING_AND_UPLOADING state\n");
+            transition_to_state(sys, SYS_UPLOADING);
+            break;
+        case SYS_EVT_STREAMING_STOP:
+            printf("Stopping streaming in RECORDING_AND_UPLOADING state\n");
+            transition_to_state(sys, SYS_RECORDING);
+            break;
+        case SYS_EVT_UPLOAD_COMPLETE:
+            printf("Upload complete while recording\n");
+            /* Continue recording, stop uploading */
+            transition_to_state(sys, SYS_RECORDING);
+            break;
+        case SYS_EVT_NETWORK_DISCONNECTED:
+            printf("Network disconnected during streaming\n");
+            /* Continue recording only */
+            transition_to_state(sys, SYS_RECORDING);
+            break;
+        case SYS_EVT_ERROR:
+            printf("Error during recording and uploading\n");
+            transition_to_state(sys, SYS_ERROR);
+            break;
+        default:
+            printf("Unhandled event %s in RECORDING_AND_UPLOADING state\n", event_names[event]);
             break;
     }
 }
@@ -235,10 +317,60 @@ static void handle_sleep_state(struct system_coordinator *sys, enum system_event
     }
 }
 
+/* Forward OTA event to OTA FSM */
+static void forward_ota_event(struct system_coordinator *sys, enum system_event event, void *data) {
+    if (!sys || !sys->ota_fsm) {
+        return;
+    }
+    
+    /* Map system event to OTA FSM event */
+    enum ota_event ota_evt;
+    switch (event) {
+        case SYS_EVT_OTA_START:
+            ota_evt = OTA_EVT_START;
+            break;
+        case SYS_EVT_OTA_CANCEL:
+            ota_evt = OTA_EVT_CANCEL;
+            break;
+        case SYS_EVT_OTA_CHECK:
+            ota_evt = OTA_EVT_CHECK_UPDATE;
+            break;
+        case SYS_EVT_OTA_STATUS:
+            /* Status query - no direct mapping, treat as check update */
+            ota_evt = OTA_EVT_CHECK_UPDATE;
+            break;
+        case SYS_EVT_OTA_PROGRESS:
+            /* Progress update - map to download progress */
+            ota_evt = OTA_EVT_DOWNLOAD_PROGRESS;
+            break;
+        case SYS_EVT_OTA_COMPLETE:
+            /* OTA complete - map to install complete */
+            ota_evt = OTA_EVT_INSTALL_COMPLETE;
+            break;
+        case SYS_EVT_OTA_ERROR:
+            ota_evt = OTA_EVT_ERROR;
+            break;
+        default:
+            /* Not an OTA event */
+            return;
+    }
+    
+    /* Dispatch to OTA FSM */
+    ota_fsm_dispatch_event(sys->ota_fsm, ota_evt, data);
+}
+
 /* Main event handler */
 static void handle_event(struct system_coordinator *sys, enum system_event event, void *data) {
     printf("System handling event: %s in state: %s\n", 
           event_names[event], state_names[sys->current_state]);
+    
+    /* Forward OTA events to OTA FSM */
+    if (event >= SYS_EVT_OTA_START && event <= SYS_EVT_OTA_ERROR) {
+        forward_ota_event(sys, event, data);
+        /* OTA events may also affect system state, but for now we just forward */
+        /* Optionally, we could prevent further processing */
+        return;
+    }
     
     /* Call state-specific event handler */
     switch (sys->current_state) {
@@ -250,6 +382,9 @@ static void handle_event(struct system_coordinator *sys, enum system_event event
             break;
         case SYS_RECORDING:
             handle_recording_state(sys, event, data);
+            break;
+        case SYS_RECORDING_AND_UPLOADING:
+            handle_recording_and_uploading_state(sys, event, data);
             break;
         case SYS_UPLOADING:
             handle_uploading_state(sys, event, data);
@@ -295,6 +430,9 @@ static void transition_to_state(struct system_coordinator *sys, enum system_stat
         case SYS_RECORDING:
             if (sys_ops.enter_recording) sys_ops.enter_recording(sys);
             break;
+        case SYS_RECORDING_AND_UPLOADING:
+            if (sys_ops.enter_recording_and_uploading) sys_ops.enter_recording_and_uploading(sys);
+            break;
         case SYS_UPLOADING:
             if (sys_ops.enter_uploading) sys_ops.enter_uploading(sys);
             break;
@@ -321,6 +459,7 @@ static void init_operations(void) {
     sys_ops.enter_init = enter_init;
     sys_ops.enter_idle = enter_idle;
     sys_ops.enter_recording = enter_recording;
+    sys_ops.enter_recording_and_uploading = enter_recording_and_uploading;
     sys_ops.enter_uploading = enter_uploading;
     sys_ops.enter_error = enter_error;
     sys_ops.enter_sleep = enter_sleep;
@@ -413,4 +552,12 @@ void system_coordinator_set_power_fsm(struct system_coordinator *sys, struct pow
 
 void system_coordinator_set_audio_fsm(struct system_coordinator *sys, struct audio_fsm *fsm) {
     if (sys) sys->audio_fsm = fsm;
+}
+
+void system_coordinator_set_efsm_protocol(struct system_coordinator *sys, struct efsm_protocol *efsm) {
+    if (sys) sys->efsm_protocol = efsm;
+}
+
+void system_coordinator_set_ota_fsm(struct system_coordinator *sys, struct ota_fsm *fsm) {
+    if (sys) sys->ota_fsm = fsm;
 }

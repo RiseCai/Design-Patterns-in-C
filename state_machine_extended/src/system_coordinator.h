@@ -24,13 +24,16 @@ struct recording_fsm;
 struct comm_fsm;
 struct power_fsm;
 struct audio_fsm;
+struct efsm_protocol;
+struct ota_fsm;
 
 /** System states */
 enum system_state {
     SYS_INIT,
     SYS_IDLE,
-    SYS_RECORDING,
-    SYS_UPLOADING,
+    SYS_RECORDING,           /* Only recording (no network) */
+    SYS_RECORDING_AND_UPLOADING, /* Recording + streaming transfer */
+    SYS_UPLOADING,           /* Only uploading (recording stopped) */
     SYS_ERROR,
     SYS_SLEEP,
     SYS_SHUTDOWN
@@ -53,7 +56,21 @@ enum system_event {
     SYS_EVT_LOW_BATTERY,
     SYS_EVT_CHARGING,
     SYS_EVT_ERROR,
-    SYS_EVT_RESET
+    SYS_EVT_RESET,
+    /* New events for streaming and transfer mode */
+    SYS_EVT_TRANSFER_MODE_CHANGE,   /* Transfer mode changed */
+    SYS_EVT_STREAMING_START,        /* Start streaming */
+    SYS_EVT_STREAMING_STOP,         /* Stop streaming */
+    SYS_EVT_FILE_UPLOAD_START,      /* Start file upload */
+    SYS_EVT_FILE_UPLOAD_COMPLETE,   /* File upload complete */
+    /* OTA events */
+    SYS_EVT_OTA_START,              /* Start OTA update */
+    SYS_EVT_OTA_CANCEL,             /* Cancel OTA update */
+    SYS_EVT_OTA_CHECK,              /* Check for OTA updates */
+    SYS_EVT_OTA_STATUS,             /* Get OTA status */
+    SYS_EVT_OTA_PROGRESS,           /* OTA progress update */
+    SYS_EVT_OTA_COMPLETE,           /* OTA update complete */
+    SYS_EVT_OTA_ERROR               /* OTA error */
 };
 
 /** System coordinator context */
@@ -66,6 +83,8 @@ struct system_coordinator {
     struct comm_fsm *comm_fsm;
     struct power_fsm *power_fsm;
     struct audio_fsm *audio_fsm;
+    struct efsm_protocol *efsm_protocol;  /* EFSM Protocol State Machine */
+    struct ota_fsm *ota_fsm;              /* OTA FSM */
     
     /* User data */
     void *user_data;
@@ -87,6 +106,7 @@ struct system_coordinator_ops {
     void (*enter_init)(struct system_coordinator *sys);
     void (*enter_idle)(struct system_coordinator *sys);
     void (*enter_recording)(struct system_coordinator *sys);
+    void (*enter_recording_and_uploading)(struct system_coordinator *sys);
     void (*enter_uploading)(struct system_coordinator *sys);
     void (*enter_error)(struct system_coordinator *sys);
     void (*enter_sleep)(struct system_coordinator *sys);
@@ -116,5 +136,7 @@ void system_coordinator_set_recording_fsm(struct system_coordinator *sys, struct
 void system_coordinator_set_comm_fsm(struct system_coordinator *sys, struct comm_fsm *fsm);
 void system_coordinator_set_power_fsm(struct system_coordinator *sys, struct power_fsm *fsm);
 void system_coordinator_set_audio_fsm(struct system_coordinator *sys, struct audio_fsm *fsm);
+void system_coordinator_set_efsm_protocol(struct system_coordinator *sys, struct efsm_protocol *efsm);
+void system_coordinator_set_ota_fsm(struct system_coordinator *sys, struct ota_fsm *fsm);
 
 #endif /* __SYSTEM_COORDINATOR_H__ */

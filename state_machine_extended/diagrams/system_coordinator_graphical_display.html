@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Coordinator & Subsystems Graphical Display</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10.6.1/dist/mermaid.min.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background-color: #f8f9fa;
+            color: #333;
+            line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        header {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .container {
+            display: flex;
+            flex: 1;
+        }
+        .sidebar {
+            width: 250px;
+            background: white;
+            border-right: 1px solid #ddd;
+            padding: 20px;
+            box-shadow: 2px 0 8px rgba(0, 0, 0, 0.05);
+            overflow-y: auto;
+        }
+        .sidebar h2 {
+            color: #2575fc;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+        .sidebar ul {
+            list-style: none;
+        }
+        .sidebar li {
+            margin-bottom: 10px;
+        }
+        .sidebar a {
+            display: block;
+            padding: 12px 15px;
+            background: #f1f3f5;
+            color: #333;
+            text-decoration: none;
+            border-radius: 6px;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+        .sidebar a:hover {
+            background: #2575fc;
+            color: white;
+        }
+        .sidebar a.active {
+            background: #2575fc;
+            color: white;
+        }
+        .main-content {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .section-title {
+            font-size: 2rem;
+            color: #2575fc;
+            margin-bottom: 20px;
+            border-bottom: 3px solid #2575fc;
+            padding-bottom: 10px;
+        }
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border-left: 6px solid #2575fc;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.12);
+        }
+        .card h3 {
+            color: #2575fc;
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .card h3 .icon {
+            font-size: 1.3rem;
+        }
+        .card p {
+            margin-bottom: 15px;
+            color: #555;
+        }
+        .features {
+            list-style: none;
+            margin: 15px 0;
+        }
+        .features li {
+            padding: 8px 0;
+            border-bottom: 1px dashed #eee;
+            display: flex;
+            align-items: center;
+        }
+        .features li:before {
+            content: "✓";
+            color: #28a745;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        .iframe-container {
+            width: 100%;
+            height: 500px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-top: 20px;
+        }
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        .links {
+            margin-top: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .btn {
+            display: inline-block;
+            padding: 10px 18px;
+            background: #2575fc;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+        .btn:hover {
+            background: #1a5fd8;
+        }
+        .btn-secondary {
+            background: #6c757d;
+        }
+        .btn-secondary:hover {
+            background: #545b62;
+        }
+        .mapping-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 30px 0;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+        .mapping-table th, .mapping-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        .mapping-table th {
+            background: #28a745;
+            color: white;
+            font-weight: 600;
+        }
+        .mapping-table tr:hover {
+            background: #e7f7eb;
+        }
+        footer {
+            text-align: center;
+            padding: 20px;
+            background: #343a40;
+            color: white;
+            margin-top: 40px;
+        }
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+            .sidebar {
+                width: 100%;
+                border-right: none;
+                border-bottom: 1px solid #ddd;
+            }
+            .card-grid {
+                grid-template-columns: 1fr;
+            }
+            h1 {
+                font-size: 2.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>System Coordinator & Subsystems Graphical Display</h1>
+        <p class="subtitle">Interactive visualization of the TWS Earphone System's hierarchical state machines, including the System Coordinator and all subsystem FSMs (Communication, Power, Audio, Recording).</p>
+    </header>
+
+    <div class="container">
+        <nav class="sidebar">
+            <h2>Navigation</h2>
+            <ul>
+                <li><a href="#system-coordinator" class="active" onclick="switchSection('system-coordinator')">System Coordinator</a></li>
+                <li><a href="#subsystems-overview" onclick="switchSection('subsystems-overview')">Subsystems Overview</a></li>
+                <li><a href="#comm-fsm" onclick="switchSection('comm-fsm')">Communication FSM</a></li>
+                <li><a href="#power-fsm" onclick="switchSection('power-fsm')">Power FSM</a></li>
+                <li><a href="#audio-fsm" onclick="switchSection('audio-fsm')">Audio FSM</a></li>
+                <li><a href="#recording-fsm" onclick="switchSection('recording-fsm')">Recording FSM</a></li>
+                <li><a href="#mapping" onclick="switchSection('mapping')">State Mapping</a></li>
+                <li><a href="#sequence" onclick="switchSection('sequence')">Sequence Diagram</a></li>
+            </ul>
+        </nav>
+
+        <main class="main-content">
+            <!-- System Coordinator Section -->
+            <section id="system-coordinator" class="tab-content active">
+                <h2 class="section-title">System Coordinator FSM</h2>
+                <p>The top‑level state machine that coordinates all subsystems. It manages system‑wide states (INIT, IDLE, RECORDING, UPLOADING, ERROR, SLEEP, SHUTDOWN) and dispatches events to the appropriate subsystems.</p>
+                <div class="iframe-container">
+                    <iframe src="system_coordinator_state_diagram_with_api.html" title="System Coordinator FSM Diagram"></iframe>
+                </div>
+                <div class="links">
+                    <a href="system_coordinator_state_diagram_with_api.html" class="btn" target="_blank">Open in New Tab</a>
+                    <a href="../src/system_coordinator.h" class="btn btn-secondary">View Header</a>
+                    <a href="../src/system_coordinator.c" class="btn btn-secondary">View C Code</a>
+                </div>
+            </section>
+
+            <!-- Subsystems Overview Section -->
+            <section id="subsystems-overview" class="tab-content">
+                <h2 class="section-title">Subsystems Overview</h2>
+                <p>The system coordinator manages four subsystems, each with its own state machine.</p>
+                <div class="card-grid">
+                    <!-- Power FSM Card -->
+                    <div class="card">
+                        <h3><span class="icon">🔋</span> Power FSM</h3>
+                        <p><strong>Scenario:</strong> Power Management</p>
+                        <p><strong>Type:</strong> Mealy / Moore</p>
+                        <p><strong>Key Features:</strong> Battery monitoring, charging states, low‑power sleep.</p>
+                        <ul class="features">
+                            <li>States: OFF, ON, CHARGING, LOW_BATTERY</li>
+                            <li>Events: power_on, power_off, charge_start, charge_complete, battery_low</li>
+                            <li>API: power_fsm_dispatch_event()</li>
+                            <li>Code: power_fsm.c / power_fsm.h</li>
+                        </ul>
+                        <div class="links">
+                            <a href="power_fsm_diagram_with_api.html" class="btn">View Diagram</a>
+                            <a href="../src/power_fsm.c" class="btn btn-secondary">View C Code</a>
+                        </div>
+                    </div>
+
+                    <!-- Audio FSM Card -->
+                    <div class="card">
+                        <h3><span class="icon">🎵</span> Audio FSM</h3>
+                        <p><strong>Scenario:</strong> Audio Playback & Recording</p>
+                        <p><strong>Type:</strong> Mealy / Moore</p>
+                        <p><strong>Key Features:</strong> Audio routing, volume control, noise cancellation.</p>
+                        <ul class="features">
+                            <li>States: IDLE, PLAYING, PAUSED, RECORDING, MUTED</li>
+                            <li>Events: play, pause, stop, record, volume_up, volume_down</li>
+                            <li>API: audio_fsm_dispatch_event()</li>
+                            <li>Code: audio_fsm.c / audio_fsm.h</li>
+                        </ul>
+                        <div class="links">
+                            <a href="audio_fsm_diagram_with_api.html" class="btn">View Diagram</a>
+                            <a href="../src/audio_fsm.c" class="btn btn-secondary">View C Code</a>
+                        </div>
+                    </div>
+
+                    <!-- Recording FSM Card -->
+                    <div class="card">
+                        <h3><span class="icon">🎙️</span> Recording FSM</h3>
+                        <p><strong>Scenario:</strong> Voice Recording</p>
+                        <p><strong>Type:</strong> Mealy / Moore</p>
+                        <p><strong>Key Features:</strong> Start/stop recording, buffer management, quality settings.</p>
+                        <ul class="features">
+                            <li>States: IDLE, RECORDING, PAUSED, PROCESSING, SAVING</li>
+                            <li>Events: rec_start, rec_stop, rec_pause, rec_resume, save</li>
+                            <li>API: recording_fsm_dispatch_event()</li>
+                            <li>Code: recording_fsm.c / recording_fsm.h</li>
+                        </ul>
+                        <div class="links">
+                            <a href="recording_fsm_diagram_with_api.html" class="btn">View Diagram</a>
+                            <a href="../src/recording_fsm.c" class="btn btn-secondary">View C Code</a>
+                        </div>
+                    </div>
+
+                    <!-- Communication FSM Card -->
+                    <div class="card">
+                        <h3><span class="icon">📡</span> Communication FSM</h3>
+                        <p><strong>Scenario:</strong> Bluetooth & Network Communication</p>
+                        <p><strong>Type:</strong> Mealy / Moore</p>
+                        <p><strong>Key Features:</strong> Bluetooth pairing, data transfer, network connectivity.</p>
+                        <ul class="features">
+                            <li>States: DISCONNECTED, CONNECTING, CONNECTED, TRANSFERRING, ERROR</li>
+                            <li>Events: connect, disconnect, send_data, receive_data, error</li>
+                            <li>API: comm_fsm_dispatch_event()</li>
+                            <li>Code: comm_fsm.c / comm_fsm.h</li>
+                        </ul>
+                        <div class="links">
+                            <a href="comm_fsm_diagram_with_api.html" class="btn">View Diagram</a>
+                            <a href="../src/comm_fsm.c" class="btn btn-secondary">View C Code</a>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Communication FSM Section -->
+            <section id="comm-fsm" class="tab-content">
+                <h2 class="section-title">Communication FSM</h2>
+                <p>Manages Bluetooth/Wi‑Fi connectivity and data transfer. States: IDLE, CONNECTING, CONNECTED, TRANSFERRING, DISCONNECTING, ERROR.</p>
+                <div class="iframe-container">
+                    <iframe src="comm_fsm_diagram_with_api.html" title="Communication FSM Diagram"></iframe>
+                </div>
+                <div class="links">
+                    <a href="comm_fsm_diagram_with_api.html" class="btn" target="_blank">Open in New Tab</a>
+                    <a href="../src/comm_fsm.h" class="btn btn-secondary">View Header</a>
+                    <a href="../src/comm_fsm.c" class="btn btn-secondary">View C Code</a>
+                </div>
+            </section>
+
+            <!-- Power FSM Section -->
+            <section id="power-fsm" class="tab-content">
+                <h2 class="section-title">Power FSM</h2>
+                <p>Handles power states (ON, OFF, LOW_BATTERY, CHARGING, SLEEP) and battery management.</p>
+                <div class="iframe-container">
+                    <iframe src="power_fsm_diagram_with_api.html" title="Power FSM Diagram"></iframe>
+                </div>
+                <div class="links">
+                    <a href="power_fsm_diagram_with_api.html" class="btn" target="_blank">Open in New Tab</a>
+                    <a href="../src/power_fsm.h" class="btn btn-secondary">View Header</a>
+                    <a href="../src/power_fsm.c" class="btn btn-secondary">View C Code</a>
+                </div>
+            </section>
+
+            <!-- Audio FSM Section -->
+            <section id="audio-fsm" class="tab-content">
+                <h2 class="section-title">Audio FSM</h2>
+                <p>Controls audio playback, recording, and processing. States: IDLE, PLAYING, PAUSED, RECORDING, ERROR.</p>
+                <div class="iframe-container">
+                    <iframe src="audio_fsm_diagram_with_api.html" title="Audio FSM Diagram"></iframe>
+                </div>
+                <div class="links">
+                    <a href="audio_fsm_diagram_with_api.html" class="btn" target="_blank">Open in New Tab</a>
+                    <a href="../src/audio_fsm.h" class="btn btn-secondary">View Header</a>
+                    <a href="../src/audio_fsm.c" class="btn btn-secondary">View C Code</a>
+                </div>
+            </section>
+
+            <!-- Recording FSM Section -->
+            <section id="recording-fsm" class="tab-content">
+                <h2 class="section-title">Recording FSM</h2>
+                <p>Manages the recording process (IDLE, RECORDING, PAUSED, STOPPED, UPLOADING, ERROR).</p>
+                <div class="iframe-container">
+                    <iframe src="recording_fsm_diagram_with_api.html" title="Recording FSM Diagram"></iframe>
+                </div>
+                <div class="links">
+                    <a href="recording_fsm_diagram_with_api.html" class="btn" target="_blank">Open in New Tab</a>
+                    <a href="../src/recording_fsm.h" class="btn btn-secondary">View Header</a>
+                    <a href="../src/recording_fsm.c" class="btn btn-secondary">View C Code</a>
+                </div>
+            </section>
+
+            <!-- State Mapping Section -->
+            <section id="mapping" class="tab-content">
+                <h2 class="section-title">State Mapping Table</h2>
+                <p>Mapping between system coordinator states and subsystem states.</p>
+                <table class="mapping-table">
+                    <thead>
+                        <tr>
+                            <th>System Coordinator State</th>
+                            <th>Subsystem</th>
+                            <th>Subsystem State</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>SYS_IDLE</td>
+                            <td>Power FSM</td>
+                            <td>ON</td>
+                            <td>System powered on, battery normal</td>
+                        </tr>
+                        <tr>
+                            <td>SYS_IDLE</td>
+                            <td>Audio FSM</td>
+                            <td>IDLE</td>
+                            <td>Audio playback stopped, ready</td>
+                        </tr>
+                        <tr>
+                            <td>SYS_IDLE</td>
+                            <td>Communication FSM</td>
+                            <td>CONNECTED</td>
+                            <td>Bluetooth connected, idle</td>
+                        </tr>
+                        <tr>
+                            <td>SYS_RECORDING</td>
+                            <td>Audio FSM</td>
+                            <td>RECORDING</td>
+                            <td>Audio recording active</td>
+                        </tr>
+                        <tr>
+                            <td>SYS_RECORDING</td>
+                            <td>Recording FSM</td>
+                            <td>RECORDING</td>
+                            <td>Recording process active</td>
+                        </tr>
+                        <tr>
+                            <td>SYS_UPLOADING</td>
+                            <td>Communication FSM</td>
+                            <td>TRANSFERRING</td>
+                            <td>Uploading data to cloud</td>
+                        </tr>
+                        <tr>
+                            <td>SYS_ERROR</td>
+                            <td>All subsystems</td>
+                            <td>ERROR</td>
+                            <td>Error state propagated</td>
+                        </tr>
+                        <tr>
+                            <td>SYS_SLEEP</td>
+                            <td>Power FSM</td>
+                            <td>SLEEP</td>
+                            <td>Low‑power sleep mode</td>
+                        </tr>
+                        <tr>
+                            <td>SYS_SHUTDOWN</td>
+                            <td>Power FSM</td>
+                            <td>OFF</td>
+                            <td>Power off</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- Sequence Diagram Section -->
+            <section id="sequence" class="tab-content">
+                <h2 class="section-title">Sequence Diagram</h2>
+                <p>Interaction sequence between system coordinator and subsystems during a typical recording‑upload cycle.</p>
+                <div class="iframe-container">
+                    <iframe src="system_coordinator_sequence_mermaid.html" title="System Coordinator Sequence Diagram"></iframe>
+                </div>
+                <div class="links">
+                    <a href="system_coordinator_sequence_mermaid.html" class="btn" target="_blank">Open in New Tab</a>
+                    <a href="system_coordinator_sequence.html" class="btn btn-secondary">View PlantUML Version</a>
+                    <a href="system_coordinator_sequence.puml" class="btn btn-secondary">View PlantUML Source</a>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <footer>
+        <p>© 2025 TWS Earphone System Design | State Machine Extended Project</p>
+        <p>Generated with ❤️ for educational and demonstration purposes.</p>
+        <p><a href="../docs/summary.html" style="color: #80bdff;">Back to Summary</a> | <a href="../FINAL_SUMMARY.md" style="color: #80bdff;">Project Documentation</a></p>
+    </footer>
+
+    <script>
+        // Tab switching
+        function switchSection(sectionId) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            // Show selected tab content
+            const activeTab = document.getElementById(sectionId);
+            if (activeTab) {
+                activeTab.classList.add('active');
+            }
+            // Update active link in sidebar
+            document.querySelectorAll('.sidebar a').forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === '#' + sectionId) {
+                    link.classList.add('active');
+                }
+            });
+        }
+
+        // Initialize Mermaid
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'default',
+            flowchart: { useMaxWidth: true },
+            securityLevel: 'loose'
+        });
+
+        // Set default active section
+        window.onload = function() {
+            switchSection('system-coordinator');
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Communication FSM Diagram with API</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 20px;
+            background: #f8f9fa;
+            color: #333;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.08);
+        }
+        h1 {
+            color: #4361ee;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+        }
+        .diagram-container {
+            text-align: center;
+            padding: 20px;
+            background: #f1f7ff;
+            border: 2px solid #4361ee;
+            border-radius: 8px;
+            margin: 30px 0;
+        }
+        .diagram-container h2 {
+            color: #4361ee;
+            margin-bottom: 15px;
+        }
+        .mermaid {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .api-info {
+            background: #e9ecef;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 30px 0;
+        }
+        .api-info h3 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+        .state-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        .state-table th, .state-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        .state-table th {
+            background: #4361ee;
+            color: white;
+        }
+        .state-table tr:hover {
+            background: #f1f7ff;
+        }
+        .links {
+            margin-top: 30px;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background: #4361ee;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+        .btn:hover {
+            background: #2a4fdb;
+        }
+        .btn-secondary {
+            background: #6c757d;
+        }
+        .btn-secondary:hover {
+            background: #545b62;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10.6.1/dist/mermaid.min.js"></script>
+    <script>
+        mermaid.initialize({ startOnLoad: true, theme: 'default' });
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1>Communication FSM Diagram</h1>
+        <p class="subtitle">State diagram for Bluetooth/Wi‑Fi connectivity and data transfer FSM, with API call annotations.</p>
+        
+        <div class="diagram-container">
+            <h2>📡 Communication FSM State Diagram</h2>
+            <div class="mermaid">
+graph TD
+    COMM_IDLE -->|COMM_EVT_CONNECT| COMM_CONNECTING
+    COMM_CONNECTING -->|COMM_EVT_CONNECTED| COMM_CONNECTED
+    COMM_CONNECTED -->|COMM_EVT_DATA_READY| COMM_TRANSFERRING
+    COMM_TRANSFERRING -->|COMM_EVT_DATA_SENT| COMM_CONNECTED
+    COMM_CONNECTED -->|COMM_EVT_DISCONNECT| COMM_DISCONNECTING
+    COMM_DISCONNECTING -->|COMM_EVT_DISCONNECTED| COMM_IDLE
+    COMM_IDLE -->|COMM_EVT_ERROR| COMM_ERROR
+    COMM_CONNECTING -->|COMM_EVT_ERROR| COMM_ERROR
+    COMM_CONNECTED -->|COMM_EVT_ERROR| COMM_ERROR
+    COMM_TRANSFERRING -->|COMM_EVT_ERROR| COMM_ERROR
+    COMM_DISCONNECTING -->|COMM_EVT_ERROR| COMM_ERROR
+    COMM_ERROR -->|COMM_EVT_RESET| COMM_IDLE
+    
+    style COMM_IDLE fill:#c9f7c5
+    style COMM_CONNECTING fill:#c5e3f7
+    style COMM_CONNECTED fill:#d4c5f7
+    style COMM_TRANSFERRING fill:#f7c5e3
+    style COMM_DISCONNECTING fill:#f7e3c5
+    style COMM_ERROR fill:#f7c5c5
+            </div>
+            <p><strong>States:</strong> COMM_IDLE, COMM_CONNECTING, COMM_CONNECTED, COMM_TRANSFERRING, COMM_DISCONNECTING, COMM_ERROR</p>
+            <p><strong>Events:</strong> COMM_EVT_CONNECT, COMM_EVT_DISCONNECT, COMM_EVT_CONNECTED, COMM_EVT_DATA_READY, COMM_EVT_ERROR, etc.</p>
+        </div>
+        
+        <div class="api-info">
+            <h3>API Integration</h3>
+            <p>The Communication FSM provides the following API functions that are called by the System Coordinator:</p>
+            <ul>
+                <li><code>comm_fsm_init()</code> – Initialize the FSM</li>
+                <li><code>comm_fsm_dispatch_event()</code> – Dispatch an event to the current state</li>
+                <li><code>comm_fsm_is_connected()</code> – Check connection status</li>
+                <li><code>comm_fsm_start_transfer()</code> – Start data transfer</li>
+                <li><code>comm_fsm_set_error()</code> – Set error state</li>
+            </ul>
+            <p>These API calls are annotated on the diagram to show how the System Coordinator interacts with this subsystem.</p>
+        </div>
+        
+        <h3>State Transition Table</h3>
+        <table class="state-table">
+            <thead>
+                <tr>
+                    <th>Current State</th>
+                    <th>Event</th>
+                    <th>Next State</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>COMM_IDLE</td>
+                    <td>COMM_EVT_CONNECT</td>
+                    <td>COMM_CONNECTING</td>
+                    <td>Start connection attempt</td>
+                </tr>
+                <tr>
+                    <td>COMM_CONNECTING</td>
+                    <td>COMM_EVT_CONNECTED</td>
+                    <td>COMM_CONNECTED</td>
+                    <td>Signal connected, update signal strength</td>
+                </tr>
+                <tr>
+                    <td>COMM_CONNECTED</td>
+                    <td>COMM_EVT_DATA_READY</td>
+                    <td>COMM_TRANSFERRING</td>
+                    <td>Begin data transfer</td>
+                </tr>
+                <tr>
+                    <td>COMM_TRANSFERRING</td>
+                    <td>COMM_EVT_DATA_SENT</td>
+                    <td>COMM_CONNECTED</td>
+                    <td>Return to connected state</td>
+                </tr>
+                <tr>
+                    <td>COMM_CONNECTED</td>
+                    <td>COMM_EVT_DISCONNECT</td>
+                    <td>COMM_DISCONNECTING</td>
+                    <td>Initiate disconnection</td>
+                </tr>
+                <tr>
+                    <td>COMM_DISCONNECTING</td>
+                    <td>COMM_EVT_DISCONNECTED</td>
+                    <td>COMM_IDLE</td>
+                    <td>Return to idle</td>
+                </tr>
+                <tr>
+                    <td>Any state</td>
+                    <td>COMM_EVT_ERROR</td>
+                    <td>COMM_ERROR</td>
+                    <td>Enter error recovery</td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <div class="links">
+            <a href="../src/comm_fsm.c" class="btn">View C Code</a>
+            <a href="../src/comm_fsm.h" class="btn btn-secondary">View Header</a>
+            <a href="../state_machine_visualization.html" class="btn btn-secondary">Back to Visualization</a>
+        </div>
+    </div>
+</body>
+</html>

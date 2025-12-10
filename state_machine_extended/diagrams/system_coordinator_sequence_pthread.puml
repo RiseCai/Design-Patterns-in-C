@@ -1,15 +1,35 @@
 @startuml
-title System Coordinator API Call Sequence (TWS Earphone System)
+title System Coordinator API Call Sequence (TWS Earphone System) with pthread Thread Mapping
 
+' Define participants
 actor "User" as USER
-participant "Test Program" as TEST
-participant "System Coordinator" as SYS
-participant "Recording FSM" as REC
-participant "Power FSM" as PWR
-participant "OTA FSM" as OTA
-participant "External Command\nProcessor" as CMD_PROC
-participant "Comm FSM" as COMM
 actor "External Device" as EXTDEV
+
+' Define pthread boxes (virtual boxes)
+box "Main Control Thread"
+  participant "Test Program" as TEST
+  participant "System Coordinator" as SYS
+end box
+
+box "Command Processing Thread"
+  participant "External Command\nProcessor" as CMD_PROC
+end box
+
+box "Recording Thread"
+  participant "Recording FSM" as REC
+end box
+
+box "Communication Thread"
+  participant "Comm FSM" as COMM
+end box
+
+box "Power Management Thread"
+  participant "Power FSM" as PWR
+end box
+
+box "OTA Thread"
+  participant "OTA FSM" as OTA
+end box
 
 note over USER,COMM : Initialization Phase
 USER -> TEST : Start test program

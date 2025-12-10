@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audio FSM Diagram with API</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 20px;
+            background: #f8f9fa;
+            color: #333;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.08);
+        }
+        h1 {
+            color: #4cc9f0;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+        }
+        .diagram-container {
+            text-align: center;
+            padding: 20px;
+            background: #f1fcff;
+            border: 2px solid #4cc9f0;
+            border-radius: 8px;
+            margin: 30px 0;
+        }
+        .diagram-container h2 {
+            color: #4cc9f0;
+            margin-bottom: 15px;
+        }
+        .mermaid {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .api-info {
+            background: #e9ecef;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 30px 0;
+        }
+        .api-info h3 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+        .state-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        .state-table th, .state-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        .state-table th {
+            background: #4cc9f0;
+            color: white;
+        }
+        .state-table tr:hover {
+            background: #f1fcff;
+        }
+        .links {
+            margin-top: 30px;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background: #4cc9f0;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+        .btn:hover {
+            background: #2ab0d6;
+        }
+        .btn-secondary {
+            background: #6c757d;
+        }
+        .btn-secondary:hover {
+            background: #545b62;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10.6.1/dist/mermaid.min.js"></script>
+    <script>
+        mermaid.initialize({ startOnLoad: true, theme: 'default' });
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1>Audio FSM Diagram</h1>
+        <p class="subtitle">State diagram for audio playback and control FSM, with API call annotations.</p>
+        
+        <div class="diagram-container">
+            <h2>🎵 Audio FSM State Diagram</h2>
+            <div class="mermaid">
+graph TD
+    AUDIO_OFF -->|PLAY| PLAYING
+    PLAYING -->|PAUSE| PAUSED
+    PAUSED -->|PLAY| PLAYING
+    PLAYING -->|VOL_UP| VOLUME_ADJUST
+    PLAYING -->|VOL_DOWN| VOLUME_ADJUST
+    VOLUME_ADJUST -->|VOLUME_SET| PLAYING
+    PLAYING -->|EQ_CHANGE| EQ_MODE
+    EQ_MODE -->|EQ_SET| PLAYING
+    PLAYING -->|ANC_TOGGLE| ANC_ACTIVE
+    ANC_ACTIVE -->|ANC_TOGGLE| PLAYING
+    PLAYING -->|STOP| AUDIO_OFF
+    PAUSED -->|STOP| AUDIO_OFF
+    VOLUME_ADJUST -->|STOP| AUDIO_OFF
+    EQ_MODE -->|STOP| AUDIO_OFF
+    ANC_ACTIVE -->|STOP| AUDIO_OFF
+    
+    style AUDIO_OFF fill:#e0e0e0
+    style PLAYING fill:#c9f7c5
+    style PAUSED fill:#f7e3c5
+    style VOLUME_ADJUST fill:#c5e3f7
+    style EQ_MODE fill:#e3c5f7
+    style ANC_ACTIVE fill:#f7c5e3
+            </div>
+            <p><strong>States:</strong> AUDIO_OFF, PLAYING, PAUSED, VOLUME_ADJUST, EQ_MODE, ANC_ACTIVE</p>
+            <p><strong>Events:</strong> PLAY, PAUSE, VOL_UP, VOL_DOWN, EQ_CHANGE, ANC_TOGGLE, STOP, NEXT_TRACK, PREV_TRACK, etc.</p>
+        </div>
+        
+        <div class="api-info">
+            <h3>API Integration</h3>
+            <p>The Audio FSM provides the following API functions that are called by the System Coordinator:</p>
+            <ul>
+                <li><code>audio_fsm_init()</code> – Initialize the FSM</li>
+                <li><code>audio_fsm_process()</code> – Dispatch an event to the current state</li>
+                <li><code>audio_fsm_play()</code> – Start audio playback</li>
+                <li><code>audio_fsm_pause()</code> – Pause playback</li>
+                <li><code>audio_fsm_set_volume()</code> – Adjust volume level</li>
+                <li><code>audio_fsm_set_eq()</code> – Change equalizer preset</li>
+                <li><code>audio_fsm_toggle_anc()</code> – Toggle noise cancellation</li>
+            </ul>
+            <p>These API calls are annotated on the diagram to show how the System Coordinator interacts with this subsystem.</p>
+        </div>
+        
+        <h3>State Transition Table</h3>
+        <table class="state-table">
+            <thead>
+                <tr>
+                    <th>Current State</th>
+                    <th>Event</th>
+                    <th>Next State</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>AUDIO_OFF</td>
+                    <td>PLAY</td>
+                    <td>PLAYING</td>
+                    <td>Start audio playback, initialize audio stream</td>
+                </tr>
+                <tr>
+                    <td>PLAYING</td>
+                    <td>PAUSE</td>
+                    <td>PAUSED</td>
+                    <td>Pause playback, retain buffer</td>
+                </tr>
+                <tr>
+                    <td>PAUSED</td>
+                    <td>PLAY</td>
+                    <td>PLAYING</td>
+                    <td>Resume playback from paused position</td>
+                </tr>
+                <tr>
+                    <td>PLAYING</td>
+                    <td>VOL_UP / VOL_DOWN</td>
+                    <td>VOLUME_ADJUST</td>
+                    <td>Enter volume adjustment mode</td>
+                </tr>
+                <tr>
+                    <td>VOLUME_ADJUST</td>
+                    <td>VOLUME_SET</td>
+                    <td>PLAYING</td>
+                    <td>Return to playing with new volume</td>
+                </tr>
+                <tr>
+                    <td>PLAYING</td>
+                    <td>EQ_CHANGE</td>
+                    <td>EQ_MODE</td>
+                    <td>Enter equalizer adjustment mode</td>
+                </tr>
+                <tr>
+                    <td>EQ_MODE</td>
+                    <td>EQ_SET</td>
+                    <td>PLAYING</td>
+                    <td>Return to playing with new EQ preset</td>
+                </tr>
+                <tr>
+                    <td>PLAYING</td>
+                    <td>ANC_TOGGLE</td>
+                    <td>ANC_ACTIVE</td>
+                    <td>Activate noise cancellation</td>
+                </tr>
+                <tr>
+                    <td>ANC_ACTIVE</td>
+                    <td>ANC_TOGGLE</td>
+                    <td>PLAYING</td>
+                    <td>Deactivate noise cancellation</td>
+                </tr>
+                <tr>
+                    <td>Any state</td>
+                    <td>STOP</td>
+                    <td>AUDIO_OFF</td>
+                    <td>Stop audio, release resources</td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <div class="links">
+            <a href="../src/audio_fsm.c" class="btn">View C Code</a>
+            <a href="../state_machine_visualization.html" class="btn btn-secondary">Back to Visualization</a>
+        </div>
+    </div>
+</body>
+</html>

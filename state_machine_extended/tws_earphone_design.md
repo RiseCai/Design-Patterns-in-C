@@ -123,6 +123,19 @@
 8. RecordingFSM返回REC_IDLE状态
 ```
 
+### 3. 外部设备控制指令流程
+```
+1. 外部设备（如手机App或云端服务器）通过蓝牙或4G发送控制指令
+2. CommFSM接收数据，触发COMM_EVT_DATA_RECEIVED事件
+3. 外部命令处理器（ExternalCommandProcessor）解析原始数据
+4. 根据配置模式处理指令：
+   - 直接事件模式：立即向SystemCoordinator分发对应事件
+   - 回调队列模式：将指令加入优先级队列，周期性处理
+   - 混合模式：高优先级指令立即回调，低优先级入队列
+5. SystemCoordinator根据事件类型执行状态转换
+6. 执行结果通过CommFSM返回给外部设备
+```
+
 ## 非功能性需求考虑
 
 ### 1. 实时性要求

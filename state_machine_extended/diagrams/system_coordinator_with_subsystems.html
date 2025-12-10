@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Coordinator & Subsystems State Machines - TWS Earphone System</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10.6.1/dist/mermaid.min.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background-color: #f8f9fa;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 30px;
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+        h1 {
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .tabs {
+            display: flex;
+            flex-wrap: wrap;
+            background: white;
+            border-radius: 12px 12px 0 0;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            border-bottom: 2px solid #2575fc;
+        }
+        .tab {
+            flex: 1;
+            text-align: center;
+            padding: 18px 24px;
+            background: #f1f3f5;
+            border: none;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #555;
+            transition: all 0.3s ease;
+            border-bottom: 4px solid transparent;
+        }
+        .tab:hover {
+            background: #e9ecef;
+        }
+        .tab.active {
+            background: white;
+            color: #2575fc;
+            border-bottom: 4px solid #2575fc;
+        }
+        .tab-content {
+            display: none;
+            background: white;
+            padding: 30px;
+            border-radius: 0 0 12px 12px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.05);
+            min-height: 600px;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        .links {
+            margin-top: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .btn {
+            display: inline-block;
+            padding: 10px 18px;
+            background: #2575fc;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+        .btn:hover {
+            background: #1a5fd8;
+        }
+        .btn-secondary {
+            background: #6c757d;
+        }
+        .btn-secondary:hover {
+            background: #545b62;
+        }
+        .mapping-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 30px 0;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+        .mapping-table th, .mapping-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        .mapping-table th {
+            background: #28a745;
+            color: white;
+            font-weight: 600;
+        }
+        .mapping-table tr:hover {
+            background: #e7f7eb;
+        }
+        footer {
+            text-align: center;
+            margin-top: 50px;
+            padding: 20px;
+            color: #666;
+            border-top: 1px solid #ddd;
+        }
+        @media (max-width: 768px) {
+            .tabs {
+                flex-direction: column;
+            }
+            .tab {
+                flex: none;
+                border-bottom: 1px solid #ddd;
+            }
+            .iframe-container {
+                height: 400px;
+            }
+            h1 {
+                font-size: 2.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>System Coordinator & Subsystems State Machines</h1>
+        <p class="subtitle">Interactive visualization of the TWS Earphone System's hierarchical state machines, including the System Coordinator and all subsystem FSMs (Communication, Power, Audio, Recording).</p>
+    </header>
+
+    <div class="tabs">
+        <button class="tab active" onclick="switchTab('system-coordinator')">System Coordinator</button>
+        <button class="tab" onclick="switchTab('comm-fsm')">Communication FSM</button>
+        <button class="tab" onclick="switchTab('power-fsm')">Power FSM</button>
+        <button class="tab" onclick="switchTab('audio-fsm')">Audio FSM</button>
+        <button class="tab" onclick="switchTab('recording-fsm')">Recording FSM</button>
+        <button class="tab" onclick="switchTab('mapping')">Subsystem Mapping</button>
+    </div>
+
+    <div id="system-coordinator" class="tab-content active">
+        <h2>System Coordinator FSM</h2>
+        <p>The top‑level state machine that coordinates all subsystems. It manages system‑wide states (INIT, IDLE, RECORDING, UPLOADING, ERROR, SLEEP, SHUTDOWN) and dispatches events to the appropriate subsystems.</p>
+        <div class="iframe-container">
+            <iframe src="system_coordinator_state_diagram_with_api.html" title="System Coordinator FSM Diagram"></iframe>
+        </div>
+        <div class="links">
+            <a href="system_coordinator_state_diagram_with_api.html" class="btn" target="_blank">Open in New Tab</a>
+            <a href="../src/system_coordinator.h" class="btn btn-secondary">View Header</a>
+            <a href="../src/system_coordinator.c" class="btn btn-secondary">View C Code</a>
+        </div>
+    </div>
+
+    <div id="comm-fsm" class="tab-content">
+        <h2>Communication FSM</h2>
+        <p>Manages Bluetooth/Wi‑Fi connectivity and data transfer. States: IDLE, CONNECTING, CONNECTED, TRANSFERRING, DISCONNECTING, ERROR.</p>
+        <div class="iframe-container">
+            <iframe src="comm_fsm_diagram_with_api.html" title="Communication FSM Diagram"></iframe>
+        </div>
+        <div class="links">
+            <a href="comm_fsm_diagram_with_api.html" class="btn" target="_blank">Open in New Tab</a>
+            <a href="../src/comm_fsm.h" class="btn btn-secondary">View Header</a>
+            <a href="../src/comm_fsm.c" class="btn btn-secondary">View C Code</a>
+        </div>
+    </div>
+
+    <div id="power-fsm" class="tab-content">
+        <h2>Power FSM</h2>
+        <p>Handles power states (ON, OFF, LOW_BATTERY, CHARGING, SLEEP) and battery management.</p>
+        <div class="iframe-container">
+            <iframe src="power_fsm_diagram_with_api.html" title="Power FSM Diagram"></iframe>
+        </div>
+        <div class="links">
+            <a href="power_fsm_diagram_with_api.html" class="btn" target="_blank">Open in New Tab</a>
+            <a href="../src/power_fsm.h" class="btn btn-secondary">View Header</a>
+            <a href="../src/power_fsm.c" class="btn btn-secondary">View C Code</a>
+        </div>
+    </div>
+
+    <div id="audio-fsm" class="tab-content">
+        <h2>Audio FSM</h2>
+        <p>Controls audio playback, recording, and processing. States: IDLE, PLAYING, PAUSED, RECORDING, ERROR.</p>
+        <div class="iframe-container">
+            <iframe src="audio_fsm_diagram_with_api.html" title="Audio FSM Diagram"></iframe>
+        </div>
+        <div class="links">
+            <a href="audio_fsm_diagram_with_api.html" class="btn" target="_blank">Open in New Tab</a>
+            <a href="../src/audio_fsm.h" class="btn btn-secondary">View Header</a>
+            <a href="../src/audio_fsm.c" class="btn btn-secondary">View C Code</a>
+        </div>
+    </div>
+
+    <div id="recording-fsm" class="tab-content">
+        <h2>Recording FSM</h2>
+        <p>Manages the recording process (IDLE, RECORDING, PAUSED, STOPPED, UPLOADING, ERROR).</p>
+        <div class="iframe-container">
+            <iframe src="recording_fsm_diagram_with_api.html" title="Recording FSM Diagram"></iframe>
+        </div>
+        <div class="links">
+            <a href="recording_fsm_diagram_with_api.html" class="btn" target="_blank">Open in New Tab</a>
+            <a href="../src/recording_fsm.h" class="btn btn-secondary">View Header</a>
+            <a href="../src/recording_fsm.c" class="btn btn-secondary">View C Code</a>
+        </div>
+    </div>
+
+    <div id="mapping" class="tab-content">
+        <h2>Subsystem Mapping Table</h2>
+        <p>Mapping between System Coordinator states and active subsystems.</p>
+        <table class="mapping-table">
+            <thead>
+                <tr>
+                    <th>System Coordinator State</th>
+                    <th>Active Subsystems</th>
+                    <th>Subsystem States</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>SYS_INIT</td>
+                    <td>All</td>
+                    <td>INIT, IDLE</td>
+                    <td>All subsystems are initialized.</td>
+                </tr>
+                <tr>
+                    <td>SYS_IDLE</td>
+                    <td>Power, Communication, Audio</td>
+                    <td>IDLE, CONNECTED, IDLE</td>
+                    <td>System ready, waiting for user input.</td>
+                </tr>
+                <tr>
+                    <td>SYS_RECORDING</td>
+                    <td>Recording, Audio, Power</td>
+                    <td>RECORDING, RECORDING, ON</td>
+                    <td>Recording audio, audio FSM active, power ON.</td>
+                </tr>
+                <tr>
+                    <td>SYS_UPLOADING</td>
+                    <td>Communication, Recording</td>
+                    <td>TRANSFERRING, UPLOADING</td>
+                    <td>Uploading recorded data via communication.</td>
+                </tr>
+                <tr>
+                    <td>SYS_ERROR</td>
+                    <td>All</td>
+                    <td>ERROR (or previous)</td>
+                    <td>Error state, subsystems may be in error or halted.</td>
+                </tr>
+                <tr>
+                    <td>SYS_SLEEP</td>
+                    <td>Power, Communication</td>
+                    <td>SLEEP, DISCONNECTED</td>
+                    <td>Low‑power sleep, communication disconnected.</td>
+                </tr>
+                <tr>
+                    <td>SYS_SHUTDOWN</td>
+                    <td>All</td>
+                    <td>OFF, DISCONNECTED, IDLE</td>
+                    <td>System shutting down, subsystems turned off.</td>
+                </tr>
+            </tbody>
+        </table>
+        <h3>Subsystem Dependencies</h3>
+        <ul>
+            <li><strong>Communication FSM</strong>: Required for data upload and Bluetooth connectivity.</li>
+            <li><strong>Power FSM</strong>: Manages battery and power states, influences system‑wide sleep/shutdown.</li>
+            <li><strong>Audio FSM</strong>: Handles audio playback and recording; active during RECORDING state.</li>
+            <li><strong>Recording FSM</strong>: Manages recording lifecycle; coordinates with Audio FSM.</li>
+        </ul>
+    </div>
+
+    <footer>
+        <p>Generated as part of the <strong>Design Patterns in C</strong> project – TWS Earphone System State Machines.</p>
+        <p>All diagrams are generated with PlantUML and Mermaid. Source code and diagrams are located in <code>state_machine_extended/</code>.</p>
+        <p>Last updated: December 2025</p>
+    </footer>
+
+    <script>
+        function switchTab(tabName) {
+            // Hide all tab contents
+            const tabContents = document.querySelectorAll('.tab-content');
+            tabContents.forEach(content => {
+                content.classList.remove('active');
+            });
+            // Show selected tab content
+            document.getElementById(tabName).classList.add('active');
+
+            // Update tab buttons
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach(tab => {
+                tab.classList.remove('active');
+            });
+            // Find the button that corresponds to this tab (by matching onclick attribute)
+            const tabButtons = document.querySelectorAll('.tab');
+            tabButtons.forEach(button => {
+                if (button.getAttribute('onclick') === `switchTab('${tabName}')`) {
+                    button.classList.add('active');
+                }
+            });
+        }
+    </script>
+</body>
+</html>

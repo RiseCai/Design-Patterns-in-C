@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Coordinator & Subsystems Diagram Summary</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background-color: #f8f9fa;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 30px;
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+        h1 {
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border-left: 6px solid #2575fc;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.12);
+        }
+        .card h2 {
+            color: #2575fc;
+            margin-bottom: 15px;
+            font-size: 1.8rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .card h2 .icon {
+            font-size: 1.5rem;
+        }
+        .card p {
+            margin-bottom: 15px;
+            color: #555;
+        }
+        .features {
+            list-style: none;
+            margin: 15px 0;
+        }
+        .features li {
+            padding: 8px 0;
+            border-bottom: 1px dashed #eee;
+            display: flex;
+            align-items: center;
+        }
+        .features li:before {
+            content: "✓";
+            color: #28a745;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        .svg-container {
+            margin: 20px 0;
+            text-align: center;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            background: #f9f9f9;
+        }
+        .svg-container img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 4px;
+        }
+        .links {
+            margin-top: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .btn {
+            display: inline-block;
+            padding: 10px 18px;
+            background: #2575fc;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+        .btn:hover {
+            background: #1a5fd8;
+        }
+        .btn-secondary {
+            background: #6c757d;
+        }
+        .btn-secondary:hover {
+            background: #545b62;
+        }
+        .mapping-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 30px 0;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+        .mapping-table th, .mapping-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        .mapping-table th {
+            background: #2575fc;
+            color: white;
+            font-weight: 600;
+        }
+        .mapping-table tr:hover {
+            background: #f1f7ff;
+        }
+        .priority-5 { background-color: #d4edda; }
+        .priority-4 { background-color: #d1ecf1; }
+        .priority-3 { background-color: #fff3cd; }
+        .priority-2 { background-color: #f8d7da; }
+        .priority-1 { background-color: #f5c6cb; }
+        footer {
+            text-align: center;
+            margin-top: 50px;
+            padding: 20px;
+            color: #666;
+            border-top: 1px solid #ddd;
+        }
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+            h1 {
+                font-size: 2.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>System Coordinator & Subsystems Diagram Summary</h1>
+        <p class="subtitle">Interactive visualization of the TWS Earphone System's hierarchical state machines, including the System Coordinator and all subsystem FSMs (Communication, Power, Audio, Recording).</p>
+    </header>
+
+    <div class="container">
+        <!-- System Coordinator Card -->
+        <div class="card">
+            <h2><span class="icon">🏢</span> System Coordinator FSM</h2>
+            <p><strong>Scenario:</strong> Top-level System Coordination</p>
+            <p><strong>Type:</strong> Hierarchical State Machine</p>
+            <p><strong>Key Features:</strong> Coordinates all subsystems, manages system-wide states, dispatches events to appropriate subsystems.</p>
+            <ul class="features">
+                <li>States: SYS_INIT, SYS_IDLE, SYS_RECORDING, SYS_UPLOADING, SYS_ERROR, SYS_SLEEP, SYS_SHUTDOWN</li>
+                <li>Events: INIT_COMPLETE, REC_START, REC_STOP, UPLOAD_COMPLETE, POWER_ON, POWER_OFF, ERROR, RESET</li>
+                <li>API: system_coordinator_dispatch_event()</li>
+                <li>Code: system_coordinator.c / system_coordinator.h</li>
+            </ul>
+            <div class="svg-container">
+                <img src="system_coordinator_sequence.svg" alt="System Coordinator Sequence Diagram">
+                <p><em>API call sequence diagram</em></p>
+            </div>
+            <div class="links">
+                <a href="system_coordinator_state_diagram_with_api.html" class="btn">View Diagram with API</a>
+                <a href="../src/system_coordinator.c" class="btn btn-secondary">View C Code</a>
+            </div>
+        </div>
+
+        <!-- Communication FSM Card -->
+        <div class="card">
+            <h2><span class="icon">📡</span> Communication FSM</h2>
+            <p><strong>Scenario:</strong> Bluetooth & Wi-Fi Communication</p>
+            <p><strong>Type:</strong> Mealy / Moore</p>
+            <p><strong>Key Features:</strong> Connection management, data transfer, error recovery.</p>
+            <ul class="features">
+                <li>States: DISCONNECTED, CONNECTING, CONNECTED, TRANSFERRING, ERROR</li>
+                <li>Events: connect, disconnect, send_data, receive_data, error</li>
+                <li>API: comm_fsm_dispatch_event()</li>
+                <li>Code: comm_fsm.c / comm_fsm.h</li>
+            </ul>
+            <div class="svg-container">
+                <img src="comm_fsm_diagram.svg" alt="Communication FSM Diagram">
+                <p><em>State diagram</em></p>
+            </div>
+            <div class="links">
+                <a href="comm_fsm_diagram_with_api.html" class="btn">View Diagram with API</a>
+                <a href="../src/comm_fsm.c" class="btn btn-secondary">View C Code</a>
+            </div>
+        </div>
+
+        <!-- Power FSM Card -->
+        <div class="card">
+            <h2><span class="icon">🔋</span> Power FSM</h2>
+            <p><strong>Scenario:</strong> Power Management</p>
+            <p><strong>Type:</strong> Mealy / Moore</p>
+            <p><strong>Key Features:</strong> Battery monitoring, charging states, low‑power sleep.</p>
+            <ul class="features">
+                <li>States: OFF, ON, CHARGING, LOW_BATTERY, SLEEP</li>
+                <li>Events: power_on, power_off, charge_start, charge_complete, battery_low</li>
+                <li>API: power_fsm_dispatch_event()</li>
+                <li>Code: power_fsm.c / power_fsm.h</li>
+            </ul>
+            <div class="svg-container">
+                <img src="power_fsm_diagram.svg" alt="Power FSM Diagram">
+                <p><em>State diagram</em></p>
+            </div>
+            <div class="links">
+                <a href="power_fsm_diagram_with_api.html" class="btn">View Diagram with API</a>
+                <a href="../src/power_fsm.c" class="btn btn-secondary">View C Code</a>
+            </div>
+        </div>
+
+        <!-- Audio FSM Card -->
+        <div class="card">
+            <h2><span class="icon">🎵</span> Audio FSM</h2>
+            <p><strong>Scenario:</strong> Audio Playback & Recording</p>
+            <p><strong>Type:</strong> Mealy / Moore</p>
+            <p><strong>Key Features:</strong> Audio routing, volume control, noise cancellation.</p>
+            <ul class="features">
+                <li>States: IDLE, PLAYING, PAUSED, RECORDING, MUTED</li>
+                <li>Events: play, pause, stop, record, volume_up, volume_down</li>
+                <li>API: audio_fsm_dispatch_event()</li>
+                <li>Code: audio_fsm.c / audio_fsm.h</li>
+            </ul>
+            <div class="svg-container">
+                <img src="audio_fsm_diagram.svg" alt="Audio FSM Diagram">
+                <p><em>State diagram</em></p>
+            </div>
+            <div class="links">
+                <a href="audio_fsm_diagram_with_api.html" class="btn">View Diagram with API</a>
+                <a href="../src/audio_fsm.c" class="btn btn-secondary">View C Code</a>
+            </div>
+        </div>
+
+        <!-- Recording FSM Card -->
+        <div class="card">
+            <h2><span class="icon">🎙️</span> Recording FSM</h2>
+            <p><strong>Scenario:</strong> Voice Recording</p>
+            <p><strong>Type:</strong> Mealy / Moore</p>
+            <p><strong>Key Features:</strong> Start/stop recording, buffer management, quality settings.</p>
+            <ul class="features">
+                <li>States: IDLE, RECORDING, PAUSED, PROCESSING, UPLOADING</li>
+                <li>Events: rec_start, rec_stop, rec_pause, rec_resume, upload_complete</li>
+                <li>API: recording_fsm_dispatch_event()</li>
+                <li>Code: recording_fsm.c / recording_fsm.h</li>
+            </ul>
+            <div class="svg-container">
+                <img src="recording_fsm_diagram.svg" alt="Recording FSM Diagram">
+                <p><em>State diagram</em></p>
+            </div>
+            <div class="links">
+                <a href="recording_fsm_diagram_with_api.html" class="btn">View Diagram with API</a>
+                <a href="../src/recording_fsm.c" class="btn btn-secondary">View C Code</a>
+            </div>
+        </div>
+    </div>
+
+    <h2>State Machine Mapping Table</h2>
+    <p>The following table provides a comprehensive mapping between System Coordinator states and subsystem states.</p>
+    <table class="mapping-table">
+        <thead>
+            <tr>
+                <th>System Coordinator State</th>
+                <th>Power FSM</th>
+                <th>Audio FSM</th>
+                <th>Recording FSM</th>
+                <th>Communication FSM</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr class="priority-5">
+                <td>SYS_INIT</td>
+                <td>OFF</td>
+                <td>IDLE</td>
+                <td>IDLE</td>
+                <td>DISCONNECTED</td>
+                <td>All subsystems are initializing.</td>
+            </tr>
+            <tr class="priority-5">
+                <td>SYS_IDLE</td>
+                <td>ON</td>
+                <td>IDLE</td>
+                <td>IDLE</td>
+                <td>CONNECTED</td>
+                <td>System ready, waiting for user input.</td>
+            </tr>
+            <tr class="priority-5">
+                <td>SYS_RECORDING</td>
+                <td>ON</td>
+                <td>RECORDING</td>
+                <td>RECORDING</td>
+                <td>CONNECTED</td>
+                <td>Recording audio, audio FSM active.</td>
+            </tr>
+            <tr class="priority-4">
+                <td>SYS_UPLOADING</td>
+                <td>ON</td>
+                <td>IDLE</td>
+                <td>UPLOADING</td>
+                <td>TRANSFERRING</td>
+                <td>Uploading recorded data via communication.</td>
+            </tr>
+            <tr class="priority-3">
+                <td>SYS_ERROR</td>
+                <td>LOW_BATTERY</td>
+                <td>MUTED</td>
+                <td>PAUSED</td>
+                <td>ERROR</td>
+                <td>Error state, subsystems may be in error or halted.</td>
+            </tr>
+            <tr class="priority-2">
+                <td>SYS_SLEEP</td>
+                <td>CHARGING</td>
+                <td>PAUSED</td>
+                <td>IDLE</td>
+                <td>DISCONNECTED</td>
+                <td>Low‑power sleep, communication disconnected.</td>
+            </tr>
+            <tr class="priority-1">
+                <td>SYS_SHUTDOWN</td>
+                <td>OFF</td>
+                <td>IDLE</td>
+                <td>IDLE</td>
+                <td>DISCONNECTED</td>
+                <td>System shutting down, subsystems turned off.</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div style="margin: 40px 0; padding: 20px; background: #e7f3ff; border-radius: 10px;">
+        <h3>📊 System Architecture Overview</h3>
+        <p>The TWS Earphone System uses a hierarchical state machine architecture:</p>
+        <ul>
+            <li><strong>System Coordinator</strong> – Top‑level FSM that coordinates all subsystems.</li>
+            <li><strong>Subsystem FSMs</strong> – Four independent state machines for specific functions.</li>
+            <li><strong>Event‑Driven Communication</strong> – Subsystems communicate via events dispatched by the coordinator.</li>
+            <li><strong>State Synchronization</strong> – Subsystem states are synchronized with the system coordinator's state.</li>
+            <li><strong>Error Handling</strong> – Errors in any subsystem propagate to the system coordinator for centralized handling.</li>
+        </ul>
+        <p>This architecture ensures modularity, maintainability, and clear separation of concerns.</p>
+    </div>
+
+    <div style="margin: 40px 0; padding: 20px; background: #f8f9fa; border-radius: 10px; border-left: 6px solid #28a745;">
+        <h3>🔗 Related Resources</h3>
+        <p>Explore additional resources for deeper understanding:</p>
+        <div class="links">
+            <a href="system_coordinator_interactive_dashboard.html" class="btn">Interactive Dashboard</a>
+            <a href="system_coordinator_with_subsystems.html" class="btn">Tabbed View</a>
+            <a href="system_coordinator_graphical_display.html" class="btn">Graphical Display</a>
+            <a href="system_coordinator_summary_display.html" class="btn">Summary Display</a>
+            <a href="../docs/summary.html" class="btn btn-secondary">Extended FSM Summary</a>
+            <a href="../FINAL_SUMMARY.md" class="btn btn-secondary">Final Summary</a>
+        </div>
+    </div>
+
+    <footer>
+        <p>System Coordinator & Subsystems Diagram Summary</p>
+        <p>Generated as part of the <strong>Design Patterns in C</strong> project – TWS Earphone System.</p>
+        <p>All diagrams are generated with PlantUML. Source code and diagrams are located in <code>state_machine_extended/</code>.</p>
+        <p>Last updated: December 2025</p>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Coordinator Dashboard - TWS Earphone System</title>
+    <script src="https://cdn.jsdelivr.net/npm/plantuml-encoder@1.4.0/dist/plantuml-encoder.min.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background-color: #f8f9fa;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 30px;
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+        h1 {
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border-left: 6px solid #2575fc;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.12);
+        }
+        .card h2 {
+            color: #2575fc;
+            margin-bottom: 15px;
+            font-size: 1.8rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .card h2 .icon {
+            font-size: 1.5rem;
+        }
+        .card p {
+            margin-bottom: 15px;
+            color: #555;
+        }
+        .features {
+            list-style: none;
+            margin: 15px 0;
+        }
+        .features li {
+            padding: 8px 0;
+            border-bottom: 1px dashed #eee;
+            display: flex;
+            align-items: center;
+        }
+        .features li:before {
+            content: "✓";
+            color: #28a745;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        .status-active {
+            background-color: #28a745;
+        }
+        .status-inactive {
+            background-color: #dc3545;
+        }
+        .svg-container {
+            margin: 20px 0;
+            text-align: center;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            background: #f9f9f9;
+        }
+        .svg-container img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 4px;
+        }
+        .links {
+            margin-top: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .btn {
+            display: inline-block;
+            padding: 10px 18px;
+            background: #2575fc;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+        .btn:hover {
+            background: #1a5fd8;
+        }
+        .btn-secondary {
+            background: #6c757d;
+        }
+        .btn-secondary:hover {
+            background: #545b62;
+        }
+        .mapping-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 30px 0;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+        .mapping-table th, .mapping-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        .mapping-table th {
+            background: #2575fc;
+            color: white;
+            font-weight: 600;
+        }
+        .mapping-table tr:hover {
+            background: #f1f7ff;
+        }
+        .priority-5 { background-color: #d4edda; }
+        .priority-4 { background-color: #d1ecf1; }
+        .priority-3 { background-color: #fff3cd; }
+        .priority-2 { background-color: #f8d7da; }
+        .priority-1 { background-color: #f5c6cb; }
+        footer {
+            text-align: center;
+            margin-top: 50px;
+            padding: 20px;
+            color: #666;
+            border-top: 1px solid #ddd;
+        }
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+            h1 {
+                font-size: 2.2rem;
+            }
+        }
+    </style>
+    <script>
+        const plantuml = `@startuml
+title System Coordinator FSM - TWS Earphone System (with API Mapping)
+
+skinparam state {
+  BackgroundColor<<normal>> White
+  BorderColor<<normal>> Black
+  BackgroundColor<<error>> LightCoral
+  BorderColor<<error>> DarkRed
+  BackgroundColor<<active>> LightGreen
+  BorderColor<<active>> DarkGreen
+  FontSize 13
+}
+
+' Define states
+state "SYS_INIT" as INIT <<normal>> {
+  state "INIT_Entry" as INIT_ENTRY <<entry>>
+  state "INIT_Do" as INIT_DO <<do>>
+  state "INIT_Exit" as INIT_EXIT <<exit>>
+}
+
+state "SYS_IDLE" as IDLE <<active>> {
+  state "IDLE_Entry" as IDLE_ENTRY <<entry>>
+  state "IDLE_Do" as IDLE_DO <<do>>
+  state "IDLE_Exit" as IDLE_EXIT <<exit>>
+}
+
+state "SYS_RECORDING" as RECORDING <<active>> {
+  state "RECORDING_Entry" as REC_ENTRY <<entry>>
+  state "RECORDING_Do" as REC_DO <<do>>
+  state "RECORDING_Exit" as REC_EXIT <<exit>>
+}
+
+state "SYS_UPLOADING" as UPLOADING <<active>> {
+  state "UPLOADING_Entry" as UPL_ENTRY <<entry>>
+  state "UPLOADING_Do" as UPL_DO <<do>>
+  state "UPLOADING_Exit" as UPL_EXIT <<exit>>
+}
+
+state "SYS_ERROR" as ERROR <<error>> {
+  state "ERROR_Entry" as ERR_ENTRY <<entry>>
+  state "ERROR_Do" as ERR_DO <<do>>
+  state "ERROR_Exit" as ERR_EXIT <<exit>>
+}
+
+state "SYS_SLEEP" as SLEEP <<normal>> {
+  state "SLEEP_Entry" as SLEEP_ENTRY <<entry>>
+  state "SLEEP_Do" as SLEEP_DO <<do>>
+  state "SLEEP_Exit" as SLEEP_EXIT <<exit>>
+}
+
+state "SYS_SHUTDOWN" as SHUTDOWN <<normal>> {
+  state "SHUTDOWN_Entry" as SHUT_ENTRY <<entry>>
+  state "SHUTDOWN_Do" as SHUT_DO <<do>>
+  state "SHUTDOWN_Exit" as SHUT_EXIT <<exit>>
+}
+
+' Initial transition
+[*] --> INIT
+
+' State transitions
+INIT --> IDLE : Auto transition after initialization\nAPI: system_coordinator_init(sys)
+
+IDLE --> RECORDING : SYS_EVT_REC_START\nAPI: system_coordinator_dispatch_event(sys, SYS_EVT_REC_START, NULL)
+IDLE --> SHUTDOWN : SYS_EVT_POWER_OFF\nAPI: system_coordinator_dispatch_event(sys, SYS_EVT_POWER_OFF, NULL)
+IDLE --> ERROR : SYS_EVT_ERROR\nAPI: system_coordinator_dispatch_event(sys, SYS_EVT_ERROR, error_data)
+IDLE --> SLEEP : SYS_EVT_LOW_BATTERY (optional)\nAPI: system_coordinator_dispatch_event(sys, SYS_EVT_LOW_BATTERY, NULL)
+
+RECORDING --> UPLOADING : SYS_EVT_REC_STOP\nAPI: system_coordinator_dispatch_event(sys, SYS_EVT_REC_STOP, NULL)
+RECORDING --> ERROR : SYS_EVT_ERROR\nAPI: system_coordinator_dispatch_event(sys, SYS_EVT_ERROR, error_data)
+RECORDING --> IDLE : SYS_EVT_REC_PAUSE (optional)\nAPI: system_coordinator_dispatch_event(sys, SYS_EVT_REC_PAUSE, NULL)
+
+UPLOADING --> IDLE : SYS_EVT_UPLOAD_COMPLETE\nAPI: system_coordinator_dispatch_event(sys, SYS_EVT_UPLOAD_COMPLETE, NULL)
+UPLOADING --> ERROR : SYS_EVT_ERROR\nAPI: system_coordinator_dispatch_event(sys, SYS_EVT_ERROR, error_data)
+UPLOADING --> IDLE : SYS_EVT_NETWORK_DISCONNECTED (fallback)\nAPI: system_coordinator_dispatch_event(sys, SYS_EVT_NETWORK_DISCONNECTED, NULL)
+
+ERROR --> INIT : SYS_EVT_RESET\nAPI: system_coordinator_dispatch_event(sys, SYS_EVT_RESET, NULL)
+ERROR --> SHUTDOWN : SYS_EVT_POWER_OFF\nAPI: system_coordinator_dispatch_event(sys, SYS_EVT_POWER_OFF, NULL)
+
+SLEEP --> IDLE : SYS_EVT_POWER_ON\nAPI: system_coordinator_dispatch_event(sys, SYS_EVT_POWER_ON, NULL)
+
+' Self-transitions (handled within state)
+IDLE --> IDLE : SYS_EVT_LOW_BATTERY (handled)\nAPI: system_coordinator_dispatch_event(sys, SYS_EVT_LOW_BATTERY, NULL)
+RECORDING --> RECORDING : SYS_EVT_REC_PAUSE (handled)\nAPI: system_coordinator_dispatch_event(sys, SYS_EVT_REC_PAUSE, NULL)
+
+' State labels
+INIT_ENTRY : "Initialize subsystems"
+INIT_DO : "Initialization process"
+INIT_EXIT : "Transition to IDLE"
+
+IDLE_ENTRY : "System ready"
+IDLE_DO : "Monitor battery, network"
+IDLE_EXIT : "Leaving IDLE"
+
+REC_ENTRY : "Start recording"
+REC_DO : "Record audio, process data"
+REC_EXIT : "Stop recording"
+
+UPL_ENTRY : "Start upload"
+UPL_DO : "Upload to cloud"
+UPL_EXIT : "Upload complete"
+
+ERR_ENTRY : "Handle error"
+ERR_DO : "Error recovery"
+ERR_EXIT : "Reset or shutdown"
+
+SLEEP_ENTRY : "Enter low-power"
+SLEEP_DO : "Sleep mode"
+SLEEP_EXIT : "Wake up"
+
+SHUT_ENTRY : "Shutdown system"
+SHUT_DO : "Power off"
+SHUT_EXIT : "System off"
+
+note right of INIT
+  <b>State:</b> SYS_INIT
+  <b>Entry function:</b> enter_init()
+  <b>API:</b> system_coordinator_init()
+end note
+
+note right of IDLE
+  <b>State:</b> SYS_IDLE
+  <b>Entry function:</b> enter_idle()
+  <b>Do action:</b> do_action() periodic checks
+  <b>Main operational state</b>
+end note
+
+note right of RECORDING
+  <b>State:</b> SYS_RECORDING
+  <b>Entry function:</b> enter_recording()
+  <b>Do action:</b> monitor recording progress
+  <b>Subsystems:</b> recording_fsm, audio_fsm active
+end note
+
+note right of ERROR
+  <b>State:</b> SYS_ERROR
+  <b>Entry function:</b> enter_error()
+  <b>Error handling:</b> error_code, error_msg
+  <b>Recovery:</b> Reset or shutdown
+end note
+
+@enduml`;
+
+        function renderDiagram() {
+            const encoded = plantumlEncoder.encode(plantuml);
+            const img = document.getElementById('diagram');
+            img.src = 'http://www.plantuml.com/plantuml/svg/' + encoded;
+        }
+        window.onload = renderDiagram;
+    </script>
+</head>
+<body>
+    <header>
+        <h1>System Coordinator Dashboard</h1>
+        <p class="subtitle">Graphical visualization of the system coordinator state machine and its subsystems for the TWS Earphone System.</p>
+    </header>
+
+    <section>
+        <h2>System Coordinator State Diagram</h2>
+        <p>Diagram showing the system coordinator state machine with corresponding C API functions and state actions.</p>
+        <div class="svg-container">
+            <img id="diagram" alt="System Coordinator State Diagram" />
+        </div>
+        <div class="links">
+            <a href="../diagrams/system_coordinator_state_diagram_with_api.html" class="btn">View Full Diagram with API</a>
+            <a href="../src/system_coordinator.c" class="btn btn-secondary">View C Code</a>
+        </div>
+    </section>
+
+    <section>
+        <h2>Subsystem State Machines</h2>
+        <p>The system coordinator manages four subsystems, each with its own state machine.</p>
+        <div class="container">
+            <!-- Power FSM -->
+            <div class="card">
+                <h2><span class="icon">🔋</span> Power FSM</h2>
+                <p><strong>Scenario:</strong> Power Management</p>
+                <p><strong>Type:</strong> Mealy / Moore</p>
+                <p><strong>Key Features:</strong> Battery monitoring, charging states, low‑power sleep.</p>
+                <ul class="features">
+                    <li>States: OFF, ON, CHARGING, LOW_BATTERY</li>
+                    <li>Events: power_on, power_off, charge_start, charge_complete, battery_low</li>
+                    <li>API: power_fsm_dispatch_event()</li>
+                    <li>Code: power_fsm.c / power_fsm.h</li>
+                </ul>
+                <p><span class="status-indicator status-active"></span> Status: Active</p>
+                <div class="links">
+                    <a href="../diagrams/power_fsm_diagram_with_api.html" class="btn">View Diagram</a>
+                    <a href="../src/power_fsm.c" class="btn btn-secondary">View C Code</a>
+                </div>
+            </div>
+
+            <!-- Audio FSM -->
+            <div class="card">
+                <h2><span class="icon">🎵</span> Audio FSM</h2>
+                <p><strong>Scenario:</strong> Audio Playback & Recording</p>
+                <p><strong>Type:</strong> Mealy / Moore</p>
+                <p><strong>Key Features:</strong> Audio routing, volume control, noise cancellation.</p>
+                <ul class="features">
+                    <li>States: IDLE, PLAYING, PAUSED, RECORDING, MUTED</li>
+                    <li>Events: play, pause, stop, record, volume_up, volume_down</li>
+                    <li>API: audio_fsm_dispatch_event()</li>
+                    <li>Code: audio_fsm.c / audio_fsm.h</li>
+                </ul>
+                <p><span class="status-indicator status-active"></span> Status: Active</p>
+                <div class="links">
+                    <a href="../diagrams/audio_fsm_diagram_with_api.html" class="btn">View Diagram</a>
+                    <a href="../src/audio_fsm.c" class="btn btn-secondary">View C Code</a>
+                </div>
+            </div>
+
+            <!-- Recording FSM -->
+            <div class="card">
+                <h2><span class="icon">🎙️</span> Recording FSM</h2>
+                <p><strong>Scenario:</strong> Voice Recording</p>
+                <p><strong>Type:</strong> Mealy / Moore</p>
+                <p><strong>Key Features:</strong> Start/stop recording, buffer management, quality settings.</p>
+                <ul class="features">
+                    <li>States: IDLE, RECORDING, PAUSED, PROCESSING, SAVING</li>
+                    <li>Events: rec_start, rec_stop, rec_pause, rec_resume, save</li>
+                    <li>API: recording_fsm_dispatch_event()</li>
+                    <li>Code: recording_fsm.c / recording_fsm.h</li>
+                </ul>
+                <p><span class="status-indicator status-active"></span> Status: Active</p>
+                <div class="links">
+                    <a href="../diagrams/recording_fsm_diagram_with_api.html" class="btn">View Diagram</a>
+                    <a href="../src/recording_fsm.c" class="btn btn-secondary">View C Code</a>
+                </div>
+            </div>
+
+            <!-- Communication FSM -->
+            <div class="card">
+                <h2><span class="icon">📡</span> Communication FSM</h2>
+                <p><strong>Scenario:</strong> Bluetooth & Network Communication</p>
+                <p><strong>Type:</strong> Mealy / Moore</p>
+                <p><strong>Key Features:</strong> Bluetooth pairing, data transfer, network connectivity.</p>
+                <ul class="features">
+                    <li>States: DISCONNECTED, CONNECTING, CONNECTED, TRANSFERRING, ERROR</li>
+                    <li>Events: connect, disconnect, send_data, receive_data, error</li>
+                    <li>API: comm_fsm_dispatch_event()</li>
+                    <li>Code: comm_fsm.c / comm_fsm.h</li>
+                </ul>
+                <p><span class="status-indicator status-active"></span> Status: Active</p>
+                <div class="links">
+                    <a href="../diagrams/comm_fsm_diagram_with_api.html" class="btn">View Diagram</a>
+                    <a href="../src/comm_fsm.c" class="btn btn-secondary">View C Code</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section>
+        <h2>State Machine Mapping</h2>
+        <p>Mapping between system coordinator states and subsystem states.</p>
+        <table class="mapping-table">
+            <thead>
+                <tr>
+                    <th>System Coordinator State</th>
+                    <th>Power FSM</th>
+                    <th>Audio FSM</th>
+                    <th>Recording FSM</th>
+                    <th>Communication FSM</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>SYS_INIT</td>
+                    <td>OFF</td>
+                    <td>IDLE</td>
+                    <td>IDLE</td>
+                    <td>DISCONNECTED</td>
+                </tr>
+                <tr>
+                    <td>SYS_IDLE</td>
+                    <td>ON</td>
+                    <td>IDLE</td>
+                    <td>IDLE</td>
+                    <td>CONNECTED</td>
+                </tr>
+                <tr>
+                    <td>SYS_RECORDING</td>
+                    <td>ON</td>
+                    <td>RECORDING</td>
+                    <td>RECORDING</td>
+                    <td>CONNECTED</td>
+                </tr>
+                <tr>
+                    <td>SYS_UPLOADING</td>
+                    <td>ON</td>
+                    <td>IDLE</td>
+                    <td>SAVING</td>
+                    <td>TRANSFERRING</td>
+                </tr>
+                <tr>
+                    <td>SYS_ERROR</td>
+                    <td>ON</td>
+                    <td>MUTED</td>
+                    <td>IDLE</td>
+                    <td>ERROR</td>
+                </tr>
+                <tr>
+                    <td>SYS_SLEEP</td>
+                    <td>LOW_BATTERY</td>
+                    <td>IDLE</td>
+                    <td>IDLE</td>
+                    <td>DISCONNECTED</td>
+                </tr>
+                <tr>
+                    <td>SYS_SHUTDOWN</td>
+                    <td>OFF</td>
+                    <td>IDLE</td>
+                    <td>IDLE</td>
+                    <td>DISCONNECTED</td>
+                </tr>
+            </tbody>
+        </table>
+    </section>
+
+    <footer>
+        <p>System Coordinator Dashboard &copy; 2025 | TWS Earphone System Design Patterns in C</p>
+        <p>Generated from <a href="../docs/summary.html">summary.html</a> | <a href="../FINAL_SUMMARY.md">FINAL_SUMMARY.md</a></p>
+    </footer>
+
+    <script>
+        // Additional interactivity
+        document.addEventListener('DOMContentLoaded', function() {
+            const cards = document.querySelectorAll('.card');
+            cards.forEach(card => {
+                card.addEventListener('click', function() {
+                    this.classList.toggle('highlight');
+                });
+            });
+        });
+    </script>
+</body>
+</html>
