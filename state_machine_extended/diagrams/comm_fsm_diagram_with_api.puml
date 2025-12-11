@@ -1,0 +1,52 @@
+@startuml
+
+title Communication FSM State Diagram with API Calls
+
+skinparam state {
+  BackgroundColor<<normal>> White
+  BorderColor<<normal>> Black
+  BackgroundColor<<error>> LightCoral
+  BorderColor<<error>> DarkRed
+  BackgroundColor<<active>> LightGreen
+  BorderColor<<active>> DarkGreen
+  FontSize 13
+}
+
+state "COMM_IDLE" as idle <<normal>>
+state "COMM_CONNECTING" as connecting <<active>>
+state "COMM_CONNECTED" as connected <<active>>
+state "COMM_TRANSFERRING" as transferring <<active>>
+state "COMM_DISCONNECTING" as disconnecting <<active>>
+state "COMM_ERROR" as error <<error>>
+
+idle --> connecting : COMM_EVT_CONNECT
+connecting --> connected : COMM_EVT_CONNECTED
+connected --> transferring : COMM_EVT_DATA_READY
+transferring --> connected : COMM_EVT_DATA_SENT
+connected --> disconnecting : COMM_EVT_DISCONNECT
+disconnecting --> idle : COMM_EVT_DISCONNECTED
+idle --> error : COMM_EVT_ERROR
+connecting --> error : COMM_EVT_ERROR
+connected --> error : COMM_EVT_ERROR
+transferring --> error : COMM_EVT_ERROR
+disconnecting --> error : COMM_EVT_ERROR
+error --> idle : COMM_EVT_RESET
+
+[*] --> idle
+
+note right of idle
+  <b>Communication FSM API:</b>
+  • comm_fsm_init()
+  • comm_fsm_dispatch_event()
+  • comm_fsm_is_connected()
+  • comm_fsm_start_transfer()
+  • comm_fsm_set_error()
+  • comm_fsm_get_error_msg()
+end note
+
+note bottom
+  <b>Activation:</b> Activated by [[system_coordinator_state_diagram_with_api.puml SYS_RECORDING_AND_UPLOADING]] and [[system_coordinator_state_diagram_with_api.puml SYS_UPLOADING]] states.
+  <b>Back to main:</b> [[system_coordinator_state_diagram_with_api.puml System Coordinator FSM]]
+end note
+
+@enduml

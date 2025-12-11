@@ -1,0 +1,66 @@
+@startuml
+
+title OTA FSM State Diagram with API Calls
+
+skinparam state {
+  BackgroundColor<<normal>> White
+  BorderColor<<normal>> Black
+  BackgroundColor<<error>> LightCoral
+  BorderColor<<error>> DarkRed
+  BackgroundColor<<active>> LightGreen
+  BorderColor<<active>> DarkGreen
+  FontSize 13
+}
+
+state "OTA_IDLE" as idle <<normal>>
+state "OTA_CHECKING" as checking <<active>>
+state "OTA_DOWNLOADING" as downloading <<active>>
+state "OTA_VALIDATING" as validating <<active>>
+state "OTA_PREPARING" as preparing <<active>>
+state "OTA_INSTALLING" as installing <<active>>
+state "OTA_REBOOTING" as rebooting <<active>>
+state "OTA_ROLLBACK" as rollback <<error>>
+state "OTA_COMPLETE" as complete <<normal>>
+state "OTA_ERROR" as error <<error>>
+
+idle --> checking : OTA_EVT_START
+checking --> downloading : OTA_EVT_UPDATE_AVAILABLE
+checking --> idle : OTA_EVT_NO_UPDATE
+downloading --> validating : OTA_EVT_DOWNLOAD_COMPLETE
+validating --> preparing : OTA_EVT_VALIDATE_PASS
+validating --> error : OTA_EVT_VALIDATE_FAIL
+preparing --> installing : OTA_EVT_INSTALL_START
+installing --> rebooting : OTA_EVT_INSTALL_COMPLETE
+rebooting --> complete : OTA_EVT_RESET
+complete --> idle : OTA_EVT_RESET
+error --> rollback : OTA_EVT_ROLLBACK
+rollback --> idle : OTA_EVT_ROLLBACK_COMPLETE
+idle --> error : OTA_EVT_ERROR
+downloading --> error : OTA_EVT_ERROR
+validating --> error : OTA_EVT_ERROR
+preparing --> error : OTA_EVT_ERROR
+installing --> error : OTA_EVT_ERROR
+rebooting --> error : OTA_EVT_ERROR
+rollback --> error : OTA_EVT_ERROR
+error --> idle : OTA_EVT_RESET
+
+[*] --> idle
+
+note right of idle
+  <b>OTA FSM API:</b>
+  • ota_fsm_init()
+  • ota_fsm_dispatch_event()
+  • ota_fsm_get_state()
+  • ota_fsm_get_state_name()
+  • ota_fsm_set_package_url()
+  • ota_fsm_add_module()
+  • ota_fsm_get_overall_progress()
+  • ota_fsm_set_error()
+end note
+
+note bottom
+  <b>Activation:</b> Activated by [[system_coordinator_state_diagram_with_api.puml SYS_OTA]] state.
+  <b>Back to main:</b> [[system_coordinator_state_diagram_with_api.puml System Coordinator FSM]]
+end note
+
+@enduml

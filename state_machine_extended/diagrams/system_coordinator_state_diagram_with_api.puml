@@ -76,61 +76,61 @@ state "SYS_RESET" as RESET <<normal>> {
 [*] --> INIT
 
 ' State transitions (based on system_coordinator.c implementation)
-INIT --> IDLE : Auto transition after initialization\nAPI: system_coordinator_init(sys)
-INIT --> OTA : If pending firmware update detected\nAPI: system_coordinator_init(sys) (checks has_pending_update())
+INIT --> IDLE : Auto transition after initialization
+INIT --> OTA : If pending firmware update detected
 
-IDLE --> RECORDING : SYS_EVT_REC_START\nAPI: system_coordinator_dispatch_event(sys, SYS_EVT_REC_START, NULL)
-IDLE --> SHUTDOWN : SYS_EVT_POWER_OFF\nAPI: system_coordinator_dispatch_event(sys, SYS_EVT_POWER_OFF, NULL)
-IDLE --> ERROR : SYS_EVT_ERROR\nAPI: system_coordinator_dispatch_event(sys, SYS_EVT_ERROR, error_data)
-IDLE --> SLEEP : SYS_EVT_LOW_BATTERY\nAPI: system_coordinator_dispatch_event(sys, SYS_EVT_LOW_BATTERY, NULL)
-IDLE --> OTA : SYS_EVT_OTA_START\nAPI: system_coordinator_dispatch_event(sys, SYS_EVT_OTA_START, NULL)
+IDLE --> RECORDING : SYS_EVT_REC_START
+IDLE --> SHUTDOWN : SYS_EVT_POWER_OFF
+IDLE --> ERROR : SYS_EVT_ERROR
+IDLE --> SLEEP : SYS_EVT_LOW_BATTERY
+IDLE --> OTA : SYS_EVT_OTA_START
 
-RECORDING --> REC_UPL : SYS_EVT_STREAMING_START\nAPI: system_coordinator_dispatch_event(sys, SYS_EVT_STREAMING_START, NULL)
-RECORDING --> UPLOADING : SYS_EVT_REC_STOP\nAPI: system_coordinator_dispatch_event(sys, SYS_EVT_REC_STOP, NULL)
-RECORDING --> ERROR : SYS_EVT_ERROR\nAPI: system_coordinator_dispatch_event(sys, SYS_EVT_ERROR, error_data)
+RECORDING --> REC_UPL : SYS_EVT_STREAMING_START
+RECORDING --> UPLOADING : SYS_EVT_REC_STOP
+RECORDING --> ERROR : SYS_EVT_ERROR
 
-REC_UPL --> RECORDING : SYS_EVT_STREAMING_STOP\nAPI: system_coordinator_dispatch_event(sys, SYS_EVT_STREAMING_STOP, NULL)
-REC_UPL --> RECORDING : SYS_EVT_UPLOAD_COMPLETE\nAPI: system_coordinator_dispatch_event(sys, SYS_EVT_UPLOAD_COMPLETE, NULL)
-REC_UPL --> RECORDING : SYS_EVT_NETWORK_DISCONNECTED\nAPI: system_coordinator_dispatch_event(sys, SYS_EVT_NETWORK_DISCONNECTED, NULL)
-REC_UPL --> UPLOADING : SYS_EVT_REC_STOP\nAPI: system_coordinator_dispatch_event(sys, SYS_EVT_REC_STOP, NULL)
-REC_UPL --> ERROR : SYS_EVT_ERROR\nAPI: system_coordinator_dispatch_event(sys, SYS_EVT_ERROR, error_data)
+REC_UPL --> RECORDING : SYS_EVT_STREAMING_STOP
+REC_UPL --> RECORDING : SYS_EVT_UPLOAD_COMPLETE
+REC_UPL --> RECORDING : SYS_EVT_NETWORK_DISCONNECTED
+REC_UPL --> UPLOADING : SYS_EVT_REC_STOP
+REC_UPL --> ERROR : SYS_EVT_ERROR
 
-UPLOADING --> IDLE : SYS_EVT_UPLOAD_COMPLETE\nAPI: system_coordinator_dispatch_event(sys, SYS_EVT_UPLOAD_COMPLETE, NULL)
-UPLOADING --> ERROR : SYS_EVT_ERROR\nAPI: system_coordinator_dispatch_event(sys, SYS_EVT_ERROR, error_data)
+UPLOADING --> IDLE : SYS_EVT_UPLOAD_COMPLETE
+UPLOADING --> ERROR : SYS_EVT_ERROR
 
-ERROR --> INIT : SYS_EVT_RESET\nAPI: system_coordinator_dispatch_event(sys, SYS_EVT_RESET, NULL)
-ERROR --> SHUTDOWN : SYS_EVT_POWER_OFF\nAPI: system_coordinator_dispatch_event(sys, SYS_EVT_POWER_OFF, NULL)
+ERROR --> INIT : SYS_EVT_RESET
+ERROR --> SHUTDOWN : SYS_EVT_POWER_OFF
 
 ' RESET event transitions
-INIT --> RESET : SYS_EVT_RESET\nAPI: system_coordinator_dispatch_event(sys, SYS_EVT_RESET, NULL)
-IDLE --> RESET : SYS_EVT_RESET\nAPI: system_coordinator_dispatch_event(sys, SYS_EVT_RESET, NULL)
-RECORDING --> RESET : SYS_EVT_RESET\nAPI: system_coordinator_dispatch_event(sys, SYS_EVT_RESET, NULL)
-REC_UPL --> RESET : SYS_EVT_RESET\nAPI: system_coordinator_dispatch_event(sys, SYS_EVT_RESET, NULL)
-UPLOADING --> RESET : SYS_EVT_RESET\nAPI: system_coordinator_dispatch_event(sys, SYS_EVT_RESET, NULL)
-SLEEP --> RESET : SYS_EVT_RESET\nAPI: system_coordinator_dispatch_event(sys, SYS_EVT_RESET, NULL)
-OTA --> RESET : SYS_EVT_RESET\nAPI: system_coordinator_dispatch_event(sys, SYS_EVT_RESET, NULL)
+INIT --> RESET : SYS_EVT_RESET
+IDLE --> RESET : SYS_EVT_RESET
+RECORDING --> RESET : SYS_EVT_RESET
+REC_UPL --> RESET : SYS_EVT_RESET
+UPLOADING --> RESET : SYS_EVT_RESET
+SLEEP --> RESET : SYS_EVT_RESET
+OTA --> RESET : SYS_EVT_RESET
 
 ' RESET auto-transition to INIT
-RESET --> INIT : Auto transition after reset\nAPI: enter_reset() -> transition_to_state(SYS_INIT)
+RESET --> INIT : Auto transition after reset
 
-SLEEP --> IDLE : SYS_EVT_POWER_ON\nAPI: system_coordinator_dispatch_event(sys, SYS_EVT_POWER_ON, NULL)
+SLEEP --> IDLE : SYS_EVT_POWER_ON
 
 ' OTA state transitions
-OTA --> IDLE : SYS_EVT_OTA_COMPLETE\nAPI: system_coordinator_dispatch_event(sys, SYS_EVT_OTA_COMPLETE, NULL)
-OTA --> IDLE : SYS_EVT_OTA_CANCEL\nAPI: system_coordinator_dispatch_event(sys, SYS_EVT_OTA_CANCEL, NULL)
-OTA --> ERROR : SYS_EVT_OTA_ERROR\nAPI: system_coordinator_dispatch_event(sys, SYS_EVT_OTA_ERROR, error_data)
-OTA --> SHUTDOWN : SYS_EVT_POWER_OFF\nAPI: system_coordinator_dispatch_event(sys, SYS_EVT_POWER_OFF, NULL)
+OTA --> IDLE : SYS_EVT_OTA_COMPLETE
+OTA --> IDLE : SYS_EVT_OTA_CANCEL
+OTA --> ERROR : SYS_EVT_OTA_ERROR
+OTA --> SHUTDOWN : SYS_EVT_POWER_OFF
 
 ' OTA self-transitions (forwarded to OTA FSM)
-OTA --> OTA : SYS_EVT_OTA_CHECK (forwarded)\nAPI: system_coordinator_dispatch_event(sys, SYS_EVT_OTA_CHECK, NULL)
-OTA --> OTA : SYS_EVT_OTA_STATUS (forwarded)\nAPI: system_coordinator_dispatch_event(sys, SYS_EVT_OTA_STATUS, NULL)
-OTA --> OTA : SYS_EVT_OTA_PROGRESS (forwarded)\nAPI: system_coordinator_dispatch_event(sys, SYS_EVT_OTA_PROGRESS, NULL)
+OTA --> OTA : SYS_EVT_OTA_CHECK (forwarded)
+OTA --> OTA : SYS_EVT_OTA_STATUS (forwarded)
+OTA --> OTA : SYS_EVT_OTA_PROGRESS (forwarded)
 
 ' Self-transitions (handled within state)
-RECORDING --> RECORDING : SYS_EVT_REC_PAUSE (handled)\nAPI: system_coordinator_dispatch_event(sys, SYS_EVT_REC_PAUSE, NULL)
-RECORDING --> RECORDING : SYS_EVT_REC_RESUME (handled)\nAPI: system_coordinator_dispatch_event(sys, SYS_EVT_REC_RESUME, NULL)
-RECORDING --> RECORDING : SYS_EVT_LOW_BATTERY (handled)\nAPI: system_coordinator_dispatch_event(sys, SYS_EVT_LOW_BATTERY, NULL)
-UPLOADING --> UPLOADING : SYS_EVT_NETWORK_DISCONNECTED (handled)\nAPI: system_coordinator_dispatch_event(sys, SYS_EVT_NETWORK_DISCONNECTED, NULL)
+RECORDING --> RECORDING : SYS_EVT_REC_PAUSE (handled)
+RECORDING --> RECORDING : SYS_EVT_REC_RESUME (handled)
+RECORDING --> RECORDING : SYS_EVT_LOW_BATTERY (handled)
+UPLOADING --> UPLOADING : SYS_EVT_NETWORK_DISCONNECTED (handled)
 
 ' State labels
 INIT_ENTRY : "Initialize subsystems"
@@ -183,6 +183,7 @@ note right of IDLE
   <b>State:</b> SYS_IDLE
   <b>Entry function:</b> enter_idle()
   <b>Do action:</b> do_action() periodic checks
+  <b>Subsystems:</b> [[power_fsm_diagram_with_api.html power_fsm]] (low battery management), [[comm_fsm_diagram_with_api.html comm_fsm]] (network monitoring)
   <b>Main operational state</b>
 end note
 
@@ -190,14 +191,21 @@ note right of RECORDING
   <b>State:</b> SYS_RECORDING
   <b>Entry function:</b> enter_recording()
   <b>Do action:</b> monitor recording progress
-  <b>Subsystems:</b> recording_fsm, audio_fsm active
+  <b>Subsystems:</b> [[recording_fsm_diagram_with_api.html recording_fsm]], [[audio_fsm_diagram_with_api.html audio_fsm]] active
 end note
 
 note right of REC_UPL
   <b>State:</b> SYS_RECORDING_AND_UPLOADING
   <b>Entry function:</b> enter_recording_and_uploading()
   <b>Do action:</b> monitor recording & streaming
-  <b>Subsystems:</b> recording_fsm, audio_fsm, comm_fsm active
+  <b>Subsystems:</b> [[recording_fsm_diagram_with_api.html recording_fsm]], [[audio_fsm_diagram_with_api.html audio_fsm]], [[comm_fsm_diagram_with_api.html comm_fsm]] active
+end note
+
+note right of UPLOADING
+  <b>State:</b> SYS_UPLOADING
+  <b>Entry function:</b> enter_uploading()
+  <b>Do action:</b> upload to cloud
+  <b>Subsystems:</b> [[comm_fsm_diagram_with_api.html comm_fsm]] active
 end note
 
 note right of ERROR
@@ -211,9 +219,17 @@ note right of OTA
   <b>State:</b> SYS_OTA
   <b>Entry function:</b> enter_ota()
   <b>Do action:</b> download & install update
-  <b>Subsystems:</b> ota_fsm active
+  <b>Subsystems:</b> [[ota_fsm_diagram_with_api.html ota_fsm]] active
   <b>Transitions:</b> From IDLE (OTA_START), From INIT (pending update)
   <b>Exit events:</b> OTA_COMPLETE, OTA_CANCEL, OTA_ERROR, POWER_OFF
+end note
+
+note right of SLEEP
+  <b>State:</b> SYS_SLEEP
+  <b>Entry function:</b> enter_sleep()
+  <b>Do action:</b> low‑power sleep
+  <b>Subsystems:</b> [[power_fsm_diagram_with_api.html power_fsm]] (sleep mode)
+  <b>Wake‑up events:</b> POWER_ON, LOW_BATTERY
 end note
 
 note right of SHUTDOWN
@@ -237,7 +253,8 @@ note bottom
   SYS_EVT_UPLOAD_START, SYS_EVT_NETWORK_CONNECTED,
   SYS_EVT_BLUETOOTH_CONNECTED, SYS_EVT_BLUETOOTH_DISCONNECTED,
   SYS_EVT_CHARGING, SYS_EVT_TRANSFER_MODE_CHANGE,
-  SYS_EVT_FILE_UPLOAD_START, SYS_EVT_FILE_UPLOAD_COMPLETE.
+  SYS_EVT_FILE_UPLOAD_START, SYS_EVT_FILE_UPLOAD_COMPLETE,
+  SYS_EVT_OTA_CHECK, SYS_EVT_OTA_STATUS, SYS_EVT_OTA_PROGRESS.
   These events are reserved for future extensions.
 end note
 

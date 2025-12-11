@@ -1,0 +1,51 @@
+@startuml
+
+title Audio FSM State Diagram with API Calls
+
+skinparam state {
+  BackgroundColor<<normal>> White
+  BorderColor<<normal>> Black
+  BackgroundColor<<error>> LightCoral
+  BorderColor<<error>> DarkRed
+  BackgroundColor<<active>> LightGreen
+  BorderColor<<active>> DarkGreen
+  FontSize 13
+}
+
+state "AUDIO_OFF" as off <<normal>>
+state "AUDIO_IDLE" as idle <<normal>>
+state "AUDIO_PLAYING" as playing <<active>>
+state "AUDIO_PAUSED" as paused <<active>>
+state "AUDIO_RECORDING" as recording <<active>>
+state "AUDIO_ERROR" as error <<error>>
+
+off --> idle : AUDIO_EVT_PLAY
+idle --> playing : AUDIO_EVT_PLAY
+playing --> paused : AUDIO_EVT_PAUSE
+paused --> playing : AUDIO_EVT_PLAY
+playing --> idle : AUDIO_EVT_STOP
+paused --> idle : AUDIO_EVT_STOP
+idle --> recording : AUDIO_EVT_RECORD_START
+recording --> idle : AUDIO_EVT_RECORD_STOP
+playing --> error : AUDIO_EVT_ERROR
+paused --> error : AUDIO_EVT_ERROR
+recording --> error : AUDIO_EVT_ERROR
+error --> idle : AUDIO_EVT_PLAY
+
+[*] --> off
+
+note right of off
+  <b>Audio FSM API:</b>
+  • audio_fsm_init()
+  • audio_fsm_dispatch_event()
+  • audio_fsm_get_state()
+  • audio_fsm_set_error()
+  • audio_fsm_get_error_msg()
+end note
+
+note bottom
+  <b>Activation:</b> Activated by [[system_coordinator_state_diagram_with_api.puml SYS_RECORDING]] and [[system_coordinator_state_diagram_with_api.puml SYS_RECORDING_AND_UPLOADING]] states.
+  <b>Back to main:</b> [[system_coordinator_state_diagram_with_api.puml System Coordinator FSM]]
+end note
+
+@enduml

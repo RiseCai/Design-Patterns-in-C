@@ -2,26 +2,36 @@
 
 title Recording FSM State Diagram with API Calls
 
-state "REC_IDLE" as idle
-state "REC_WAIT_SYNC" as wait_sync
-state "REC_RECORDING" as recording
-state "REC_PAUSED" as paused
-state "REC_STOPPING" as stopping
-state "REC_ERROR" as error
+skinparam state {
+  BackgroundColor<<normal>> White
+  BorderColor<<normal>> Black
+  BackgroundColor<<error>> LightCoral
+  BorderColor<<error>> DarkRed
+  BackgroundColor<<active>> LightGreen
+  BorderColor<<active>> DarkGreen
+  FontSize 13
+}
 
-idle -> wait_sync : REC_EVT_START
-wait_sync -> recording : REC_EVT_SYNC_COMPLETE
-wait_sync -> idle : REC_EVT_ERROR
-recording -> paused : REC_EVT_PAUSE
-paused -> recording : REC_EVT_RESUME
-recording -> stopping : REC_EVT_STOP
-stopping -> idle : [save complete]
-recording -> error : REC_EVT_ERROR
-paused -> error : REC_EVT_ERROR
-wait_sync -> error : REC_EVT_ERROR
-error -> idle : REC_EVT_RESET
+state "REC_IDLE" as idle <<normal>>
+state "REC_WAIT_SYNC" as wait_sync <<active>>
+state "REC_RECORDING" as recording <<active>>
+state "REC_PAUSED" as paused <<active>>
+state "REC_STOPPING" as stopping <<active>>
+state "REC_ERROR" as error <<error>>
 
-[*] -> idle
+idle --> wait_sync : REC_EVT_START
+wait_sync --> recording : REC_EVT_SYNC_COMPLETE
+wait_sync --> idle : REC_EVT_ERROR
+recording --> paused : REC_EVT_PAUSE
+paused --> recording : REC_EVT_RESUME
+recording --> stopping : REC_EVT_STOP
+stopping --> idle : [save complete]
+recording --> error : REC_EVT_ERROR
+paused --> error : REC_EVT_ERROR
+wait_sync --> error : REC_EVT_ERROR
+error --> idle : REC_EVT_RESET
+
+[*] --> idle
 
 note right of idle
   <b>Recording FSM API:</b>
@@ -30,6 +40,11 @@ note right of idle
   • recording_fsm_get_state()
   • recording_fsm_set_error()
   • recording_fsm_get_error_msg()
+end note
+
+note bottom
+  <b>Activation:</b> Activated by [[system_coordinator_state_diagram_with_api.puml SYS_RECORDING]] and [[system_coordinator_state_diagram_with_api.puml SYS_RECORDING_AND_UPLOADING]] states.
+  <b>Back to main:</b> [[system_coordinator_state_diagram_with_api.puml System Coordinator FSM]]
 end note
 
 @enduml

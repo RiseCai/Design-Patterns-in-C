@@ -1,0 +1,47 @@
+@startuml
+
+title Power FSM State Diagram with API Calls
+
+skinparam state {
+  BackgroundColor<<normal>> White
+  BorderColor<<normal>> Black
+  BackgroundColor<<error>> LightCoral
+  BorderColor<<error>> DarkRed
+  BackgroundColor<<active>> LightGreen
+  BorderColor<<active>> DarkGreen
+  FontSize 13
+}
+
+state "POWER_OFF" as off <<normal>>
+state "POWER_ON" as on <<active>>
+state "POWER_LOW_BATTERY" as low <<error>>
+state "POWER_CHARGING" as charging <<active>>
+state "POWER_SLEEP" as sleep <<normal>>
+
+off --> on : POWER_EVT_TURN_ON
+on --> off : POWER_EVT_TURN_OFF
+on --> low : POWER_EVT_LOW_BATTERY
+low --> charging : POWER_EVT_CHARGING_START
+charging --> on : POWER_EVT_CHARGING_STOP
+on --> sleep : POWER_EVT_ENTER_SLEEP
+sleep --> on : POWER_EVT_WAKE_UP
+low --> sleep : POWER_EVT_ENTER_SLEEP
+charging --> sleep : POWER_EVT_ENTER_SLEEP
+sleep --> off : POWER_EVT_TURN_OFF
+
+[*] --> off
+
+note right of off
+  <b>Power FSM API:</b>
+  • power_fsm_init()
+  • power_fsm_dispatch_event()
+  • power_fsm_get_state()
+  • power_fsm_get_state_name()
+end note
+
+note bottom
+  <b>Activation:</b> Activated by [[system_coordinator_state_diagram_with_api.puml SYS_IDLE]] and [[system_coordinator_state_diagram_with_api.puml SYS_SLEEP]] states.
+  <b>Back to main:</b> [[system_coordinator_state_diagram_with_api.puml System Coordinator FSM]]
+end note
+
+@enduml

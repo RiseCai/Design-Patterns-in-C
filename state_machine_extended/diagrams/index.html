@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TWS Earphone System - State Machine Diagrams</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        header {
+            background: linear-gradient(90deg, #1a2980, #26d0ce);
+            color: white;
+            padding: 30px 40px;
+            text-align: center;
+        }
+        h1 {
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            letter-spacing: 1px;
+        }
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin-bottom: 20px;
+        }
+        .description {
+            max-width: 800px;
+            margin: 0 auto 30px;
+            font-size: 1.1rem;
+            background: rgba(255, 255, 255, 0.15);
+            padding: 20px;
+            border-radius: 10px;
+            backdrop-filter: blur(5px);
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+            padding: 40px;
+        }
+        .card {
+            background: #fff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: 1px solid #e1e5eb;
+        }
+        .card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+        }
+        .card-header {
+            padding: 20px;
+            background: linear-gradient(90deg, #4776E6, #8E54E9);
+            color: white;
+            font-size: 1.4rem;
+            font-weight: 600;
+        }
+        .card-body {
+            padding: 25px;
+        }
+        .card-body p {
+            margin-bottom: 20px;
+            color: #555;
+            font-size: 1rem;
+        }
+        .btn {
+            display: inline-block;
+            background: #4776E6;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: background 0.3s, transform 0.2s;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            text-align: center;
+            width: 100%;
+        }
+        .btn:hover {
+            background: #3a64d0;
+            transform: scale(1.05);
+        }
+        .btn-secondary {
+            background: #6c757d;
+        }
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+        .btn-success {
+            background: #28a745;
+        }
+        .btn-success:hover {
+            background: #218838;
+        }
+        .btn-warning {
+            background: #ffc107;
+            color: #212529;
+        }
+        .btn-warning:hover {
+            background: #e0a800;
+        }
+        .btn-danger {
+            background: #dc3545;
+        }
+        .btn-danger:hover {
+            background: #c82333;
+        }
+        .card-footer {
+            padding: 15px 25px;
+            background: #f8f9fa;
+            border-top: 1px solid #e9ecef;
+            font-size: 0.9rem;
+            color: #6c757d;
+            text-align: center;
+        }
+        .legend {
+            margin: 40px auto;
+            max-width: 800px;
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 12px;
+            border-left: 6px solid #4776E6;
+        }
+        .legend h3 {
+            margin-bottom: 15px;
+            color: #1a2980;
+        }
+        .legend ul {
+            list-style: none;
+            padding-left: 20px;
+        }
+        .legend li {
+            margin-bottom: 10px;
+            position: relative;
+            padding-left: 25px;
+        }
+        .legend li:before {
+            content: "•";
+            color: #4776E6;
+            font-size: 1.5rem;
+            position: absolute;
+            left: 0;
+            top: -5px;
+        }
+        footer {
+            text-align: center;
+            padding: 30px;
+            color: #6c757d;
+            font-size: 0.9rem;
+            border-top: 1px solid #dee2e6;
+            margin-top: 40px;
+        }
+        .highlight {
+            background: #fff3cd;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+            color: #856404;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>TWS Earphone System</h1>
+            <div class="subtitle">State Machine Diagrams & Activation Relationships</div>
+            <div class="description">
+                This dashboard provides interactive access to all PlantUML state machine diagrams for the TWS earphone system.
+                Each diagram illustrates the finite state machines (FSMs) of the system coordinator and its subsystems,
+                with clear API mappings and activation relationships.
+            </div>
+        </header>
+
+        <div class="grid">
+            <!-- Main Coordinator -->
+            <div class="card">
+                <div class="card-header" style="background: linear-gradient(90deg, #1a2980, #26d0ce);">
+                    System Coordinator FSM
+                </div>
+                <div class="card-body">
+                    <p>The top‑level coordinator that manages the overall system state and activates subsystem FSMs.</p>
+                    <a href="system_coordinator_state_diagram_with_api.html" class="btn">View Diagram</a>
+                </div>
+                <div class="card-footer">
+                    Includes API calls & subsystem activation notes
+                </div>
+            </div>
+
+            <!-- All Subsystems Overview -->
+            <div class="card">
+                <div class="card-header" style="background: linear-gradient(90deg, #4776E6, #8E54E9);">
+                    All Subsystems Overview
+                </div>
+                <div class="card-body">
+                    <p>Integrated view showing activation relationships between system coordinator states and subsystem FSMs.</p>
+                    <a href="system_coordinator_with_all_subsystems.html" class="btn btn-success">View Integrated Diagram</a>
+                </div>
+                <div class="card-footer">
+                    Dashed arrows indicate activation relationships
+                </div>
+            </div>
+
+            <!-- Recording FSM -->
+            <div class="card">
+                <div class="card-header" style="background: linear-gradient(90deg, #FF512F, #F09819);">
+                    Recording Subsystem FSM
+                </div>
+                <div class="card-body">
+                    <p>Manages recording states: idle, recording, paused, stopped, uploading, error.</p>
+                    <a href="recording_fsm_diagram_with_api.html" class="btn btn-warning">View Diagram</a>
+                </div>
+                <div class="card-footer">
+                    Activated by SYS_RECORDING & SYS_RECORDING_AND_UPLOADING
+                </div>
+            </div>
+
+            <!-- Audio FSM -->
+            <div class="card">
+                <div class="card-header" style="background: linear-gradient(90deg, #FF5E62, #FF9966);">
+                    Audio Subsystem FSM
+                </div>
+                <div class="card-body">
+                    <p>Controls audio states: off, idle, playing, paused, recording, error.</p>
+                    <a href="audio_fsm_diagram_with_api.html" class="btn btn-danger">View Diagram</a>
+                </div>
+                <div class="card-footer">
+                    Activated by SYS_RECORDING & SYS_RECORDING_AND_UPLOADING
+                </div>
+            </div>
+
+            <!-- Communication FSM -->
+            <div class="card">
+                <div class="card-header" style="background: linear-gradient(90deg, #654ea3, #da98b4);">
+                    Communication Subsystem FSM
+                </div>
+                <div class="card-body">
+                    <p>Handles network connectivity and data transfer states.</p>
+                    <a href="comm_fsm_diagram_with_api.html" class="btn btn-secondary">View Diagram</a>
+                </div>
+                <div class="card-footer">
+                    Activated by SYS_RECORDING_AND_UPLOADING & SYS_UPLOADING
+                </div>
+            </div>
+
+            <!-- Power FSM -->
+            <div class="card">
+                <div class="card-header" style="background: linear-gradient(90deg, #11998e, #38ef7d);">
+                    Power Subsystem FSM
+                </div>
+                <div class="card-body">
+                    <p>Manages power states: on, off, low‑battery, charging, sleep.</p>
+                    <a href="power_fsm_diagram_with_api.html" class="btn btn-success">View Diagram</a>
+                </div>
+                <div class="card-footer">
+                    Activated by SYS_IDLE & SYS_SLEEP
+                </div>
+            </div>
+
+            <!-- OTA FSM -->
+            <div class="card">
+                <div class="card-header" style="background: linear-gradient(90deg, #f46b45, #eea849);">
+                    OTA Subsystem FSM
+                </div>
+                <div class="card-body">
+                    <p>Over‑the‑air update process: checking, downloading, verifying, installing, etc.</p>
+                    <a href="ota_fsm_diagram_with_api.html" class="btn btn-warning">View Diagram</a>
+                </div>
+                <div class="card-footer">
+                    Activated by SYS_OTA
+                </div>
+            </div>
+        </div>
+
+        <div class="legend">
+            <h3>How to Use This Dashboard</h3>
+            <ul>
+                <li>Click any diagram card to open the interactive PlantUML diagram in your browser.</li>
+                <li>In the <span class="highlight">System Coordinator FSM</span> diagram, each state note contains hyperlinks to the relevant subsystem diagrams.</li>
+                <li>The <span class="highlight">All Subsystems Overview</span> diagram visually shows which coordinator states activate which subsystem states (dashed arrows).</li>
+                <li>All diagrams are generated from <code>.puml</code> source files using the PlantUML server.</li>
+                <li>You can navigate back to this dashboard by clicking the browser's back button or using the links within each diagram.</li>
+            </ul>
+        </div>
+
+        <footer>
+            <p>Generated on December 11, 2025 | TWS Earphone System Design Patterns in C</p>
+            <p>Diagrams are automatically generated from source code headers and state machine definitions.</p>
+        </footer>
+    </div>
+</body>
+</html>
