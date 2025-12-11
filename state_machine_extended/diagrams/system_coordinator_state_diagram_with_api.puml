@@ -30,10 +30,22 @@ state "SYS_RECORDING" as RECORDING <<active>> {
   state "RECORDING_Exit" as REC_EXIT <<exit>>
 }
 
+state "SYS_RECORDING_AND_UPLOADING" as REC_UPL <<active>> {
+  state "REC_UPL_Entry" as REC_UPL_ENTRY <<entry>>
+  state "REC_UPL_Do" as REC_UPL_DO <<do>>
+  state "REC_UPL_Exit" as REC_UPL_EXIT <<exit>>
+}
+
 state "SYS_UPLOADING" as UPLOADING <<active>> {
   state "UPLOADING_Entry" as UPL_ENTRY <<entry>>
   state "UPLOADING_Do" as UPL_DO <<do>>
   state "UPLOADING_Exit" as UPL_EXIT <<exit>>
+}
+
+state "SYS_OTA" as OTA <<active>> {
+  state "OTA_Entry" as OTA_ENTRY <<entry>>
+  state "OTA_Do" as OTA_DO <<do>>
+  state "OTA_Exit" as OTA_EXIT <<exit>>
 }
 
 state "SYS_ERROR" as ERROR <<error>> {
@@ -57,30 +69,50 @@ state "SYS_SHUTDOWN" as SHUTDOWN <<normal>> {
 ' Initial transition
 [*] --> INIT
 
-' State transitions
+' State transitions (based on system_coordinator.c implementation)
 INIT --> IDLE : Auto transition after initialization\nAPI: system_coordinator_init(sys)
+INIT --> OTA : If pending firmware update detected\nAPI: system_coordinator_init(sys) (checks has_pending_update())
 
 IDLE --> RECORDING : SYS_EVT_REC_START\nAPI: system_coordinator_dispatch_event(sys, SYS_EVT_REC_START, NULL)
 IDLE --> SHUTDOWN : SYS_EVT_POWER_OFF\nAPI: system_coordinator_dispatch_event(sys, SYS_EVT_POWER_OFF, NULL)
 IDLE --> ERROR : SYS_EVT_ERROR\nAPI: system_coordinator_dispatch_event(sys, SYS_EVT_ERROR, error_data)
-IDLE --> SLEEP : SYS_EVT_LOW_BATTERY (optional)\nAPI: system_coordinator_dispatch_event(sys, SYS_EVT_LOW_BATTERY, NULL)
+IDLE --> SLEEP : SYS_EVT_LOW_BATTERY\nAPI: system_coordinator_dispatch_event(sys, SYS_EVT_LOW_BATTERY, NULL)
+IDLE --> OTA : SYS_EVT_OTA_START\nAPI: system_coordinator_dispatch_event(sys, SYS_EVT_OTA_START, NULL)
 
+RECORDING --> REC_UPL : SYS_EVT_STREAMING_START\nAPI: system_coordinator_dispatch_event(sys, SYS_EVT_STREAMING_START, NULL)
 RECORDING --> UPLOADING : SYS_EVT_REC_STOP\nAPI: system_coordinator_dispatch_event(sys, SYS_EVT_REC_STOP, NULL)
 RECORDING --> ERROR : SYS_EVT_ERROR\nAPI: system_coordinator_dispatch_event(sys, SYS_EVT_ERROR, error_data)
-RECORDING --> IDLE : SYS_EVT_REC_PAUSE (optional)\nAPI: system_coordinator_dispatch_event(sys, SYS_EVT_REC_PAUSE, NULL)
+
+REC_UPL --> RECORDING : SYS_EVT_STREAMING_STOP\nAPI: system_coordinator_dispatch_event(sys, SYS_EVT_STREAMING_STOP, NULL)
+REC_UPL --> RECORDING : SYS_EVT_UPLOAD_COMPLETE\nAPI: system_coordinator_dispatch_event(sys, SYS_EVT_UPLOAD_COMPLETE, NULL)
+REC_UPL --> RECORDING : SYS_EVT_NETWORK_DISCONNECTED\nAPI: system_coordinator_dispatch_event(sys, SYS_EVT_NETWORK_DISCONNECTED, NULL)
+REC_UPL --> UPLOADING : SYS_EVT_REC_STOP\nAPI: system_coordinator_dispatch_event(sys, SYS_EVT_REC_STOP, NULL)
+REC_UPL --> ERROR : SYS_EVT_ERROR\nAPI: system_coordinator_dispatch_event(sys, SYS_EVT_ERROR, error_data)
 
 UPLOADING --> IDLE : SYS_EVT_UPLOAD_COMPLETE\nAPI: system_coordinator_dispatch_event(sys, SYS_EVT_UPLOAD_COMPLETE, NULL)
 UPLOADING --> ERROR : SYS_EVT_ERROR\nAPI: system_coordinator_dispatch_event(sys, SYS_EVT_ERROR, error_data)
-UPLOADING --> IDLE : SYS_EVT_NETWORK_DISCONNECTED (fallback)\nAPI: system_coordinator_dispatch_event(sys, SYS_EVT_NETWORK_DISCONNECTED, NULL)
 
 ERROR --> INIT : SYS_EVT_RESET\nAPI: system_coordinator_dispatch_event(sys, SYS_EVT_RESET, NULL)
 ERROR --> SHUTDOWN : SYS_EVT_POWER_OFF\nAPI: system_coordinator_dispatch_event(sys, SYS_EVT_POWER_OFF, NULL)
 
 SLEEP --> IDLE : SYS_EVT_POWER_ON\nAPI: system_coordinator_dispatch_event(sys, SYS_EVT_POWER_ON, NULL)
 
+' OTA state transitions
+OTA --> IDLE : SYS_EVT_OTA_COMPLETE\nAPI: system_coordinator_dispatch_event(sys, SYS_EVT_OTA_COMPLETE, NULL)
+OTA --> IDLE : SYS_EVT_OTA_CANCEL\nAPI: system_coordinator_dispatch_event(sys, SYS_EVT_OTA_CANCEL, NULL)
+OTA --> ERROR : SYS_EVT_OTA_ERROR\nAPI: system_coordinator_dispatch_event(sys, SYS_EVT_OTA_ERROR, error_data)
+OTA --> SHUTDOWN : SYS_EVT_POWER_OFF\nAPI: system_coordinator_dispatch_event(sys, SYS_EVT_POWER_OFF, NULL)
+
+' OTA self-transitions (forwarded to OTA FSM)
+OTA --> OTA : SYS_EVT_OTA_CHECK (forwarded)\nAPI: system_coordinator_dispatch_event(sys, SYS_EVT_OTA_CHECK, NULL)
+OTA --> OTA : SYS_EVT_OTA_STATUS (forwarded)\nAPI: system_coordinator_dispatch_event(sys, SYS_EVT_OTA_STATUS, NULL)
+OTA --> OTA : SYS_EVT_OTA_PROGRESS (forwarded)\nAPI: system_coordinator_dispatch_event(sys, SYS_EVT_OTA_PROGRESS, NULL)
+
 ' Self-transitions (handled within state)
-IDLE --> IDLE : SYS_EVT_LOW_BATTERY (handled)\nAPI: system_coordinator_dispatch_event(sys, SYS_EVT_LOW_BATTERY, NULL)
 RECORDING --> RECORDING : SYS_EVT_REC_PAUSE (handled)\nAPI: system_coordinator_dispatch_event(sys, SYS_EVT_REC_PAUSE, NULL)
+RECORDING --> RECORDING : SYS_EVT_REC_RESUME (handled)\nAPI: system_coordinator_dispatch_event(sys, SYS_EVT_REC_RESUME, NULL)
+RECORDING --> RECORDING : SYS_EVT_LOW_BATTERY (handled)\nAPI: system_coordinator_dispatch_event(sys, SYS_EVT_LOW_BATTERY, NULL)
+UPLOADING --> UPLOADING : SYS_EVT_NETWORK_DISCONNECTED (handled)\nAPI: system_coordinator_dispatch_event(sys, SYS_EVT_NETWORK_DISCONNECTED, NULL)
 
 ' State labels
 INIT_ENTRY : "Initialize subsystems"
@@ -95,9 +127,17 @@ REC_ENTRY : "Start recording"
 REC_DO : "Record audio, process data"
 REC_EXIT : "Stop recording"
 
+REC_UPL_ENTRY : "Start recording & streaming"
+REC_UPL_DO : "Record + upload simultaneously"
+REC_UPL_EXIT : "Stop recording or streaming"
+
 UPL_ENTRY : "Start upload"
 UPL_DO : "Upload to cloud"
 UPL_EXIT : "Upload complete"
+
+OTA_ENTRY : "Start OTA process"
+OTA_DO : "Download & install update"
+OTA_EXIT : "OTA complete or cancelled"
 
 ERR_ENTRY : "Handle error"
 ERR_DO : "Error recovery"
@@ -107,7 +147,7 @@ SLEEP_ENTRY : "Enter low-power"
 SLEEP_DO : "Sleep mode"
 SLEEP_EXIT : "Wake up"
 
-SHUT_ENTRY : "Shutdown system"
+SHUT_ENTRY : "(none)"
 SHUT_DO : "Power off"
 SHUT_EXIT : "System off"
 
@@ -131,11 +171,44 @@ note right of RECORDING
   <b>Subsystems:</b> recording_fsm, audio_fsm active
 end note
 
+note right of REC_UPL
+  <b>State:</b> SYS_RECORDING_AND_UPLOADING
+  <b>Entry function:</b> enter_recording_and_uploading()
+  <b>Do action:</b> monitor recording & streaming
+  <b>Subsystems:</b> recording_fsm, audio_fsm, comm_fsm active
+end note
+
 note right of ERROR
   <b>State:</b> SYS_ERROR
   <b>Entry function:</b> enter_error()
   <b>Error handling:</b> error_code, error_msg
   <b>Recovery:</b> Reset or shutdown
+end note
+
+note right of OTA
+  <b>State:</b> SYS_OTA
+  <b>Entry function:</b> enter_ota()
+  <b>Do action:</b> download & install update
+  <b>Subsystems:</b> ota_fsm active
+  <b>Transitions:</b> From IDLE (OTA_START), From INIT (pending update)
+  <b>Exit events:</b> OTA_COMPLETE, OTA_CANCEL, OTA_ERROR, POWER_OFF
+end note
+
+note right of SHUTDOWN
+  <b>State:</b> SYS_SHUTDOWN
+  <b>Entry function:</b> (none)
+  <b>Do action:</b> power off sequence
+  <b>Final state:</b> No outgoing transitions
+  <b>API:</b> system_coordinator_dispatch_event(sys, SYS_EVT_POWER_OFF, NULL)
+end note
+
+note bottom
+  <b>Note:</b> Some events are defined but not processed in this FSM:
+  SYS_EVT_UPLOAD_START, SYS_EVT_NETWORK_CONNECTED,
+  SYS_EVT_BLUETOOTH_CONNECTED, SYS_EVT_BLUETOOTH_DISCONNECTED,
+  SYS_EVT_CHARGING, SYS_EVT_TRANSFER_MODE_CHANGE,
+  SYS_EVT_FILE_UPLOAD_START, SYS_EVT_FILE_UPLOAD_COMPLETE.
+  These events are reserved for future extensions.
 end note
 
 @enduml

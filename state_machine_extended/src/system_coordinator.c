@@ -29,6 +29,7 @@ static const char *state_names[] = {
     "SYS_RECORDING",
     "SYS_RECORDING_AND_UPLOADING",
     "SYS_UPLOADING",
+    "SYS_OTA",
     "SYS_ERROR",
     "SYS_SLEEP",
     "SYS_SHUTDOWN"
@@ -72,6 +73,22 @@ static void transition_to_state(struct system_coordinator *sys, enum system_stat
 static void handle_event_in_state(struct system_coordinator *sys, enum system_event event, void *data);
 static void forward_ota_event(struct system_coordinator *sys, enum system_event event, void *data);
 
+/* Check if there is a pending firmware update */
+static int has_pending_update(struct system_coordinator *sys) {
+    /* For simulation purposes, we can check a configuration file,
+     * environment variable, or a global flag.
+     * Here we implement a simple simulation: if OTA FSM is present
+     * and has a package URL set, we assume there is a pending update.
+     * In real implementation, this should be replaced with actual logic.
+     */
+    if (sys && sys->ota_fsm) {
+        /* Check if package URL is not empty (simplified) */
+        /* In actual implementation, you might call ota_fsm_check_update() */
+        return 0; /* Default: no pending update */
+    }
+    return 0;
+}
+
 /* State entry handlers */
 static void enter_init(struct system_coordinator *sys) {
     printf("System entering INIT state\n");
@@ -97,8 +114,14 @@ static void enter_init(struct system_coordinator *sys) {
         /* Note: ota_fsm_init would be called by the owner */
     }
     
-    /* After initialization, transition to IDLE */
-    transition_to_state(sys, SYS_IDLE);
+    /* After initialization, check if there is a pending firmware update */
+    if (has_pending_update(sys)) {
+        printf("Pending firmware update detected, transitioning to OTA state\n");
+        transition_to_state(sys, SYS_OTA);
+    } else {
+        printf("No pending firmware update, transitioning to IDLE state\n");
+        transition_to_state(sys, SYS_IDLE);
+    }
 }
 
 static void enter_idle(struct system_coordinator *sys) {
@@ -140,6 +163,16 @@ static void enter_error(struct system_coordinator *sys) {
 static void enter_sleep(struct system_coordinator *sys) {
     printf("System entering SLEEP state\n");
     /* Put subsystems into low-power mode */
+}
+
+static void enter_ota(struct system_coordinator *sys) {
+    printf("System entering OTA state\n");
+    /* Start OTA process */
+    /* Notify OTA FSM to start upgrade */
+    if (sys->ota_fsm) {
+        ota_fsm_dispatch_event(sys->ota_fsm, OTA_EVT_START, NULL);
+    }
+    /* Block other subsystems from starting new operations */
 }
 
 /* State exit handler */
@@ -189,12 +222,16 @@ static void handle_idle_state(struct system_coordinator *sys, enum system_event 
             transition_to_state(sys, SYS_SHUTDOWN);
             break;
         case SYS_EVT_LOW_BATTERY:
-            printf("Low battery warning in IDLE state\n");
-            /* Handle low battery */
+            printf("Low battery warning in IDLE state - entering SLEEP\n");
+            transition_to_state(sys, SYS_SLEEP);
             break;
         case SYS_EVT_ERROR:
             printf("Error in IDLE state\n");
             transition_to_state(sys, SYS_ERROR);
+            break;
+        case SYS_EVT_OTA_START:
+            printf("OTA start requested from IDLE state\n");
+            transition_to_state(sys, SYS_OTA);
             break;
         default:
             printf("Unhandled event %s in IDLE state\n", event_names[event]);
@@ -317,6 +354,34 @@ static void handle_sleep_state(struct system_coordinator *sys, enum system_event
     }
 }
 
+static void handle_ota_state(struct system_coordinator *sys, enum system_event event, void *data) {
+    switch (event) {
+        case SYS_EVT_OTA_COMPLETE:
+            printf("OTA update completed successfully\n");
+            transition_to_state(sys, SYS_IDLE);
+            break;
+        case SYS_EVT_OTA_CANCEL:
+            printf("OTA update cancelled\n");
+            transition_to_state(sys, SYS_IDLE);
+            break;
+        case SYS_EVT_OTA_ERROR:
+            printf("OTA update failed\n");
+            transition_to_state(sys, SYS_ERROR);
+            break;
+        case SYS_EVT_POWER_OFF:
+            printf("Power off during OTA - cancelling\n");
+            /* Cancel OTA and go to shutdown */
+            if (sys->ota_fsm) {
+                ota_fsm_dispatch_event(sys->ota_fsm, OTA_EVT_CANCEL, NULL);
+            }
+            transition_to_state(sys, SYS_SHUTDOWN);
+            break;
+        default:
+            printf("Unhandled event %s in OTA state\n", event_names[event]);
+            break;
+    }
+}
+
 /* Forward OTA event to OTA FSM */
 static void forward_ota_event(struct system_coordinator *sys, enum system_event event, void *data) {
     if (!sys || !sys->ota_fsm) {
@@ -369,7 +434,7 @@ static void handle_event(struct system_coordinator *sys, enum system_event event
         forward_ota_event(sys, event, data);
         /* OTA events may also affect system state, but for now we just forward */
         /* Optionally, we could prevent further processing */
-        return;
+        /* Do NOT return here; allow state-specific handler to process as well */
     }
     
     /* Call state-specific event handler */
@@ -388,6 +453,9 @@ static void handle_event(struct system_coordinator *sys, enum system_event event
             break;
         case SYS_UPLOADING:
             handle_uploading_state(sys, event, data);
+            break;
+        case SYS_OTA:
+            handle_ota_state(sys, event, data);
             break;
         case SYS_ERROR:
             handle_error_state(sys, event, data);
@@ -436,6 +504,9 @@ static void transition_to_state(struct system_coordinator *sys, enum system_stat
         case SYS_UPLOADING:
             if (sys_ops.enter_uploading) sys_ops.enter_uploading(sys);
             break;
+        case SYS_OTA:
+            if (sys_ops.enter_ota) sys_ops.enter_ota(sys);
+            break;
         case SYS_ERROR:
             if (sys_ops.enter_error) sys_ops.enter_error(sys);
             break;
@@ -461,6 +532,7 @@ static void init_operations(void) {
     sys_ops.enter_recording = enter_recording;
     sys_ops.enter_recording_and_uploading = enter_recording_and_uploading;
     sys_ops.enter_uploading = enter_uploading;
+    sys_ops.enter_ota = enter_ota;
     sys_ops.enter_error = enter_error;
     sys_ops.enter_sleep = enter_sleep;
     sys_ops.exit_state = exit_state;

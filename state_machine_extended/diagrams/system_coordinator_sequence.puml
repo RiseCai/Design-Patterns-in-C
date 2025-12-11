@@ -2,13 +2,35 @@
 title System Coordinator API Call Sequence (TWS Earphone System)
 
 actor "User" as USER
+
+box "Test Program Thread"
 participant "Test Program" as TEST
+end box
+
+box "System Coordinator Thread"
 participant "System Coordinator" as SYS
+end box
+
+box "Recording Thread"
 participant "Recording FSM" as REC
+end box
+
+box "Power Thread"
 participant "Power FSM" as PWR
+end box
+
+box "OTA Thread"
 participant "OTA FSM" as OTA
+end box
+
+box "External Command Processor Thread"
 participant "External Command\nProcessor" as CMD_PROC
+end box
+
+box "Comm Thread"
 participant "Comm FSM" as COMM
+end box
+
 actor "External Device" as EXTDEV
 
 note over USER,COMM : Initialization Phase
@@ -93,7 +115,7 @@ SYS -> TEST : Transition to SYS_SLEEP
 USER -> TEST : Power off
 TEST -> SYS : system_coordinator_dispatch_event(SYS_EVT_POWER_OFF)
 SYS -> SYS : exit_state() from SYS_SLEEP
-SYS -> SYS : enter_shutdown()
+SYS -> SYS : (none)  /* no entry function */
 SYS -> SYS : do_action()
 SYS -> PWR : power_off()
 PWR -> PWR : exit_action()

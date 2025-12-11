@@ -34,6 +34,7 @@ enum system_state {
     SYS_RECORDING,           /* Only recording (no network) */
     SYS_RECORDING_AND_UPLOADING, /* Recording + streaming transfer */
     SYS_UPLOADING,           /* Only uploading (recording stopped) */
+    SYS_OTA,                 /* OTA update in progress */
     SYS_ERROR,
     SYS_SLEEP,
     SYS_SHUTDOWN
@@ -108,6 +109,7 @@ struct system_coordinator_ops {
     void (*enter_recording)(struct system_coordinator *sys);
     void (*enter_recording_and_uploading)(struct system_coordinator *sys);
     void (*enter_uploading)(struct system_coordinator *sys);
+    void (*enter_ota)(struct system_coordinator *sys);
     void (*enter_error)(struct system_coordinator *sys);
     void (*enter_sleep)(struct system_coordinator *sys);
     

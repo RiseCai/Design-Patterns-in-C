@@ -113,7 +113,7 @@ SYS -> TEST : Transition to SYS_SLEEP
 USER -> TEST : Power off
 TEST -> SYS : system_coordinator_dispatch_event(SYS_EVT_POWER_OFF)
 SYS -> SYS : exit_state() from SYS_SLEEP
-SYS -> SYS : enter_shutdown()
+SYS -> SYS : (none)  /* no entry function */
 SYS -> SYS : do_action()
 SYS -> PWR : power_off()
 PWR -> PWR : exit_action()

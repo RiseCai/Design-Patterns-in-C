@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>System Coordinator Sequence with pthread Mapping</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        h1 { color: #333; }
+        .diagram-container { border: 1px solid #ccc; padding: 10px; background: #f9f9f9; margin-bottom: 20px; }
+        .note { background: #f0f0f0; padding: 10px; border-radius: 5px; }
+        .section { margin-bottom: 30px; }
+        .pthread-box { border: 2px dashed #007bff; padding: 5px; margin: 5px 0; }
+        .legend { display: flex; flex-wrap: wrap; gap: 15px; margin-top: 10px; }
+        .legend-item { display: flex; align-items: center; }
+        .legend-color { width: 20px; height: 20px; margin-right: 8px; border: 1px solid #888; }
+    </style>
+</head>
+<body>
+    <h1>System Coordinator API Call Sequence with pthread Mapping</h1>
+    <p>This diagram shows the API call sequence for the System Coordinator state machine, with pthread virtual boxes indicating thread boundaries.</p>
+    
+    <div class="note">
+        <strong>Note:</strong> The diagram is generated from PlantUML source with pthread virtual boxes. Each dashed box represents a separate pthread (operating system thread) that hosts one or more state machines.
+    </div>
+    
+    <div class="section">
+        <h2>Sequence Diagram with pthread Boundaries</h2>
+        <div class="diagram-container">
+            <object type="image/svg+xml" data="system_coordinator_sequence_pthread.svg" width="100%" height="800px">
+                Your browser does not support SVG. Please view the <a href="system_coordinator_sequence_pthread.svg">SVG file directly</a>.
+            </object>
+        </div>
+        <p>PlantUML source: <a href="system_coordinator_sequence_pthread.puml">system_coordinator_sequence_pthread.puml</a></p>
+    </div>
+    
+    <div class="section">
+        <h2>pthread Mapping Legend</h2>
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #e6f7ff;"></div>
+                <span><strong>Main Thread (pthread_main):</strong> Hosts System Coordinator and external command processor.</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #fff0e6;"></div>
+                <span><strong>Recording Thread (pthread_recording):</strong> Hosts Recording FSM and audio processing.</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #f0ffe6;"></div>
+                <span><strong>Power Management Thread (pthread_power):</strong> Hosts Power FSM and battery monitoring.</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #ffe6f7;"></div>
+                <span><strong>Communication Thread (pthread_comm):</strong> Hosts Comm FSM and network upload.</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #e6e6ff;"></div>
+                <span><strong>External Device Thread (pthread_external):</strong> Hosts external device communication and command reception.</span>
+            </div>
+        </div>
+        <p>Each pthread is represented as a dashed box (virtual participant) in the sequence diagram. The state machines inside the same pthread share the same thread context and can communicate via direct function calls, while cross‑thread communication uses message queues or event posting.</p>
+    </div>
+    
+    <div class="section">
+        <h2>Description</h2>
+        <p>This sequence diagram illustrates four main scenarios with explicit thread boundaries:</p>
+        <ol>
+            <li><strong>Normal Recording Flow:</strong> User starts recording, system transitions through IDLE → RECORDING → UPLOADING → IDLE states. The flow crosses from main thread to recording thread and then to communication thread.</li>
+            <li><strong>Error Recovery Flow:</strong> Error occurs during recording, system enters ERROR state, then resets to IDLE. Error handling involves coordination between recording thread and main thread.</li>
+            <li><strong>Power Management Flow:</strong> Low battery warning triggers SLEEP state, then power off leads to SHUTDOWN. Power events originate from power thread and propagate to other threads.</li>
+            <li><strong>External Device Control Command Flow:</strong> External device sends commands via Bluetooth/4G, which are processed by an external command processor (external thread) and dispatched to the system coordinator (main thread).</li>
+        </ol>
+        <p>The diagram shows interactions between:</p>
+        <ul>
+            <li><strong>User:</strong> Initiates actions via test program (runs in main thread).</li>
+            <li><strong>Test Program:</strong> Calls system coordinator API functions (main thread).</li>
+            <li><strong>System Coordinator:</strong> Main coordinator FSM (main thread).</li>
+            <li><strong>Recording FSM:</strong> Handles audio recording operations (recording thread).</li>
+            <li><strong>Power FSM:</strong> Manages power states (power thread).</li>
+            <li><strong>Comm FSM:</strong> Handles communication and upload (communication thread).</li>
+            <li><strong>External Device:</strong> Sends control commands via wireless (external thread).</li>
+            <li><strong>External Command Processor:</strong> Parses and forwards commands to system coordinator (external thread).</li>
+        </ul>
+        <p><strong>Thread‑Safety Note:</strong> Cross‑thread communication is implemented using thread‑safe queues and event posting mechanisms. The diagram uses dashed boxes to visualize which participants belong to the same pthread, helping to identify potential concurrency issues.</p>
+    </div>
+    
+    <div class="section">
+        <h2>Related Diagrams</h2>
+        <ul>
+            <li><a href="system_coordinator_state_diagram_with_api.html">System Coordinator State Diagram</a></li>
+            <li><a href="system_coordinator_sequence.html">Original Sequence Diagram (without pthread boxes)</a></li>
+            <li><a href="mealy_ui_sequence.html">Mealy UI Sequence Diagram</a></li>
+            <li><a href="moore_hierarchical_sequence.html">Moore Hierarchical Sequence Diagram</a></li>
+        </ul>
+    </div>
+</body>
+</html>
