@@ -32,7 +32,8 @@ static const char *state_names[] = {
     "SYS_OTA",
     "SYS_ERROR",
     "SYS_SLEEP",
-    "SYS_SHUTDOWN"
+    "SYS_SHUTDOWN",
+    "SYS_RESET"
 };
 
 /* Event names for debugging */
@@ -175,6 +176,37 @@ static void enter_ota(struct system_coordinator *sys) {
     /* Block other subsystems from starting new operations */
 }
 
+static void enter_reset(struct system_coordinator *sys) {
+    printf("System entering RESET state\n");
+    /* Perform system reset operations */
+    /* Reset all subsystems */
+    if (sys->recording_fsm) {
+        /* Reset recording FSM */
+    }
+    if (sys->comm_fsm) {
+        /* Reset communication FSM */
+    }
+    if (sys->power_fsm) {
+        /* Reset power FSM */
+    }
+    if (sys->audio_fsm) {
+        /* Reset audio FSM */
+    }
+    if (sys->efsm_protocol) {
+        /* Reset EFSM Protocol State Machine */
+    }
+    if (sys->ota_fsm) {
+        /* Reset OTA FSM */
+    }
+    
+    /* Clear error state */
+    sys->error_code = 0;
+    sys->error_msg[0] = '\0';
+    
+    /* After reset, transition to INIT state */
+    transition_to_state(sys, SYS_INIT);
+}
+
 /* State exit handler */
 static void exit_state(struct system_coordinator *sys) {
     printf("System exiting state %s\n", state_names[sys->current_state]);
@@ -207,8 +239,16 @@ static void do_action(struct system_coordinator *sys) {
 
 /* Event handlers for each state */
 static void handle_init_state(struct system_coordinator *sys, enum system_event event, void *data) {
-    /* INIT state only handles internal transitions */
-    (void)sys; (void)event; (void)data;
+    switch (event) {
+        case SYS_EVT_RESET:
+            printf("Reset requested during INIT state\n");
+            transition_to_state(sys, SYS_RESET);
+            break;
+        default:
+            /* INIT state only handles internal transitions */
+            (void)sys; (void)event; (void)data;
+            break;
+    }
 }
 
 static void handle_idle_state(struct system_coordinator *sys, enum system_event event, void *data) {
@@ -232,6 +272,10 @@ static void handle_idle_state(struct system_coordinator *sys, enum system_event 
         case SYS_EVT_OTA_START:
             printf("OTA start requested from IDLE state\n");
             transition_to_state(sys, SYS_OTA);
+            break;
+        case SYS_EVT_RESET:
+            printf("Reset requested from IDLE state\n");
+            transition_to_state(sys, SYS_RESET);
             break;
         default:
             printf("Unhandled event %s in IDLE state\n", event_names[event]);
@@ -270,6 +314,10 @@ static void handle_recording_state(struct system_coordinator *sys, enum system_e
             printf("Low battery during recording\n");
             /* Handle low battery - may need to stop recording */
             break;
+        case SYS_EVT_RESET:
+            printf("Reset requested during recording\n");
+            transition_to_state(sys, SYS_RESET);
+            break;
         default:
             printf("Unhandled event %s in RECORDING state\n", event_names[event]);
             break;
@@ -300,6 +348,10 @@ static void handle_recording_and_uploading_state(struct system_coordinator *sys,
             printf("Error during recording and uploading\n");
             transition_to_state(sys, SYS_ERROR);
             break;
+        case SYS_EVT_RESET:
+            printf("Reset requested during recording and uploading\n");
+            transition_to_state(sys, SYS_RESET);
+            break;
         default:
             printf("Unhandled event %s in RECORDING_AND_UPLOADING state\n", event_names[event]);
             break;
@@ -320,6 +372,10 @@ static void handle_uploading_state(struct system_coordinator *sys, enum system_e
             printf("Error during upload\n");
             transition_to_state(sys, SYS_ERROR);
             break;
+        case SYS_EVT_RESET:
+            printf("Reset requested during uploading\n");
+            transition_to_state(sys, SYS_RESET);
+            break;
         default:
             printf("Unhandled event %s in UPLOADING state\n", event_names[event]);
             break;
@@ -330,7 +386,7 @@ static void handle_error_state(struct system_coordinator *sys, enum system_event
     switch (event) {
         case SYS_EVT_RESET:
             printf("Resetting from ERROR state\n");
-            transition_to_state(sys, SYS_INIT);
+            transition_to_state(sys, SYS_RESET);
             break;
         case SYS_EVT_POWER_OFF:
             printf("Powering off from ERROR state\n");
@@ -347,6 +403,10 @@ static void handle_sleep_state(struct system_coordinator *sys, enum system_event
         case SYS_EVT_POWER_ON:
             printf("Waking from SLEEP state\n");
             transition_to_state(sys, SYS_IDLE);
+            break;
+        case SYS_EVT_RESET:
+            printf("Reset requested from SLEEP state\n");
+            transition_to_state(sys, SYS_RESET);
             break;
         default:
             printf("Unhandled event %s in SLEEP state\n", event_names[event]);
@@ -368,6 +428,14 @@ static void handle_ota_state(struct system_coordinator *sys, enum system_event e
             printf("OTA update failed\n");
             transition_to_state(sys, SYS_ERROR);
             break;
+        case SYS_EVT_RESET:
+            printf("Reset requested during OTA - cancelling OTA and resetting\n");
+            /* Cancel OTA and go to reset */
+            if (sys->ota_fsm) {
+                ota_fsm_dispatch_event(sys->ota_fsm, OTA_EVT_CANCEL, NULL);
+            }
+            transition_to_state(sys, SYS_RESET);
+            break;
         case SYS_EVT_POWER_OFF:
             printf("Power off during OTA - cancelling\n");
             /* Cancel OTA and go to shutdown */
@@ -380,6 +448,12 @@ static void handle_ota_state(struct system_coordinator *sys, enum system_event e
             printf("Unhandled event %s in OTA state\n", event_names[event]);
             break;
     }
+}
+
+static void handle_reset_state(struct system_coordinator *sys, enum system_event event, void *data) {
+    /* RESET state is transient - it automatically transitions to INIT */
+    /* No events are processed in RESET state */
+    printf("System in RESET state - no events processed\n");
 }
 
 /* Forward OTA event to OTA FSM */
@@ -466,6 +540,9 @@ static void handle_event(struct system_coordinator *sys, enum system_event event
         case SYS_SHUTDOWN:
             /* No events handled in shutdown */
             break;
+        case SYS_RESET:
+            handle_reset_state(sys, event, data);
+            break;
     }
 }
 
@@ -516,6 +593,9 @@ static void transition_to_state(struct system_coordinator *sys, enum system_stat
         case SYS_SHUTDOWN:
             /* Shutdown handling */
             break;
+        case SYS_RESET:
+            if (sys_ops.enter_reset) sys_ops.enter_reset(sys);
+            break;
     }
 }
 
@@ -535,6 +615,7 @@ static void init_operations(void) {
     sys_ops.enter_ota = enter_ota;
     sys_ops.enter_error = enter_error;
     sys_ops.enter_sleep = enter_sleep;
+    sys_ops.enter_reset = enter_reset;
     sys_ops.exit_state = exit_state;
     sys_ops.do_action = do_action;
     

@@ -37,7 +37,8 @@ enum system_state {
     SYS_OTA,                 /* OTA update in progress */
     SYS_ERROR,
     SYS_SLEEP,
-    SYS_SHUTDOWN
+    SYS_SHUTDOWN,
+    SYS_RESET                /* System reset and recovery */
 };
 
 /** System events */
@@ -112,6 +113,7 @@ struct system_coordinator_ops {
     void (*enter_ota)(struct system_coordinator *sys);
     void (*enter_error)(struct system_coordinator *sys);
     void (*enter_sleep)(struct system_coordinator *sys);
+    void (*enter_reset)(struct system_coordinator *sys);
     
     /* Exit handlers */
     void (*exit_state)(struct system_coordinator *sys);

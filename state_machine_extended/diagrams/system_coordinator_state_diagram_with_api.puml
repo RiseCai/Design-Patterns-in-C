@@ -66,6 +66,12 @@ state "SYS_SHUTDOWN" as SHUTDOWN <<normal>> {
   state "SHUTDOWN_Exit" as SHUT_EXIT <<exit>>
 }
 
+state "SYS_RESET" as RESET <<normal>> {
+  state "RESET_Entry" as RESET_ENTRY <<entry>>
+  state "RESET_Do" as RESET_DO <<do>>
+  state "RESET_Exit" as RESET_EXIT <<exit>>
+}
+
 ' Initial transition
 [*] --> INIT
 
@@ -94,6 +100,18 @@ UPLOADING --> ERROR : SYS_EVT_ERROR\nAPI: system_coordinator_dispatch_event(sys,
 
 ERROR --> INIT : SYS_EVT_RESET\nAPI: system_coordinator_dispatch_event(sys, SYS_EVT_RESET, NULL)
 ERROR --> SHUTDOWN : SYS_EVT_POWER_OFF\nAPI: system_coordinator_dispatch_event(sys, SYS_EVT_POWER_OFF, NULL)
+
+' RESET event transitions
+INIT --> RESET : SYS_EVT_RESET\nAPI: system_coordinator_dispatch_event(sys, SYS_EVT_RESET, NULL)
+IDLE --> RESET : SYS_EVT_RESET\nAPI: system_coordinator_dispatch_event(sys, SYS_EVT_RESET, NULL)
+RECORDING --> RESET : SYS_EVT_RESET\nAPI: system_coordinator_dispatch_event(sys, SYS_EVT_RESET, NULL)
+REC_UPL --> RESET : SYS_EVT_RESET\nAPI: system_coordinator_dispatch_event(sys, SYS_EVT_RESET, NULL)
+UPLOADING --> RESET : SYS_EVT_RESET\nAPI: system_coordinator_dispatch_event(sys, SYS_EVT_RESET, NULL)
+SLEEP --> RESET : SYS_EVT_RESET\nAPI: system_coordinator_dispatch_event(sys, SYS_EVT_RESET, NULL)
+OTA --> RESET : SYS_EVT_RESET\nAPI: system_coordinator_dispatch_event(sys, SYS_EVT_RESET, NULL)
+
+' RESET auto-transition to INIT
+RESET --> INIT : Auto transition after reset\nAPI: enter_reset() -> transition_to_state(SYS_INIT)
 
 SLEEP --> IDLE : SYS_EVT_POWER_ON\nAPI: system_coordinator_dispatch_event(sys, SYS_EVT_POWER_ON, NULL)
 
@@ -151,6 +169,10 @@ SHUT_ENTRY : "(none)"
 SHUT_DO : "Power off"
 SHUT_EXIT : "System off"
 
+RESET_ENTRY : "Reset subsystems"
+RESET_DO : "Reset process"
+RESET_EXIT : "Transition to INIT"
+
 note right of INIT
   <b>State:</b> SYS_INIT
   <b>Entry function:</b> enter_init()
@@ -200,6 +222,14 @@ note right of SHUTDOWN
   <b>Do action:</b> power off sequence
   <b>Final state:</b> No outgoing transitions
   <b>API:</b> system_coordinator_dispatch_event(sys, SYS_EVT_POWER_OFF, NULL)
+end note
+
+note right of RESET
+  <b>State:</b> SYS_RESET
+  <b>Entry function:</b> enter_reset()
+  <b>Do action:</b> reset subsystems
+  <b>Auto transition:</b> to INIT after reset complete
+  <b>API:</b> system_coordinator_dispatch_event(sys, SYS_EVT_RESET, NULL)
 end note
 
 note bottom
