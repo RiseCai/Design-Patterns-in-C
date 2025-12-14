@@ -71,48 +71,93 @@ static const char *event_names[] = {
 
 /* Internal helper functions */
 static void transition_to_state(struct system_coordinator *sys, enum system_state new_state);
-static void handle_event_in_state(struct system_coordinator *sys, enum system_event event, void *data);
 static void forward_ota_event(struct system_coordinator *sys, enum system_event event, void *data);
 
 /* Check if there is a pending firmware update */
 static int has_pending_update(struct system_coordinator *sys) {
-    /* For simulation purposes, we can check a configuration file,
-     * environment variable, or a global flag.
-     * Here we implement a simple simulation: if OTA FSM is present
-     * and has a package URL set, we assume there is a pending update.
-     * In real implementation, this should be replaced with actual logic.
-     */
-    if (sys && sys->ota_fsm) {
-        /* Check if package URL is not empty (simplified) */
-        /* In actual implementation, you might call ota_fsm_check_update() */
-        return 0; /* Default: no pending update */
+    if (!sys || !sys->ota_fsm) {
+        return 0; /* No OTA FSM, no pending update */
     }
-    return 0;
+    
+    /* Check if OTA FSM is in IDLE state and has a package URL set */
+    if (ota_fsm_is_idle(sys->ota_fsm)) {
+        /* In a real implementation, you would check for available updates
+         * by calling a server or checking a configuration file.
+         * For simulation purposes, we check if package URL is not empty
+         * and not the default URL.
+         */
+        const char *default_url = "https://ota.example.com/firmware.bin";
+        const char *current_url = sys->ota_fsm->package_url;
+        
+        if (current_url && current_url[0] != '\0' && 
+            strcmp(current_url, default_url) != 0) {
+            /* Non-default URL suggests a pending update */
+            return 1;
+        }
+    }
+    
+    /* Check if OTA FSM is in CHECKING state (actively checking for updates) */
+    if (ota_fsm_get_state(sys->ota_fsm) == OTA_CHECKING) {
+        return 1; /* Update check in progress */
+    }
+    
+    return 0; /* No pending update */
 }
 
 /* State entry handlers */
 static void enter_init(struct system_coordinator *sys) {
     printf("System entering INIT state\n");
+    
     /* Initialize all subsystems */
+    int init_success = 1;
+    
     if (sys->recording_fsm) {
         /* Initialize recording FSM */
+        recording_fsm_init(sys->recording_fsm);
+        if (recording_fsm_get_error_code(sys->recording_fsm) != 0) {
+            printf("Recording FSM initialization failed: %s\n", 
+                   recording_fsm_get_error_msg(sys->recording_fsm));
+            init_success = 0;
+        }
     }
+    
     if (sys->comm_fsm) {
         /* Initialize communication FSM */
+        /* Note: comm_fsm_init would be called by the owner */
+        /* For now, just log */
+        printf("Communication FSM initialization (deferred)\n");
     }
+    
     if (sys->power_fsm) {
         /* Initialize power FSM */
+        /* Note: power_fsm_init would be called by the owner */
+        printf("Power FSM initialization (deferred)\n");
     }
+    
     if (sys->audio_fsm) {
         /* Initialize audio FSM */
+        /* Note: audio_fsm_init would be called by the owner */
+        printf("Audio FSM initialization (deferred)\n");
     }
+    
     if (sys->efsm_protocol) {
         /* Initialize EFSM Protocol State Machine */
         /* Note: efsm_processor_init would be called by the owner */
+        printf("EFSM Protocol initialization (deferred)\n");
     }
+    
     if (sys->ota_fsm) {
         /* Initialize OTA FSM */
         /* Note: ota_fsm_init would be called by the owner */
+        printf("OTA FSM initialization (deferred)\n");
+    }
+    
+    /* Check initialization success */
+    if (!init_success) {
+        printf("Subsystem initialization failed, transitioning to ERROR state\n");
+        system_coordinator_set_error(sys, -1, "Subsystem initialization failed");
+        transition_to_state(sys, SYS_ERROR);
+        return;
     }
     
     /* After initialization, check if there is a pending firmware update */
@@ -126,6 +171,7 @@ static void enter_init(struct system_coordinator *sys) {
 }
 
 static void enter_idle(struct system_coordinator *sys) {
+    (void)sys; /* Unused parameter */
     printf("System entering IDLE state\n");
     /* System is ready for user interaction */
     /* Activate low-power mode if needed */
@@ -143,12 +189,14 @@ static void enter_recording(struct system_coordinator *sys) {
 }
 
 static void enter_uploading(struct system_coordinator *sys) {
+    (void)sys; /* Unused parameter */
     printf("System entering UPLOADING state\n");
     /* Start file upload process */
     /* Activate 4G network connection */
 }
 
 static void enter_recording_and_uploading(struct system_coordinator *sys) {
+    (void)sys; /* Unused parameter */
     printf("System entering RECORDING_AND_UPLOADING state\n");
     /* Start both recording and streaming transfer */
     /* Activate audio processing and network connection */
@@ -162,6 +210,7 @@ static void enter_error(struct system_coordinator *sys) {
 }
 
 static void enter_sleep(struct system_coordinator *sys) {
+    (void)sys; /* Unused parameter */
     printf("System entering SLEEP state\n");
     /* Put subsystems into low-power mode */
 }
@@ -252,6 +301,7 @@ static void handle_init_state(struct system_coordinator *sys, enum system_event 
 }
 
 static void handle_idle_state(struct system_coordinator *sys, enum system_event event, void *data) {
+    (void)data; /* Unused parameter */
     switch (event) {
         case SYS_EVT_REC_START:
             printf("Starting recording from IDLE state\n");
@@ -325,6 +375,7 @@ static void handle_recording_state(struct system_coordinator *sys, enum system_e
 }
 
 static void handle_recording_and_uploading_state(struct system_coordinator *sys, enum system_event event, void *data) {
+    (void)data; /* Unused parameter */
     switch (event) {
         case SYS_EVT_REC_STOP:
             printf("Stopping recording in RECORDING_AND_UPLOADING state\n");
@@ -359,6 +410,7 @@ static void handle_recording_and_uploading_state(struct system_coordinator *sys,
 }
 
 static void handle_uploading_state(struct system_coordinator *sys, enum system_event event, void *data) {
+    (void)data; /* Unused parameter */
     switch (event) {
         case SYS_EVT_UPLOAD_COMPLETE:
             printf("Upload complete\n");
@@ -383,6 +435,7 @@ static void handle_uploading_state(struct system_coordinator *sys, enum system_e
 }
 
 static void handle_error_state(struct system_coordinator *sys, enum system_event event, void *data) {
+    (void)data; /* Unused parameter */
     switch (event) {
         case SYS_EVT_RESET:
             printf("Resetting from ERROR state\n");
@@ -399,6 +452,7 @@ static void handle_error_state(struct system_coordinator *sys, enum system_event
 }
 
 static void handle_sleep_state(struct system_coordinator *sys, enum system_event event, void *data) {
+    (void)data; /* Unused parameter */
     switch (event) {
         case SYS_EVT_POWER_ON:
             printf("Waking from SLEEP state\n");
@@ -415,6 +469,7 @@ static void handle_sleep_state(struct system_coordinator *sys, enum system_event
 }
 
 static void handle_ota_state(struct system_coordinator *sys, enum system_event event, void *data) {
+    (void)data; /* Unused parameter */
     switch (event) {
         case SYS_EVT_OTA_COMPLETE:
             printf("OTA update completed successfully\n");
@@ -453,6 +508,7 @@ static void handle_ota_state(struct system_coordinator *sys, enum system_event e
 static void handle_reset_state(struct system_coordinator *sys, enum system_event event, void *data) {
     /* RESET state is transient - it automatically transitions to INIT */
     /* No events are processed in RESET state */
+    (void)sys; (void)event; (void)data; /* Unused parameters */
     printf("System in RESET state - no events processed\n");
 }
 
