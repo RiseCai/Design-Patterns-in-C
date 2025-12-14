@@ -32,11 +32,36 @@ box "OTA Thread"
 end box
 
 note over USER,COMM : Initialization Phase
+TEST -> TEST : Create subsystem FSMs
+TEST -> TEST : recording_fsm_create()
+TEST -> TEST : comm_fsm_create()
+TEST -> TEST : power_fsm_create()
+TEST -> TEST : audio_fsm_create()
+TEST -> TEST : efsm_protocol_create()
+TEST -> TEST : ota_fsm_create()
+
+TEST -> SYS : system_coordinator_set_recording_fsm()
+TEST -> SYS : system_coordinator_set_comm_fsm()
+TEST -> SYS : system_coordinator_set_power_fsm()
+TEST -> SYS : system_coordinator_set_audio_fsm()
+TEST -> SYS : system_coordinator_set_efsm_protocol()
+TEST -> SYS : system_coordinator_set_ota_fsm()
+
 USER -> TEST : Start test program
 TEST -> SYS : system_coordinator_init()
 SYS -> SYS : enter_init()
+SYS -> REC : recording_fsm_init()
+REC -> REC : entry_action()
+REC -> REC : do_action()
+SYS -> SYS : Check for pending firmware update
+SYS -> SYS : has_pending_update()
+
+note over SYS : No pending update detected
+SYS -> SYS : transition_to_state(SYS_IDLE)
+SYS -> SYS : exit_state() from SYS_INIT
+SYS -> SYS : enter_idle()
 SYS -> SYS : do_action()
-SYS -> TEST : Initialized (SYS_INIT)
+SYS -> TEST : System initialized in IDLE state
 
 note over USER,COMM : Scenario 1: Normal Recording Flow
 USER -> TEST : Press record button
@@ -294,42 +319,6 @@ SYS -> CMD_PROC : OTA completed
 CMD_PROC -> COMM : Send final status
 COMM -> EXTDEV : OTA_COMPLETE acknowledged
 
-note over USER,COMM : Scenario 7: Enhanced Initialization and Subsystem Management
-
-note over TEST,SYS : Complete subsystem initialization flow
-TEST -> TEST : Create subsystem FSMs
-TEST -> TEST : recording_fsm_create()
-TEST -> TEST : comm_fsm_create()
-TEST -> TEST : power_fsm_create()
-TEST -> TEST : audio_fsm_create()
-TEST -> TEST : efsm_protocol_create()
-TEST -> TEST : ota_fsm_create()
-
-TEST -> SYS : system_coordinator_set_recording_fsm()
-TEST -> SYS : system_coordinator_set_comm_fsm()
-TEST -> SYS : system_coordinator_set_power_fsm()
-TEST -> SYS : system_coordinator_set_audio_fsm()
-TEST -> SYS : system_coordinator_set_efsm_protocol()
-TEST -> SYS : system_coordinator_set_ota_fsm()
-
-USER -> TEST : Start test program
-TEST -> SYS : system_coordinator_init()
-SYS -> SYS : enter_init()
-SYS -> REC : recording_fsm_init()
-REC -> REC : entry_action()
-REC -> REC : do_action()
-SYS -> SYS : Check for pending firmware update
-SYS -> SYS : has_pending_update()
-
-note over SYS : Pending update detected
-SYS -> SYS : transition_to_state(SYS_OTA)
-SYS -> SYS : exit_state() from SYS_INIT
-SYS -> SYS : enter_ota()
-SYS -> OTA : ota_fsm_dispatch_event(OTA_EVT_START)
-OTA -> OTA : entry_action()
-OTA -> OTA : do_action()
-OTA -> OTA : Transition from OTA_IDLE to OTA_CHECKING
-SYS -> TEST : System initialized in OTA state
 
 note over USER,COMM : Scenario 8: State Query and Error Handling
 
