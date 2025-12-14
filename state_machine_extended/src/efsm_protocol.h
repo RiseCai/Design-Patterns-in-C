@@ -15,8 +15,8 @@
 #ifndef __EFSM_PROTOCOL_H__
 #define __EFSM_PROTOCOL_H__
 
-#include <mycommon.h>
-#include <mytrace.h>
+#include "mycommon.h"
+#include "mytrace.h"
 
 /** EFSM context with extended variables */
 struct efsm_context {
