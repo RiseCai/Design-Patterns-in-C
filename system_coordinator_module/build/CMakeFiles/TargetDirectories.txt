@@ -1,9 +1,0 @@
-D:/david/work/temp/Design-Patterns-in-C/system_coordinator_module/build/CMakeFiles/system_coordinator.dir
-D:/david/work/temp/Design-Patterns-in-C/system_coordinator_module/build/CMakeFiles/test_system_coordinator.dir
-D:/david/work/temp/Design-Patterns-in-C/system_coordinator_module/build/CMakeFiles/test_recording_fsm.dir
-D:/david/work/temp/Design-Patterns-in-C/system_coordinator_module/build/CMakeFiles/edit_cache.dir
-D:/david/work/temp/Design-Patterns-in-C/system_coordinator_module/build/CMakeFiles/rebuild_cache.dir
-D:/david/work/temp/Design-Patterns-in-C/system_coordinator_module/build/CMakeFiles/list_install_components.dir
-D:/david/work/temp/Design-Patterns-in-C/system_coordinator_module/build/CMakeFiles/install.dir
-D:/david/work/temp/Design-Patterns-in-C/system_coordinator_module/build/CMakeFiles/install/local.dir
-D:/david/work/temp/Design-Patterns-in-C/system_coordinator_module/build/CMakeFiles/install/strip.dir
