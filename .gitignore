@@ -25,6 +25,9 @@
 # Build dir
 Debug
 Release
+build/
+state_machine_extended/build/
+system_coordinator_module/build/
 
 # Speical files
 *.pyc
