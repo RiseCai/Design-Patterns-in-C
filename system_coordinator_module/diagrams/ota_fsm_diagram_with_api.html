@@ -285,6 +285,19 @@
             <li><code>ota_fsm_set_error(int code, const char *msg)</code>: Set error information.</li>
         </ul>
         
+        <hr>
+        
+        <h2>API Call Sequence (User Case)</h2>
+        <p>Below is a sequence diagram illustrating a typical user interaction with the OTA FSM: checking for updates, downloading, installing, and completing.</p>
+        
+        <div class="diagram">
+            <img id="sequenceDiagram" alt="OTA FSM API Call Sequence">
+        </div>
+        
+        <div class="note">
+            <strong>Note:</strong> This sequence diagram is generated from embedded PlantUML script.
+        </div>
+        
         <div class="links">
             <a href="system_coordinator_state_diagram_with_api.html">System Coordinator FSM</a>
             <a href="recording_fsm_diagram_with_api.html">Recording FSM</a>
@@ -372,3 +385,48 @@ end note
         img.src = plantUmlServer + encoded;
         img.alt = 'OTA FSM State Diagram';
     </script>
+
+    <script>
+        // PlantUML script for sequence diagram
+        const sequenceUmlScript = `@startuml
+title OTA FSM API Call Sequence (User Case)
+
+actor User
+participant "OTA FSM" as FSM
+participant "Update Server" as Server
+participant "System Storage" as Storage
+
+User -> FSM: ota_fsm_dispatch_event(OTA_EVT_START)
+FSM -> Server: Check for updates
+Server -> FSM: Update available (internal)
+FSM -> FSM: Transition to OTA_CHECKING
+FSM -> Server: Download package
+Server -> FSM: Download progress (internal)
+FSM -> FSM: Transition to OTA_DOWNLOADING
+FSM -> Storage: Store package
+Storage -> FSM: Store complete (internal)
+FSM -> FSM: Transition to OTA_VALIDATING
+FSM -> FSM: Validate package
+FSM -> FSM: Validation passed (internal)
+FSM -> FSM: Transition to OTA_PREPARING
+FSM -> FSM: Prepare installation
+FSM -> FSM: Transition to OTA_INSTALLING
+FSM -> FSM: Install package
+FSM -> FSM: Installation complete (internal)
+FSM -> FSM: Transition to OTA_REBOOTING
+FSM -> FSM: Reboot system
+FSM -> FSM: Reboot complete (internal)
+FSM -> FSM: Transition to OTA_COMPLETE
+User -> FSM: ota_fsm_dispatch_event(OTA_EVT_RESET)
+FSM -> FSM: Transition to OTA_IDLE
+@enduml`;
+
+        // Encode the PlantUML script
+        const encodedSeq = plantumlEncoder.encode(sequenceUmlScript);
+        // Use the PlantUML server (public)
+        const seqImgUrl = 'https://www.plantuml.com/plantuml/svg/' + encodedSeq;
+        // Set the image source
+        document.getElementById('sequenceDiagram').src = seqImgUrl;
+    </script>
+</body>
+</html>

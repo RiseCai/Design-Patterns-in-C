@@ -207,6 +207,19 @@
             <li><code>comm_fsm_get_error_msg()</code>: Retrieve error message.</li>
         </ul>
         
+        <hr>
+        
+        <h2>API Call Sequence (User Case)</h2>
+        <p>Below is a sequence diagram illustrating a typical user interaction with the Communication FSM: connecting, transferring data, and disconnecting.</p>
+        
+        <div class="diagram">
+            <img id="sequenceDiagram" alt="Communication FSM API Call Sequence">
+        </div>
+        
+        <div class="note">
+            <strong>Note:</strong> This sequence diagram is generated from embedded PlantUML script.
+        </div>
+        
         <div class="links">
             <a href="system_coordinator_state_diagram_with_api.html">System Coordinator FSM</a>
             <a href="recording_fsm_diagram_with_api.html">Recording FSM</a>
@@ -278,6 +291,41 @@ end note
         const imgUrl = 'https://www.plantuml.com/plantuml/svg/' + encoded;
         // Set the image source
         document.getElementById('diagram').src = imgUrl;
+    </script>
+
+    <script>
+        // PlantUML script for sequence diagram
+        const sequenceUmlScript = `@startuml
+title Communication FSM API Call Sequence (User Case)
+
+actor User
+participant "Communication FSM" as FSM
+participant "Network Stack" as Network
+participant "Data Buffer" as Buffer
+
+User -> FSM: comm_fsm_dispatch_event(COMM_EVT_CONNECT)
+FSM -> Network: Establish connection
+Network -> FSM: Connection established (internal)
+FSM -> FSM: Transition to COMM_CONNECTED
+User -> FSM: comm_fsm_dispatch_event(COMM_EVT_DATA_READY)
+FSM -> Buffer: Prepare data
+Buffer -> FSM: Data ready (internal)
+FSM -> FSM: Transition to COMM_TRANSFERRING
+FSM -> Network: Send data
+Network -> FSM: Data sent (internal)
+FSM -> FSM: Transition to COMM_CONNECTED
+User -> FSM: comm_fsm_dispatch_event(COMM_EVT_DISCONNECT)
+FSM -> Network: Disconnect
+Network -> FSM: Disconnected (internal)
+FSM -> FSM: Transition to COMM_IDLE
+@enduml`;
+
+        // Encode the PlantUML script
+        const encodedSeq = window.plantumlEncoder.encode(sequenceUmlScript);
+        // Use the PlantUML server (public)
+        const seqImgUrl = 'https://www.plantuml.com/plantuml/svg/' + encodedSeq;
+        // Set the image source
+        document.getElementById('sequenceDiagram').src = seqImgUrl;
     </script>
 </body>
 </html>

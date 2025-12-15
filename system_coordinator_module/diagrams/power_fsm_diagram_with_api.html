@@ -186,6 +186,19 @@
             <li><code>power_fsm_get_state_name()</code>: Get state name as string.</li>
         </ul>
         
+        <hr>
+        
+        <h2>API Call Sequence (User Case)</h2>
+        <p>Below is a sequence diagram illustrating a typical user interaction with the Power FSM: turning on, entering sleep, waking up, and turning off.</p>
+        
+        <div class="diagram">
+            <img id="sequenceDiagram" alt="Power FSM API Call Sequence">
+        </div>
+        
+        <div class="note">
+            <strong>Note:</strong> This sequence diagram is generated from embedded PlantUML script.
+        </div>
+        
         <div class="links">
             <a href="system_coordinator_state_diagram_with_api.html">System Coordinator FSM</a>
             <a href="recording_fsm_diagram_with_api.html">Recording FSM</a>
@@ -252,6 +265,42 @@ end note
         const imgUrl = 'https://www.plantuml.com/plantuml/svg/' + encoded;
         // Set the image source
         document.getElementById('diagram').src = imgUrl;
+    </script>
+
+    <script>
+        // PlantUML script for sequence diagram
+        const sequenceUmlScript = `@startuml
+title Power FSM API Call Sequence (User Case)
+
+actor User
+participant "Power FSM" as FSM
+participant "Power Controller" as Controller
+participant "Battery Monitor" as Battery
+
+User -> FSM: power_fsm_dispatch_event(POWER_EVT_TURN_ON)
+FSM -> Controller: Enable power
+Controller -> FSM: Power enabled (internal)
+FSM -> FSM: Transition to POWER_ON
+User -> FSM: power_fsm_dispatch_event(POWER_EVT_ENTER_SLEEP)
+FSM -> Controller: Enter sleep mode
+Controller -> FSM: Sleep mode entered (internal)
+FSM -> FSM: Transition to POWER_SLEEP
+User -> FSM: power_fsm_dispatch_event(POWER_EVT_WAKE_UP)
+FSM -> Controller: Wake up
+Controller -> FSM: Wake up complete (internal)
+FSM -> FSM: Transition to POWER_ON
+User -> FSM: power_fsm_dispatch_event(POWER_EVT_TURN_OFF)
+FSM -> Controller: Disable power
+Controller -> FSM: Power disabled (internal)
+FSM -> FSM: Transition to POWER_OFF
+@enduml`;
+
+        // Encode the PlantUML script
+        const encodedSeq = window.plantumlEncoder.encode(sequenceUmlScript);
+        // Use the PlantUML server (public)
+        const seqImgUrl = 'https://www.plantuml.com/plantuml/svg/' + encodedSeq;
+        // Set the image source
+        document.getElementById('sequenceDiagram').src = seqImgUrl;
     </script>
 </body>
 </html>
