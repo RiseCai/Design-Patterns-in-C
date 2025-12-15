@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recording FSM with API Mapping - TWS Earphone System</title>
+    <script src="https://cdn.jsdelivr.net/npm/plantuml-encoder@1.4.0/dist/plantuml-encoder.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f9f9f9; }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 { color: #333; border-bottom: 2px solid #7209b7; padding-bottom: 10px; }
+        h2 { color: #555; }
+        table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        code { background-color: #f5f5f5; padding: 2px 4px; border-radius: 3px; }
+        pre { background: #f0f0f0; padding: 10px; overflow: auto; }
+        img { max-width: 100%; border: 1px solid #ccc; }
+        .diagram { text-align: center; margin: 20px 0; overflow: auto; }
+        .note {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f0f8ff;
+            border-left: 4px solid #2196F3;
+            font-size: 14px;
+        }
+        .links { margin-top: 20px; }
+        .links a {
+            display: inline-block;
+            margin-right: 15px;
+            padding: 8px 15px;
+            background-color: #7209b7;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+        }
+        .links a:hover { background-color: #560a86; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Recording FSM with API Mapping - TWS Earphone System</h1>
+        <p>Diagram showing the recording state machine with corresponding C API functions and state actions.</p>
+        
+        <div class="diagram">
+            <img id="diagram" alt="Recording FSM State Diagram">
+        </div>
+        
+        <div class="note">
+            <strong>Note:</strong> This diagram is generated from <code>recording_fsm_diagram_with_api.puml</code> using the PlantUML server.
+            If the diagram does not display correctly, ensure you have internet connectivity.
+        </div>
+        
+        <hr>
+        
+        <h2>Mapping Table</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Current State</th>
+                    <th>Event</th>
+                    <th>Next State</th>
+                    <th>Action</th>
+                    <th>API Function</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>REC_IDLE</td>
+                    <td>REC_EVT_START</td>
+                    <td>REC_WAIT_SYNC</td>
+                    <td>Start recording process, initialize sync</td>
+                    <td><code>recording_fsm_dispatch_event(fsm, REC_EVT_START, NULL)</code></td>
+                </tr>
+                <tr>
+                    <td>REC_WAIT_SYNC</td>
+                    <td>REC_EVT_SYNC_COMPLETE</td>
+                    <td>REC_RECORDING</td>
+                    <td>Sync completed, start audio capture</td>
+                    <td><code>recording_fsm_dispatch_event(fsm, REC_EVT_SYNC_COMPLETE, NULL)</code></td>
+                </tr>
+                <tr>
+                    <td>REC_WAIT_SYNC</td>
+                    <td>REC_EVT_ERROR</td>
+                    <td>REC_ERROR</td>
+                    <td>Error during sync, enter error state</td>
+                    <td><code>recording_fsm_dispatch_event(fsm, REC_EVT_ERROR, error_data)</code></td>
+                </tr>
+                <tr>
+                    <td>REC_RECORDING</td>
+                    <td>REC_EVT_PAUSE</td>
+                    <td>REC_PAUSED</td>
+                    <td>Pause recording, hold audio buffer</td>
+                    <td><code>recording_fsm_dispatch_event(fsm, REC_EVT_PAUSE, NULL)</code></td>
+                </tr>
+                <tr>
+                    <td>REC_PAUSED</td>
+                    <td>REC_EVT_RESUME</td>
+                    <td>REC_RECORDING</td>
+                    <td>Resume recording from paused position</td>
+                    <td><code>recording_fsm_dispatch_event(fsm, REC_EVT_RESUME, NULL)</code></td>
+                </tr>
+                <tr>
+                    <td>REC_RECORDING</td>
+                    <td>REC_EVT_STOP</td>
+                    <td>REC_STOPPING</td>
+                    <td>Stop recording, start saving process</td>
+                    <td><code>recording_fsm_dispatch_event(fsm, REC_EVT_STOP, NULL)</code></td>
+                </tr>
+                <tr>
+                    <td>REC_STOPPING</td>
+                    <td>[save complete]</td>
+                    <td>REC_IDLE</td>
+                    <td>Save completed, return to idle</td>
+                    <td><code>recording_fsm_dispatch_event(fsm, REC_EVT_SAVE_COMPLETE, NULL)</code> (internal)</td>
+                </tr>
+                <tr>
+                    <td>REC_RECORDING</td>
+                    <td>REC_EVT_ERROR</td>
+                    <td>REC_ERROR</td>
+                    <td>Error during recording</td>
+                    <td><code>recording_fsm_dispatch_event(fsm, REC_EVT_ERROR, error_data)</code></td>
+                </tr>
+                <tr>
+                    <td>REC_PAUSED</td>
+                    <td>REC_EVT_ERROR</td>
+                    <td>REC_ERROR</td>
+                    <td>Error while paused</td>
+                    <td><code>recording_fsm_dispatch_event(fsm, REC_EVT_ERROR, error_data)</code></td>
+                </tr>
+                <tr>
+                    <td>REC_WAIT_SYNC</td>
+                    <td>REC_EVT_ERROR</td>
+                    <td>REC_ERROR</td>
+                    <td>Error during sync</td>
+                    <td><code>recording_fsm_dispatch_event(fsm, REC_EVT_ERROR, error_data)</code></td>
+                </tr>
+                <tr>
+                    <td>REC_ERROR</td>
+                    <td>REC_EVT_RESET</td>
+                    <td>REC_IDLE</td>
+                    <td>Reset error, return to idle</td>
+                    <td><code>recording_fsm_dispatch_event(fsm, REC_EVT_RESET, NULL)</code></td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <hr>
+        
+        <h2>State Details</h2>
+        <ul>
+            <li><strong>REC_IDLE</strong>: Initial state. Recording FSM is idle, ready to start recording.</li>
+            <li><strong>REC_WAIT_SYNC</strong>: Waiting for synchronization with audio subsystem before actual recording starts.</li>
+            <li><strong>REC_RECORDING</strong>: Actively recording audio data. Audio buffers are being filled.</li>
+            <li><strong>REC_PAUSED</strong>: Recording paused temporarily. Buffers are held but not written.</li>
+            <li><strong>REC_STOPPING</strong>: Recording stopped, saving data to storage (e.g., file or memory).</li>
+            <li><strong>REC_ERROR</strong>: Error state. Contains error code and message for diagnostics.</li>
+        </ul>
+        
+        <h2>API Functions</h2>
+        <ul>
+            <li><code>recording_fsm_init(struct recording_fsm *fsm)</code>: Initialize the recording FSM.</li>
+            <li><code>recording_fsm_dispatch_event(struct recording_fsm *fsm, enum recording_event event, void *data)</code>: Dispatch an event to the state machine.</li>
+            <li><code>recording_fsm_get_state(struct recording_fsm *fsm)</code>: Get current state.</li>
+            <li><code>recording_fsm_set_error(struct recording_fsm *fsm, int code, const char *msg)</code>: Set error information in ERROR state.</li>
+            <li><code>recording_fsm_get_error_code(struct recording_fsm *fsm)</code>: Retrieve error code.</li>
+            <li><code>recording_fsm_get_error_msg(struct recording_fsm *fsm)</code>: Retrieve error message.</li>
+        </ul>
+        
+        <div class="links">
+            <a href="system_coordinator_state_diagram_with_api.html">System Coordinator FSM</a>
+            <a href="audio_fsm_diagram_with_api.html">Audio FSM</a>
+            <a href="comm_fsm_diagram_with_api.html">Communication FSM</a>
+            <a href="power_fsm_diagram_with_api.html">Power FSM</a>
+            <a href="ota_fsm_diagram_with_api.html">OTA FSM</a>
+            <a href="../dashboard/system_coordinator_dashboard.html">Dashboard</a>
+        </div>
+    </div>
+
+    <script>
+        // PlantUML script from .puml file
+        const plantUmlScript = `@startuml
+
+title Recording FSM State Diagram with API Calls
+
+skinparam state {
+  BackgroundColor<<normal>> White
+  BorderColor<<normal>> Black
+  BackgroundColor<<error>> LightCoral
+  BorderColor<<error>> DarkRed
+  BackgroundColor<<active>> LightGreen
+  BorderColor<<active>> DarkGreen
+  FontSize 13
+}
+
+state "REC_IDLE" as idle <<normal>>
+state "REC_WAIT_SYNC" as wait_sync <<active>>
+state "REC_RECORDING" as recording <<active>>
+state "REC_PAUSED" as paused <<active>>
+state "REC_STOPPING" as stopping <<active>>
+state "REC_ERROR" as error <<error>>
+
+idle --> wait_sync : REC_EVT_START
+wait_sync --> recording : REC_EVT_SYNC_COMPLETE
+wait_sync --> idle : REC_EVT_ERROR
+recording --> paused : REC_EVT_PAUSE
+paused --> recording : REC_EVT_RESUME
+recording --> stopping : REC_EVT_STOP
+stopping --> idle : [save complete]
+recording --> error : REC_EVT_ERROR
+paused --> error : REC_EVT_ERROR
+wait_sync --> error : REC_EVT_ERROR
+error --> idle : REC_EVT_RESET
+
+[*] --> idle
+
+note right of idle
+  <b>Recording FSM API:</b>
+  • recording_fsm_init()
+  • recording_fsm_dispatch_event()
+  • recording_fsm_get_state()
+  • recording_fsm_set_error()
+  • recording_fsm_get_error_msg()
+end note
+
+note bottom
+  <b>Activation:</b> Activated by [[system_coordinator_state_diagram_with_api.puml SYS_RECORDING]] and [[system_coordinator_state_diagram_with_api.puml SYS_RECORDING_AND_UPLOADING]] states.
+  <b>Back to main:</b> [[system_coordinator_state_diagram_with_api.puml System Coordinator FSM]]
+end note
+
+@enduml`;
+
+        // Encode the PlantUML script
+        const encoded = window.plantumlEncoder.encode(plantUmlScript);
+        // Use the PlantUML server (public)
+        const imgUrl = 'https://www.plantuml.com/plantuml/svg/' + encoded;
+        // Set the image source
+        document.getElementById('diagram').src = imgUrl;
+    </script>
+</body>
+</html>

@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OTA FSM with API Mapping - TWS Earphone System</title>
+    <script src="https://cdn.jsdelivr.net/npm/plantuml-encoder@1.4.0/dist/plantuml-encoder.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f9f9f9; }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 { color: #333; border-bottom: 2px solid #7209b7; padding-bottom: 10px; }
+        h2 { color: #555; }
+        table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        code { background-color: #f5f5f5; padding: 2px 4px; border-radius: 3px; }
+        pre { background: #f0f0f0; padding: 10px; overflow: auto; }
+        img { max-width: 100%; border: 1px solid #ccc; }
+        .diagram { text-align: center; margin: 20px 0; overflow: auto; }
+        .note {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f0f8ff;
+            border-left: 4px solid #2196F3;
+            font-size: 14px;
+        }
+        .links { margin-top: 20px; }
+        .links a {
+            display: inline-block;
+            margin-right: 15px;
+            padding: 8px 15px;
+            background-color: #7209b7;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+        }
+        .links a:hover { background-color: #560a86; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>OTA FSM with API Mapping - TWS Earphone System</h1>
+        <p>Diagram showing the OTA (Over‑The‑Air) subsystem state machine with corresponding C API functions and state actions.</p>
+        
+        <div class="diagram">
+            <img id="diagram" alt="OTA FSM State Diagram">
+        </div>
+        
+        <div class="note">
+            <strong>Note:</strong> This diagram is generated from <code>ota_fsm_diagram_with_api.puml</code> using the PlantUML server.
+            If the diagram does not display correctly, ensure you have internet connectivity.
+        </div>
+        
+        <hr>
+        
+        <h2>Mapping Table</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Current State</th>
+                    <th>Event</th>
+                    <th>Next State</th>
+                    <th>Action</th>
+                    <th>API Function</th>
+                    <th>Entry Function</th>
+                    <th>Do Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>OTA_IDLE</td>
+                    <td>OTA_EVT_START</td>
+                    <td>OTA_CHECKING</td>
+                    <td>Start OTA process</td>
+                    <td><code>ota_fsm_dispatch_event(OTA_EVT_START)</code></td>
+                    <td><code>enter_ota_idle()</code></td>
+                    <td><code>do_action()</code> (monitor)</td>
+                </tr>
+                <tr>
+                    <td>OTA_CHECKING</td>
+                    <td>OTA_EVT_UPDATE_AVAILABLE</td>
+                    <td>OTA_DOWNLOADING</td>
+                    <td>Update available, start download</td>
+                    <td><code>ota_fsm_dispatch_event(OTA_EVT_UPDATE_AVAILABLE)</code></td>
+                    <td><code>enter_ota_checking()</code></td>
+                    <td><code>do_action()</code> (check for updates)</td>
+                </tr>
+                <tr>
+                    <td>OTA_CHECKING</td>
+                    <td>OTA_EVT_NO_UPDATE</td>
+                    <td>OTA_IDLE</td>
+                    <td>No update, return to idle</td>
+                    <td><code>ota_fsm_dispatch_event(OTA_EVT_NO_UPDATE)</code></td>
+                    <td><code>enter_ota_checking()</code></td>
+                    <td><code>do_action()</code> (check for updates)</td>
+                </tr>
+                <tr>
+                    <td>OTA_DOWNLOADING</td>
+                    <td>OTA_EVT_DOWNLOAD_COMPLETE</td>
+                    <td>OTA_VALIDATING</td>
+                    <td>Download complete, start validation</td>
+                    <td><code>ota_fsm_dispatch_event(OTA_EVT_DOWNLOAD_COMPLETE)</code></td>
+                    <td><code>enter_ota_downloading()</code></td>
+                    <td><code>do_action()</code> (download)</td>
+                </tr>
+                <tr>
+                    <td>OTA_VALIDATING</td>
+                    <td>OTA_EVT_VALIDATE_PASS</td>
+                    <td>OTA_PREPARING</td>
+                    <td>Validation passed, prepare installation</td>
+                    <td><code>ota_fsm_dispatch_event(OTA_EVT_VALIDATE_PASS)</code></td>
+                    <td><code>enter_ota_validating()</code></td>
+                    <td><code>do_action()</code> (validate)</td>
+                </tr>
+                <tr>
+                    <td>OTA_VALIDATING</td>
+                    <td>OTA_EVT_VALIDATE_FAIL</td>
+                    <td>OTA_ERROR</td>
+                    <td>Validation failed, go to error</td>
+                    <td><code>ota_fsm_dispatch_event(OTA_EVT_VALIDATE_FAIL)</code></td>
+                    <td><code>enter_ota_validating()</code></td>
+                    <td><code>do_action()</code> (validate)</td>
+                </tr>
+                <tr>
+                    <td>OTA_PREPARING</td>
+                    <td>OTA_EVT_INSTALL_START</td>
+                    <td>OTA_INSTALLING</td>
+                    <td>Start installation</td>
+                    <td><code>ota_fsm_dispatch_event(OTA_EVT_INSTALL_START)</code></td>
+                    <td><code>enter_ota_preparing()</code></td>
+                    <td><code>do_action()</code> (prepare)</td>
+                </tr>
+                <tr>
+                    <td>OTA_INSTALLING</td>
+                    <td>OTA_EVT_INSTALL_COMPLETE</td>
+                    <td>OTA_REBOOTING</td>
+                    <td>Installation complete, reboot</td>
+                    <td><code>ota_fsm_dispatch_event(OTA_EVT_INSTALL_COMPLETE)</code></td>
+                    <td><code>enter_ota_installing()</code></td>
+                    <td><code>do_action()</code> (install)</td>
+                </tr>
+                <tr>
+                    <td>OTA_REBOOTING</td>
+                    <td>OTA_EVT_RESET</td>
+                    <td>OTA_COMPLETE</td>
+                    <td>Reboot completed, OTA complete</td>
+                    <td><code>ota_fsm_dispatch_event(OTA_EVT_RESET)</code></td>
+                    <td><code>enter_ota_rebooting()</code></td>
+                    <td><code>do_action()</code> (reboot)</td>
+                </tr>
+                <tr>
+                    <td>OTA_COMPLETE</td>
+                    <td>OTA_EVT_RESET</td>
+                    <td>OTA_IDLE</td>
+                    <td>Reset to idle</td>
+                    <td><code>ota_fsm_dispatch_event(OTA_EVT_RESET)</code></td>
+                    <td><code>enter_ota_complete()</code></td>
+                    <td><code>do_action()</code> (complete)</td>
+                </tr>
+                <tr>
+                    <td>OTA_ERROR</td>
+                    <td>OTA_EVT_ROLLBACK</td>
+                    <td>OTA_ROLLBACK</td>
+                    <td>Start rollback</td>
+                    <td><code>ota_fsm_dispatch_event(OTA_EVT_ROLLBACK)</code></td>
+                    <td><code>enter_ota_error()</code></td>
+                    <td><code>do_action()</code> (error)</td>
+                </tr>
+                <tr>
+                    <td>OTA_ROLLBACK</td>
+                    <td>OTA_EVT_ROLLBACK_COMPLETE</td>
+                    <td>OTA_IDLE</td>
+                    <td>Rollback completed, return to idle</td>
+                    <td><code>ota_fsm_dispatch_event(OTA_EVT_ROLLBACK_COMPLETE)</code></td>
+                    <td><code>enter_ota_rollback()</code></td>
+                    <td><code>do_action()</code> (rollback)</td>
+                </tr>
+                <tr>
+                    <td>OTA_IDLE</td>
+                    <td>OTA_EVT_ERROR</td>
+                    <td>OTA_ERROR</td>
+                    <td>Error occurred</td>
+                    <td><code>ota_fsm_dispatch_event(OTA_EVT_ERROR)</code></td>
+                    <td><code>enter_ota_idle()</code></td>
+                    <td><code>do_action()</code> (monitor)</td>
+                </tr>
+                <tr>
+                    <td>OTA_DOWNLOADING</td>
+                    <td>OTA_EVT_ERROR</td>
+                    <td>OTA_ERROR</td>
+                    <td>Error occurred</td>
+                    <td><code>ota_fsm_dispatch_event(OTA_EVT_ERROR)</code></td>
+                    <td><code>enter_ota_downloading()</code></td>
+                    <td><code>do_action()</code> (download)</td>
+                </tr>
+                <tr>
+                    <td>OTA_VALIDATING</td>
+                    <td>OTA_EVT_ERROR</td>
+                    <td>OTA_ERROR</td>
+                    <td>Error occurred</td>
+                    <td><code>ota_fsm_dispatch_event(OTA_EVT_ERROR)</code></td>
+                    <td><code>enter_ota_validating()</code></td>
+                    <td><code>do_action()</code> (validate)</td>
+                </tr>
+                <tr>
+                    <td>OTA_PREPARING</td>
+                    <td>OTA_EVT_ERROR</td>
+                    <td>OTA_ERROR</td>
+                    <td>Error occurred</td>
+                    <td><code>ota_fsm_dispatch_event(OTA_EVT_ERROR)</code></td>
+                    <td><code>enter_ota_preparing()</code></td>
+                    <td><code>do_action()</code> (prepare)</td>
+                </tr>
+                <tr>
+                    <td>OTA_INSTALLING</td>
+                    <td>OTA_EVT_ERROR</td>
+                    <td>OTA_ERROR</td>
+                    <td>Error occurred</td>
+                    <td><code>ota_fsm_dispatch_event(OTA_EVT_ERROR)</code></td>
+                    <td><code>enter_ota_installing()</code></td>
+                    <td><code>do_action()</code> (install)</td>
+                </tr>
+                <tr>
+                    <td>OTA_REBOOTING</td>
+                    <td>OTA_EVT_ERROR</td>
+                    <td>OTA_ERROR</td>
+                    <td>Error occurred</td>
+                    <td><code>ota_fsm_dispatch_event(OTA_EVT_ERROR)</code></td>
+                    <td><code>enter_ota_rebooting()</code></td>
+                    <td><code>do_action()</code> (reboot)</td>
+                </tr>
+                <tr>
+                    <td>OTA_ROLLBACK</td>
+                    <td>OTA_EVT_ERROR</td>
+                    <td>OTA_ERROR</td>
+                    <td>Error occurred</td>
+                    <td><code>ota_fsm_dispatch_event(OTA_EVT_ERROR)</code></td>
+                    <td><code>enter_ota_rollback()</code></td>
+                    <td><code>do_action()</code> (rollback)</td>
+                </tr>
+                <tr>
+                    <td>OTA_ERROR</td>
+                    <td>OTA_EVT_RESET</td>
+                    <td>OTA_IDLE</td>
+                    <td>Reset error, return to idle</td>
+                    <td><code>ota_fsm_dispatch_event(OTA_EVT_RESET)</code></td>
+                    <td><code>enter_ota_error()</code></td>
+                    <td><code>do_action()</code> (error)</td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <hr>
+        
+        <h2>State Details</h2>
+        <ul>
+            <li><strong>OTA_IDLE</strong>: Initial state. OTA subsystem is idle, waiting for start.</li>
+            <li><strong>OTA_CHECKING</strong>: Checking for available updates.</li>
+            <li><strong>OTA_DOWNLOADING</strong>: Downloading the update package.</li>
+            <li><strong>OTA_VALIDATING</strong>: Validating the downloaded package.</li>
+            <li><strong>OTA_PREPARING</strong>: Preparing the system for installation.</li>
+            <li><strong>OTA_INSTALLING</strong>: Installing the update.</li>
+            <li><strong>OTA_REBOOTING</strong>: Rebooting the system after installation.</li>
+            <li><strong>OTA_ROLLBACK</strong>: Rolling back to previous version (error state).</li>
+            <li><strong>OTA_COMPLETE</strong>: OTA completed successfully.</li>
+            <li><strong>OTA_ERROR</strong>: Error state, contains error information.</li>
+        </ul>
+        
+        <h2>API Functions</h2>
+        <ul>
+            <li><code>ota_fsm_init()</code>: Initialize the OTA FSM.</li>
+            <li><code>ota_fsm_dispatch_event(enum ota_event event)</code>: Dispatch an event to the state machine.</li>
+            <li><code>ota_fsm_get_state()</code>: Get current state.</li>
+            <li><code>ota_fsm_get_state_name()</code>: Get state name as string.</li>
+            <li><code>ota_fsm_set_package_url(const char *url)</code>: Set the package download URL.</li>
+            <li><code>ota_fsm_add_module(const char *module_name)</code>: Add a module to be updated.</li>
+            <li><code>ota_fsm_get_overall_progress()</code>: Get overall progress percentage.</li>
+            <li><code>ota_fsm_set_error(int code, const char *msg)</code>: Set error information.</li>
+        </ul>
+        
+        <div class="links">
+            <a href="system_coordinator_state_diagram_with_api.html">System Coordinator FSM</a>
+            <a href="recording_fsm_diagram_with_api.html">Recording FSM</a>
+            <a href="audio_fsm_diagram_with_api.html">Audio FSM</a>
+            <a href="comm_fsm_diagram_with_api.html">Communication FSM</a>
+            <a href="power_fsm_diagram_with_api.html">Power FSM</a>
+            <a href="../src/ota_fsm.c">C Source Code</a>
+        </div>
+    </div>
+
+    <script>
+        // PlantUML script from .puml file
+        const plantUmlScript = `@startuml
+
+title OTA FSM State Diagram with API Calls
+
+skinparam state {
+  BackgroundColor<<normal>> White
+  BorderColor<<normal>> Black
+  BackgroundColor<<error>> LightCoral
+  BorderColor<<error>> DarkRed
+  BackgroundColor<<active>> LightGreen
+  BorderColor<<active>> DarkGreen
+  FontSize 13
+}
+
+state "OTA_IDLE" as idle <<normal>>
+state "OTA_CHECKING" as checking <<active>>
+state "OTA_DOWNLOADING" as downloading <<active>>
+state "OTA_VALIDATING" as validating <<active>>
+state "OTA_PREPARING" as preparing <<active>>
+state "OTA_INSTALLING" as installing <<active>>
+state "OTA_REBOOTING" as rebooting <<active>>
+state "OTA_ROLLBACK" as rollback <<error>>
+state "OTA_COMPLETE" as complete <<normal>>
+state "OTA_ERROR" as error <<error>>
+
+idle --> checking : OTA_EVT_START
+checking --> downloading : OTA_EVT_UPDATE_AVAILABLE
+checking --> idle : OTA_EVT_NO_UPDATE
+downloading --> validating : OTA_EVT_DOWNLOAD_COMPLETE
+validating --> preparing : OTA_EVT_VALIDATE_PASS
+validating --> error : OTA_EVT_VALIDATE_FAIL
+preparing --> installing : OTA_EVT_INSTALL_START
+installing --> rebooting : OTA_EVT_INSTALL_COMPLETE
+rebooting --> complete : OTA_EVT_RESET
+complete --> idle : OTA_EVT_RESET
+error --> rollback : OTA_EVT_ROLLBACK
+rollback --> idle : OTA_EVT_ROLLBACK_COMPLETE
+idle --> error : OTA_EVT_ERROR
+downloading --> error : OTA_EVT_ERROR
+validating --> error : OTA_EVT_ERROR
+preparing --> error : OTA_EVT_ERROR
+installing --> error : OTA_EVT_ERROR
+rebooting --> error : OTA_EVT_ERROR
+rollback --> error : OTA_EVT_ERROR
+error --> idle : OTA_EVT_RESET
+
+[*] --> idle
+
+note right of idle
+  <b>OTA FSM API:</b>
+  • ota_fsm_init()
+  • ota_fsm_dispatch_event()
+  • ota_fsm_get_state()
+  • ota_fsm_get_state_name()
+  • ota_fsm_set_package_url()
+  • ota_fsm_add_module()
+  • ota_fsm_get_overall_progress()
+  • ota_fsm_set_error()
+end note
+
+note bottom
+  <b>Activation:</b> Activated by [[system_coordinator_state_diagram_with_api.puml SYS_OTA]] state.
+  <b>Back to main:</b> [[system_coordinator_state_diagram_with_api.puml System Coordinator FSM]]
+end note
+
+@enduml`;
+
+        // Encode the PlantUML script
+        const encoded = plantumlEncoder.encode(plantUmlScript);
+        // Use the PlantUML server (public)
+        const plantUmlServer = 'https://www.plantuml.com/plantuml/svg/';
+        const img = document.getElementById('diagram');
+        img.src = plantUmlServer + encoded;
+        img.alt = 'OTA FSM State Diagram';
+    </script>

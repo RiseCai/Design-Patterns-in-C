@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Power FSM with API Mapping - TWS Earphone System</title>
+    <script src="https://cdn.jsdelivr.net/npm/plantuml-encoder@1.4.0/dist/plantuml-encoder.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f9f9f9; }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 { color: #333; border-bottom: 2px solid #7209b7; padding-bottom: 10px; }
+        h2 { color: #555; }
+        table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        code { background-color: #f5f5f5; padding: 2px 4px; border-radius: 3px; }
+        pre { background: #f0f0f0; padding: 10px; overflow: auto; }
+        img { max-width: 100%; border: 1px solid #ccc; }
+        .diagram { text-align: center; margin: 20px 0; overflow: auto; }
+        .note {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f0f8ff;
+            border-left: 4px solid #2196F3;
+            font-size: 14px;
+        }
+        .links { margin-top: 20px; }
+        .links a {
+            display: inline-block;
+            margin-right: 15px;
+            padding: 8px 15px;
+            background-color: #7209b7;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+        }
+        .links a:hover { background-color: #560a86; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Power FSM with API Mapping - TWS Earphone System</h1>
+        <p>Diagram showing the power subsystem state machine with corresponding C API functions and state actions.</p>
+        
+        <div class="diagram">
+            <img id="diagram" alt="Power FSM State Diagram">
+        </div>
+        
+        <div class="note">
+            <strong>Note:</strong> This diagram is generated from <code>power_fsm_diagram_with_api.puml</code> using the PlantUML server.
+            If the diagram does not display correctly, ensure you have internet connectivity.
+        </div>
+        
+        <hr>
+        
+        <h2>Mapping Table</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Current State</th>
+                    <th>Event</th>
+                    <th>Next State</th>
+                    <th>Action</th>
+                    <th>API Function</th>
+                    <th>Entry Function</th>
+                    <th>Do Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>POWER_OFF</td>
+                    <td>POWER_EVT_TURN_ON</td>
+                    <td>POWER_ON</td>
+                    <td>Turn on power</td>
+                    <td><code>power_fsm_dispatch_event(POWER_EVT_TURN_ON)</code></td>
+                    <td><code>enter_power_off()</code></td>
+                    <td><code>do_action()</code> (monitor)</td>
+                </tr>
+                <tr>
+                    <td>POWER_ON</td>
+                    <td>POWER_EVT_TURN_OFF</td>
+                    <td>POWER_OFF</td>
+                    <td>Turn off power</td>
+                    <td><code>power_fsm_dispatch_event(POWER_EVT_TURN_OFF)</code></td>
+                    <td><code>enter_power_on()</code></td>
+                    <td><code>do_action()</code> (power on)</td>
+                </tr>
+                <tr>
+                    <td>POWER_ON</td>
+                    <td>POWER_EVT_LOW_BATTERY</td>
+                    <td>POWER_LOW_BATTERY</td>
+                    <td>Low battery detected</td>
+                    <td><code>power_fsm_dispatch_event(POWER_EVT_LOW_BATTERY)</code></td>
+                    <td><code>enter_power_on()</code></td>
+                    <td><code>do_action()</code> (power on)</td>
+                </tr>
+                <tr>
+                    <td>POWER_LOW_BATTERY</td>
+                    <td>POWER_EVT_CHARGING_START</td>
+                    <td>POWER_CHARGING</td>
+                    <td>Start charging</td>
+                    <td><code>power_fsm_dispatch_event(POWER_EVT_CHARGING_START)</code></td>
+                    <td><code>enter_power_low_battery()</code></td>
+                    <td><code>do_action()</code> (low battery)</td>
+                </tr>
+                <tr>
+                    <td>POWER_CHARGING</td>
+                    <td>POWER_EVT_CHARGING_STOP</td>
+                    <td>POWER_ON</td>
+                    <td>Stop charging</td>
+                    <td><code>power_fsm_dispatch_event(POWER_EVT_CHARGING_STOP)</code></td>
+                    <td><code>enter_power_charging()</code></td>
+                    <td><code>do_action()</code> (charging)</td>
+                </tr>
+                <tr>
+                    <td>POWER_ON</td>
+                    <td>POWER_EVT_ENTER_SLEEP</td>
+                    <td>POWER_SLEEP</td>
+                    <td>Enter sleep mode</td>
+                    <td><code>power_fsm_dispatch_event(POWER_EVT_ENTER_SLEEP)</code></td>
+                    <td><code>enter_power_on()</code></td>
+                    <td><code>do_action()</code> (power on)</td>
+                </tr>
+                <tr>
+                    <td>POWER_SLEEP</td>
+                    <td>POWER_EVT_WAKE_UP</td>
+                    <td>POWER_ON</td>
+                    <td>Wake up from sleep</td>
+                    <td><code>power_fsm_dispatch_event(POWER_EVT_WAKE_UP)</code></td>
+                    <td><code>enter_power_sleep()</code></td>
+                    <td><code>do_action()</code> (sleep)</td>
+                </tr>
+                <tr>
+                    <td>POWER_LOW_BATTERY</td>
+                    <td>POWER_EVT_ENTER_SLEEP</td>
+                    <td>POWER_SLEEP</td>
+                    <td>Enter sleep mode</td>
+                    <td><code>power_fsm_dispatch_event(POWER_EVT_ENTER_SLEEP)</code></td>
+                    <td><code>enter_power_low_battery()</code></td>
+                    <td><code>do_action()</code> (low battery)</td>
+                </tr>
+                <tr>
+                    <td>POWER_CHARGING</td>
+                    <td>POWER_EVT_ENTER_SLEEP</td>
+                    <td>POWER_SLEEP</td>
+                    <td>Enter sleep mode</td>
+                    <td><code>power_fsm_dispatch_event(POWER_EVT_ENTER_SLEEP)</code></td>
+                    <td><code>enter_power_charging()</code></td>
+                    <td><code>do_action()</code> (charging)</td>
+                </tr>
+                <tr>
+                    <td>POWER_SLEEP</td>
+                    <td>POWER_EVT_TURN_OFF</td>
+                    <td>POWER_OFF</td>
+                    <td>Turn off power</td>
+                    <td><code>power_fsm_dispatch_event(POWER_EVT_TURN_OFF)</code></td>
+                    <td><code>enter_power_sleep()</code></td>
+                    <td><code>do_action()</code> (sleep)</td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <hr>
+        
+        <h2>State Details</h2>
+        <ul>
+            <li><strong>POWER_OFF</strong>: Initial state. Power subsystem is off.</li>
+            <li><strong>POWER_ON</strong>: Power is on, system operational.</li>
+            <li><strong>POWER_LOW_BATTERY</strong>: Low battery condition (error state).</li>
+            <li><strong>POWER_CHARGING</strong>: Battery is charging.</li>
+            <li><strong>POWER_SLEEP</strong>: Low-power sleep mode.</li>
+        </ul>
+        
+        <h2>API Functions</h2>
+        <ul>
+            <li><code>power_fsm_init()</code>: Initialize the power FSM.</li>
+            <li><code>power_fsm_dispatch_event(enum power_event event)</code>: Dispatch an event to the state machine.</li>
+            <li><code>power_fsm_get_state()</code>: Get current state.</li>
+            <li><code>power_fsm_get_state_name()</code>: Get state name as string.</li>
+        </ul>
+        
+        <div class="links">
+            <a href="system_coordinator_state_diagram_with_api.html">System Coordinator FSM</a>
+            <a href="recording_fsm_diagram_with_api.html">Recording FSM</a>
+            <a href="audio_fsm_diagram_with_api.html">Audio FSM</a>
+            <a href="comm_fsm_diagram_with_api.html">Communication FSM</a>
+            <a href="ota_fsm_diagram_with_api.html">OTA FSM</a>
+            <a href="../src/power_fsm.c">C Source Code</a>
+        </div>
+    </div>
+
+    <script>
+        // PlantUML script from .puml file
+        const plantUmlScript = `@startuml
+
+title Power FSM State Diagram with API Calls
+
+skinparam state {
+  BackgroundColor<<normal>> White
+  BorderColor<<normal>> Black
+  BackgroundColor<<error>> LightCoral
+  BorderColor<<error>> DarkRed
+  BackgroundColor<<active>> LightGreen
+  BorderColor<<active>> DarkGreen
+  FontSize 13
+}
+
+state "POWER_OFF" as off <<normal>>
+state "POWER_ON" as on <<active>>
+state "POWER_LOW_BATTERY" as low <<error>>
+state "POWER_CHARGING" as charging <<active>>
+state "POWER_SLEEP" as sleep <<normal>>
+
+off --> on : POWER_EVT_TURN_ON
+on --> off : POWER_EVT_TURN_OFF
+on --> low : POWER_EVT_LOW_BATTERY
+low --> charging : POWER_EVT_CHARGING_START
+charging --> on : POWER_EVT_CHARGING_STOP
+on --> sleep : POWER_EVT_ENTER_SLEEP
+sleep --> on : POWER_EVT_WAKE_UP
+low --> sleep : POWER_EVT_ENTER_SLEEP
+charging --> sleep : POWER_EVT_ENTER_SLEEP
+sleep --> off : POWER_EVT_TURN_OFF
+
+[*] --> off
+
+note right of off
+  <b>Power FSM API:</b>
+  • power_fsm_init()
+  • power_fsm_dispatch_event()
+  • power_fsm_get_state()
+  • power_fsm_get_state_name()
+end note
+
+note bottom
+  <b>Activation:</b> Activated by [[system_coordinator_state_diagram_with_api.puml SYS_IDLE]] and [[system_coordinator_state_diagram_with_api.puml SYS_SLEEP]] states.
+  <b>Back to main:</b> [[system_coordinator_state_diagram_with_api.puml System Coordinator FSM]]
+end note
+
+@enduml`;
+
+        // Encode the PlantUML script
+        const encoded = window.plantumlEncoder.encode(plantUmlScript);
+        // Use the PlantUML server (public)
+        const imgUrl = 'https://www.plantuml.com/plantuml/svg/' + encoded;
+        // Set the image source
+        document.getElementById('diagram').src = imgUrl;
+    </script>
+</body>
+</html>

@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Coordinator FSM with API Mapping - TWS Earphone System</title>
+    <script src="https://cdn.jsdelivr.net/npm/plantuml-encoder@1.4.0/dist/plantuml-encoder.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f9f9f9; }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 { color: #333; border-bottom: 2px solid #7209b7; padding-bottom: 10px; }
+        h2 { color: #555; }
+        table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        code { background-color: #f5f5f5; padding: 2px 4px; border-radius: 3px; }
+        pre { background: #f0f0f0; padding: 10px; overflow: auto; }
+        img { max-width: 100%; border: 1px solid #ccc; }
+        .diagram { text-align: center; margin: 20px 0; overflow: auto; }
+        .note {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f0f8ff;
+            border-left: 4px solid #2196F3;
+            font-size: 14px;
+        }
+        .links { margin-top: 20px; }
+        .links a {
+            display: inline-block;
+            margin-right: 15px;
+            padding: 8px 15px;
+            background-color: #7209b7;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+        }
+        .links a:hover { background-color: #560a86; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>System Coordinator FSM with API Mapping - TWS Earphone System</h1>
+        <p>Diagram showing the system coordinator state machine with corresponding C API functions and state actions.</p>
+        
+        <div class="diagram">
+            <img id="diagram" alt="System Coordinator State Diagram">
+        </div>
+        
+        <div class="note">
+            <strong>Note:</strong> This diagram is generated from <code>system_coordinator_state_diagram_with_api.puml</code> using the PlantUML server.
+            If the diagram does not display correctly, ensure you have internet connectivity.
+        </div>
+        
+        <hr>
+        
+        <h2>Mapping Table</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Current State</th>
+                    <th>Event</th>
+                    <th>Next State</th>
+                    <th>Action</th>
+                    <th>API Function</th>
+                    <th>Entry Function</th>
+                    <th>Do Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>SYS_INIT</td>
+                    <td>Auto transition</td>
+                    <td>SYS_IDLE</td>
+                    <td>Initialize subsystems</td>
+                    <td><code>system_coordinator_init(sys)</code></td>
+                    <td><code>enter_init()</code></td>
+                    <td><code>do_action()</code> (initialization)</td>
+                </tr>
+                <tr>
+                    <td>SYS_INIT</td>
+                    <td>SYS_EVT_OTA_START (pending update)</td>
+                    <td>SYS_OTA</td>
+                    <td>Start OTA process</td>
+                    <td><code>system_coordinator_dispatch_event(sys, SYS_EVT_OTA_START, NULL)</code></td>
+                    <td><code>enter_ota()</code></td>
+                    <td><code>do_action()</code> (OTA download)</td>
+                </tr>
+                <tr>
+                    <td>SYS_IDLE</td>
+                    <td>SYS_EVT_REC_START</td>
+                    <td>SYS_RECORDING</td>
+                    <td>Start recording process</td>
+                    <td><code>system_coordinator_dispatch_event(sys, SYS_EVT_REC_START, NULL)</code></td>
+                    <td><code>enter_recording()</code></td>
+                    <td><code>do_action()</code> (monitor recording)</td>
+                </tr>
+                <tr>
+                    <td>SYS_IDLE</td>
+                    <td>SYS_EVT_POWER_OFF</td>
+                    <td>SYS_SHUTDOWN</td>
+                    <td>Power off system</td>
+                    <td><code>system_coordinator_dispatch_event(sys, SYS_EVT_POWER_OFF, NULL)</code></td>
+                    <td><code>enter_shutdown()</code> (implied)</td>
+                    <td>None</td>
+                </tr>
+                <tr>
+                    <td>SYS_IDLE</td>
+                    <td>SYS_EVT_ERROR</td>
+                    <td>SYS_ERROR</td>
+                    <td>Handle error condition</td>
+                    <td><code>system_coordinator_dispatch_event(sys, SYS_EVT_ERROR, error_data)</code></td>
+                    <td><code>enter_error()</code></td>
+                    <td><code>do_action()</code> (error recovery)</td>
+                </tr>
+                <tr>
+                    <td>SYS_IDLE</td>
+                    <td>SYS_EVT_LOW_BATTERY</td>
+                    <td>SYS_SLEEP</td>
+                    <td>Enter low‑power sleep</td>
+                    <td><code>system_coordinator_dispatch_event(sys, SYS_EVT_LOW_BATTERY, NULL)</code></td>
+                    <td><code>enter_sleep()</code></td>
+                    <td><code>do_action()</code> (sleep mode)</td>
+                </tr>
+                <tr>
+                    <td>SYS_IDLE</td>
+                    <td>SYS_EVT_OTA_START</td>
+                    <td>SYS_OTA</td>
+                    <td>Start OTA update</td>
+                    <td><code>system_coordinator_dispatch_event(sys, SYS_EVT_OTA_START, NULL)</code></td>
+                    <td><code>enter_ota()</code></td>
+                    <td><code>do_action()</code> (OTA download)</td>
+                </tr>
+                <tr>
+                    <td>SYS_RECORDING</td>
+                    <td>SYS_EVT_STREAMING_START</td>
+                    <td>SYS_RECORDING_AND_UPLOADING</td>
+                    <td>Start streaming while recording</td>
+                    <td><code>system_coordinator_dispatch_event(sys, SYS_EVT_STREAMING_START, NULL)</code></td>
+                    <td><code>enter_recording_and_uploading()</code></td>
+                    <td><code>do_action()</code> (record + stream)</td>
+                </tr>
+                <tr>
+                    <td>SYS_RECORDING</td>
+                    <td>SYS_EVT_REC_STOP</td>
+                    <td>SYS_UPLOADING</td>
+                    <td>Stop recording, start upload</td>
+                    <td><code>system_coordinator_dispatch_event(sys, SYS_EVT_REC_STOP, NULL)</code></td>
+                    <td><code>enter_uploading()</code></td>
+                    <td><code>do_action()</code> (upload monitoring)</td>
+                </tr>
+                <tr>
+                    <td>SYS_RECORDING</td>
+                    <td>SYS_EVT_ERROR</td>
+                    <td>SYS_ERROR</td>
+                    <td>Error during recording</td>
+                    <td><code>system_coordinator_dispatch_event(sys, SYS_EVT_ERROR, error_data)</code></td>
+                    <td><code>enter_error()</code></td>
+                    <td><code>do_action()</code> (error recovery)</td>
+                </tr>
+                <tr>
+                    <td>SYS_RECORDING_AND_UPLOADING</td>
+                    <td>SYS_EVT_STREAMING_STOP</td>
+                    <td>SYS_RECORDING</td>
+                    <td>Stop streaming, continue recording</td>
+                    <td><code>system_coordinator_dispatch_event(sys, SYS_EVT_STREAMING_STOP, NULL)</code></td>
+                    <td><code>enter_recording()</code></td>
+                    <td><code>do_action()</code> (monitor recording)</td>
+                </tr>
+                <tr>
+                    <td>SYS_RECORDING_AND_UPLOADING</td>
+                    <td>SYS_EVT_REC_STOP</td>
+                    <td>SYS_UPLOADING</td>
+                    <td>Stop recording, continue upload</td>
+                    <td><code>system_coordinator_dispatch_event(sys, SYS_EVT_REC_STOP, NULL)</code></td>
+                    <td><code>enter_uploading()</code></td>
+                    <td><code>do_action()</code> (upload monitoring)</td>
+                </tr>
+                <tr>
+                    <td>SYS_RECORDING_AND_UPLOADING</td>
+                    <td>SYS_EVT_ERROR</td>
+                    <td>SYS_ERROR</td>
+                    <td>Error during recording/streaming</td>
+                    <td><code>system_coordinator_dispatch_event(sys, SYS_EVT_ERROR, error_data)</code></td>
+                    <td><code>enter_error()</code></td>
+                    <td><code>do_action()</code> (error recovery)</td>
+                </tr>
+                <tr>
+                    <td>SYS_UPLOADING</td>
+                    <td>SYS_EVT_UPLOAD_COMPLETE</td>
+                    <td>SYS_IDLE</td>
+                    <td>Upload complete, return to idle</td>
+                    <td><code>system_coordinator_dispatch_event(sys, SYS_EVT_UPLOAD_COMPLETE, NULL)</code></td>
+                    <td><code>enter_idle()</code></td>
+                    <td><code>do_action()</code> (idle monitoring)</td>
+                </tr>
+                <tr>
+                    <td>SYS_UPLOADING</td>
+                    <td>SYS_EVT_ERROR</td>
+                    <td>SYS_ERROR</td>
+                    <td>Error during upload</td>
+                    <td><code>system_coordinator_dispatch_event(sys, SYS_EVT_ERROR, error_data)</code></td>
+                    <td><code>enter_error()</code></td>
+                    <td><code>do_action()</code> (error recovery)</td>
+                </tr>
+                <tr>
+                    <td>SYS_ERROR</td>
+                    <td>SYS_EVT_RESET</td>
+                    <td>SYS_INIT</td>
+                    <td>Reset system</td>
+                    <td><code>system_coordinator_dispatch_event(sys, SYS_EVT_RESET, NULL)</code></td>
+                    <td><code>enter_init()</code></td>
+                    <td><code>do_action()</code> (initialization)</td>
+                </tr>
+                <tr>
+                    <td>SYS_ERROR</td>
+                    <td>SYS_EVT_POWER_OFF</td>
+                    <td>SYS_SHUTDOWN</td>
+                    <td>Power off from error</td>
+                    <td><code>system_coordinator_dispatch_event(sys, SYS_EVT_POWER_OFF, NULL)</code></td>
+                    <td><code>enter_shutdown()</code> (implied)</td>
+                    <td>None</td>
+                </tr>
+                <tr>
+                    <td>SYS_SLEEP</td>
+                    <td>SYS_EVT_POWER_ON</td>
+                    <td>SYS_IDLE</td>
+                    <td>Wake from sleep</td>
+                    <td><code>system_coordinator_dispatch_event(sys, SYS_EVT_POWER_ON, NULL)</code></td>
+                    <td><code>enter_idle()</code></td>
+                    <td><code>do_action()</code> (idle monitoring)</td>
+                </tr>
+                <tr>
+                    <td>SYS_OTA</td>
+                    <td>SYS_EVT_OTA_COMPLETE</td>
+                    <td>SYS_IDLE</td>
+                    <td>OTA completed successfully</td>
+                    <td><code>system_coordinator_dispatch_event(sys, SYS_EVT_OTA_COMPLETE, NULL)</code></td>
+                    <td><code>enter_idle()</code></td>
+                    <td><code>do_action()</code> (idle monitoring)</td>
+                </tr>
+                <tr>
+                    <td>SYS_OTA</td>
+                    <td>SYS_EVT_OTA_ERROR</td>
+                    <td>SYS_ERROR</td>
+                    <td>OTA error</td>
+                    <td><code>system_coordinator_dispatch_event(sys, SYS_EVT_OTA_ERROR, NULL)</code></td>
+                    <td><code>enter_error()</code></td>
+                    <td><code>do_action()</code> (error recovery)</td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <hr>
+        
+        <h2>State Details</h2>
+        <ul>
+            <li><strong>SYS_INIT</strong>: Initialization state. Automatically transitions to IDLE after subsystems are initialized. May transition to OTA if a pending firmware update is detected.</li>
+            <li><strong>SYS_IDLE</strong>: Main operational state. System is ready for user interaction. Monitors battery, network, and user commands.</li>
+            <li><strong>SYS_RECORDING</strong>: Recording audio data. Activates recording_fsm and audio_fsm.</li>
+            <li><strong>SYS_RECORDING_AND_UPLOADING</strong>: Simultaneous recording and streaming. Both recording_fsm, audio_fsm, and comm_fsm are active.</li>
+            <li><strong>SYS_UPLOADING</strong>: Uploading recorded data to cloud. Uses network connection (comm_fsm).</li>
+            <li><strong>SYS_OTA</strong>: Over‑the‑air firmware update. Activates ota_fsm.</li>
+            <li><strong>SYS_ERROR</strong>: Error handling state. Contains error_code and error_msg for diagnostics. Can recover via reset or shutdown.</li>
+            <li><strong>SYS_SLEEP</strong>: Low‑power sleep mode. Subsystems are in low‑power state.</li>
+            <li><strong>SYS_SHUTDOWN</strong>: System shutdown. Final state before power off.</li>
+            <li><strong>SYS_RESET</strong>: Reset state. Resets subsystems and automatically transitions back to INIT.</li>
+        </ul>
+        
+        <h2>API Functions</h2>
+        <ul>
+            <li><code>system_coordinator_init(struct system_coordinator *sys)</code>: Initialize the system coordinator.</li>
+            <li><code>system_coordinator_dispatch_event(struct system_coordinator *sys, enum system_event event, void *data)</code>: Dispatch an event to the state machine.</li>
+            <li><code>system_coordinator_get_state(struct system_coordinator *sys)</code>: Get current state.</li>
+            <li><code>system_coordinator_set_error(struct system_coordinator *sys, int code, const char *msg)</code>: Set error information in ERROR state.</li>
+            <li><code>system_coordinator_get_error_code(struct system_coordinator *sys)</code>: Retrieve error code.</li>
+            <li><code>system_coordinator_get_error_msg(struct system_coordinator *sys)</code>: Retrieve error message.</li>
+        </ul>
+        
+        <div class="links">
+            <a href="system_coordinator_with_all_subsystems.html">All Subsystems Diagram</a>
+            <a href="recording_fsm_diagram_with_api.html">Recording FSM</a>
+            <a href="audio_fsm_diagram_with_api.html">Audio FSM</a>
+            <a href="comm_fsm_diagram_with_api.html">Communication FSM</a>
+            <a href="power_fsm_diagram_with_api.html">Power FSM</a>
+            <a href="ota_fsm_diagram_with_api.html">OTA FSM</a>
+            <a href="system_coordinator_sequence.html">Sequence Diagram</a>
+            <a href="../dashboard/system_coordinator_dashboard.html">Dashboard</a>
+        </div>
+    </div>
+
+    <script>
+        // PlantUML script from .puml file
+        const plantUmlScript = `@startuml
+title System Coordinator FSM - TWS Earphone System (with API Mapping)
+
+skinparam state {
+  BackgroundColor<<normal>> White
+  BorderColor<<normal>> Black
+  BackgroundColor<<error>> LightCoral
+  BorderColor<<error>> DarkRed
+  BackgroundColor<<active>> LightGreen
+  BorderColor<<active>> DarkGreen
+  FontSize 13
+}
+
+' Define states
+state "SYS_INIT" as INIT <<normal>> {
+  state "INIT_Entry" as INIT_ENTRY <<entry>>
+  state "INIT_Do" as INIT_DO <<do>>
+  state "INIT_Exit" as INIT_EXIT <<exit>>
+}
+
+state "SYS_IDLE" as IDLE <<active>> {
+  state "IDLE_Entry" as IDLE_ENTRY <<entry>>
+  state "IDLE_Do" as IDLE_DO <<do>>
+  state "IDLE_Exit" as IDLE_EXIT <<exit>>
+}
+
+state "SYS_RECORDING" as RECORDING <<active>> {
+  state "RECORDING_Entry" as REC_ENTRY <<entry>>
+  state "RECORDING_Do" as REC_DO <<do>>
+  state "RECORDING_Exit" as REC_EXIT <<exit>>
+}
+
+state "SYS_RECORDING_AND_UPLOADING" as REC_UPL <<active>> {
+  state "REC_UPL_Entry" as REC_UPL_ENTRY <<entry>>
+  state "REC_UPL_Do" as REC_UPL_DO <<do>>
+  state "REC_UPL_Exit" as REC_UPL_EXIT <<exit>>
+}
+
+state "SYS_UPLOADING" as UPLOADING <<active>> {
+  state "UPLOADING_Entry" as UPL_ENTRY <<entry>>
+  state "UPLOADING_Do" as UPL_DO <<do>>
+  state "UPLOADING_Exit" as UPL_EXIT <<exit>>
+}
+
+state "SYS_OTA" as OTA <<active>> {
+  state "OTA_Entry" as OTA_ENTRY <<entry>>
+  state "OTA_Do" as OTA_DO <<do>>
+  state "OTA_Exit" as OTA_EXIT <<exit>>
+}
+
+state "SYS_ERROR" as ERROR <<error>> {
+  state "ERROR_Entry" as ERR_ENTRY <<entry>>
+  state "ERROR_Do" as ERR_DO <<do>>
+  state "ERROR_Exit" as ERR_EXIT <<exit>>
+}
+
+state "SYS_SLEEP" as SLEEP <<normal>> {
+  state "SLEEP_Entry" as SLEEP_ENTRY <<entry>>
+  state "SLEEP_Do" as SLEEP_DO <<do>>
+  state "SLEEP_Exit" as SLEEP_EXIT <<exit>>
+}
+
+state "SYS_SHUTDOWN" as SHUTDOWN <<normal>> {
+  state "SHUTDOWN_Entry" as SHUT_ENTRY <<entry>>
+  state "SHUTDOWN_Do" as SHUT_DO <<do>>
+  state "SHUTDOWN_Exit" as SHUT_EXIT <<exit>>
+}
+
+state "SYS_RESET" as RESET <<normal>> {
+  state "RESET_Entry" as RESET_ENTRY <<entry>>
+  state "RESET_Do" as RESET_DO <<do>>
+  state "RESET_Exit" as RESET_EXIT <<exit>>
+}
+
+' Initial transition
+[*] --> INIT
+
+' State transitions (based on system_coordinator.c implementation)
+INIT --> IDLE : Auto transition after initialization
+INIT --> OTA : If pending firmware update detected
+
+IDLE --> RECORDING : SYS_EVT_REC_START
+IDLE --> SHUTDOWN : SYS_EVT_POWER_OFF
+IDLE --> ERROR : SYS_EVT_ERROR
+IDLE --> SLEEP : SYS_EVT_LOW_BATTERY
+IDLE --> OTA : SYS_EVT_OTA_START
+
+RECORDING --> REC_UPL : SYS_EVT_STREAMING_START
+RECORDING --> UPLOADING : SYS_EVT_REC_STOP
+RECORDING --> ERROR : SYS_EVT_ERROR
+
+REC_UPL --> RECORDING : SYS_EVT_STREAMING_STOP
+REC_UPL --> RECORDING : SYS_EVT_UPLOAD_COMPLETE
+REC_UPL --> RECORDING : SYS_EVT_NETWORK_DISCONNECTED
+REC_UPL --> UPLOADING : SYS_EVT_REC_STOP
+REC_UPL --> ERROR : SYS_EVT_ERROR
+
+UPLOADING --> IDLE : SYS_EVT_UPLOAD_COMPLETE
+UPLOADING --> ERROR : SYS_EVT_ERROR
+
+ERROR --> INIT : SYS_EVT_RESET
+ERROR --> SHUTDOWN : SYS_EVT_POWER_OFF
+
+' RESET event transitions
+INIT --> RESET : SYS_EVT_RESET
+IDLE --> RESET : SYS_EVT_RESET
+RECORDING --> RESET : SYS_EVT_RESET
+REC_UPL --> RESET : SYS_EVT_RESET
+UPLOADING --> RESET : SYS_EVT_RESET
+SLEEP --> RESET : SYS_EVT_RESET
+OTA --> RESET : SYS_EVT_RESET
+
+' RESET auto-transition to INIT
+RESET --> INIT : Auto transition after reset
+
+SLEEP --> IDLE : SYS_EVT_POWER_ON
+
+' OTA state transitions
+OTA --> IDLE : SYS_EVT_OTA_COMPLETE
+OTA --> IDLE : SYS_EVT_OTA_CANCEL
+OTA --> ERROR : SYS_EVT_OTA_ERROR
+OTA --> SHUTDOWN : SYS_EVT_POWER_OFF
+
+' OTA self-transitions (forwarded to OTA FSM)
+OTA --> OTA : SYS_EVT_OTA_CHECK (forwarded)
+OTA --> OTA : SYS_EVT_OTA_STATUS (forwarded)
+OTA --> OTA : SYS_EVT_OTA_PROGRESS (forwarded)
+
+' Self-transitions (handled within state)
+RECORDING --> RECORDING : SYS_EVT_REC_PAUSE (handled)
+RECORDING --> RECORDING : SYS_EVT_REC_RESUME (handled)
+RECORDING --> RECORDING : SYS_EVT_LOW_BATTERY (handled)
+UPLOADING --> UPLOADING : SYS_EVT_NETWORK_DISCONNECTED (handled)
+
+' State labels
+INIT_ENTRY : "Initialize subsystems"
+INIT_DO : "Initialization process"
+INIT_EXIT : "Transition to IDLE"
+
+IDLE_ENTRY : "System ready"
+IDLE_DO : "Monitor battery, network"
+IDLE_EXIT : "Leaving IDLE"
+
+REC_ENTRY : "Start recording"
+REC_DO : "Record audio, process data"
+REC_EXIT : "Stop recording"
+
+REC_UPL_ENTRY : "Start recording & streaming"
+REC_UPL_DO : "Record + upload simultaneously"
+REC_UPL_EXIT : "Stop recording or streaming"
+
+UPL_ENTRY : "Start upload"
+UPL_DO : "Upload to cloud"
+UPL_EXIT : "Upload complete"
+
+OTA_ENTRY : "Start OTA process"
+OTA_DO : "Download & install update"
+OTA_EXIT : "OTA complete or cancelled"
+
+ERR_ENTRY : "Handle error"
+ERR_DO : "Error recovery"
+ERR_EXIT : "Reset or shutdown"
+
+SLEEP_ENTRY : "Enter low-power"
+SLEEP_DO : "Sleep mode"
+SLEEP_EXIT : "Wake up"
+
+SHUT_ENTRY : "(none)"
+SHUT_DO : "Power off"
+SHUT_EXIT : "System off"
+
+RESET_ENTRY : "Reset subsystems"
+RESET_DO : "Reset process"
+RESET_EXIT : "Transition to INIT"
+
+note right of INIT
+  <b>State:</b> SYS_INIT
+  <b>Entry function:</b> enter_init()
+  <b>API:</b> system_coordinator_init()
+end note
+
+note right of IDLE
+  <b>State:</b> SYS_IDLE
+  <b>Entry function:</b> enter_idle()
+  <b>Do action:</b> do_action() periodic checks
+  <b>Subsystems:</b> [[power_fsm_diagram_with_api.html power_fsm]] (low battery management), [[comm_fsm_diagram_with_api.html comm_fsm]] (network monitoring)
+  <b>Main operational state</b>
+end note
+
+note right of RECORDING
+  <b>State:</b> SYS_RECORDING
+  <b>Entry function:</b> enter_recording()
+  <b>Do action:</b> monitor recording progress
+  <b>Subsystems:</b> [[recording_fsm_diagram_with_api.html recording_fsm]], [[audio_fsm_diagram_with_api.html audio_fsm]] active
+end note
+
+note right of REC_UPL
+  <b>State:</b> SYS_RECORDING_AND_UPLOADING
+  <b>Entry function:</b> enter_recording_and_uploading()
+  <b>Do action:</b> monitor recording & streaming
+  <b>Subsystems:</b> [[recording_fsm_diagram_with_api.html recording_fsm]], [[audio_fsm_diagram_with_api.html audio_fsm]], [[comm_fsm_diagram_with_api.html comm_fsm]] active
+end note
+
+note right of UPLOADING
+  <b>State:</b> SYS_UPLOADING
+  <b>Entry function:</b> enter_uploading()
+  <b>Do action:</b> upload to cloud
+  <b>Subsystems:</b> [[comm_fsm_diagram_with_api.html comm_fsm]] active
+end note
+
+note right of ERROR
+  <b>State:</b> SYS_ERROR
+  <b>Entry function:</b> enter_error()
+  <b>Error handling:</b> error_code, error_msg
+  <b>Recovery:</b> Reset or shutdown
+end note
+
+note right of OTA
+  <b>State:</b> SYS_OTA
+  <b>Entry function:</b> enter_ota()
+  <b>Do action:</b> download & install update
+  <b>Subsystems:</b> [[ota_fsm_diagram_with_api.html ota_fsm]] active
+  <b>Transitions:</b> From IDLE (OTA_START), From INIT (pending update)
+  <b>Exit events:</b> OTA_COMPLETE, OTA_CANCEL, OTA_ERROR, POWER_OFF
+end note
+
+note right of SLEEP
+  <b>State:</b> SYS_SLEEP
+  <b>Entry function:</b> enter_sleep()
+  <b>Do action:</b> low‑power sleep
+  <b>Subsystems:</b> [[power_fsm_diagram_with_api.html power_fsm]] (sleep mode)
+  <b>Wake‑up events:</b> POWER_ON, LOW_BATTERY
+end note
+
+note right of SHUTDOWN
+  <b>State:</b> SYS_SHUTDOWN
+  <b>Entry function:</b> (none)
+  <b>Do action:</b> power off sequence
+  <b>Final state:</b> No outgoing transitions
+  <b>API:</b> system_coordinator_dispatch_event(sys, SYS_EVT_POWER_OFF, NULL)
+end note
+
+note right of RESET
+  <b>State:</b> SYS_RESET
+  <b>Entry function:</b> enter_reset()
+  <b>Do action:</b> reset subsystems
+  <b>Auto transition:</b> to INIT after reset complete
+  <b>API:</b> system_coordinator_dispatch_event(sys, SYS_EVT_RESET, NULL)
+end note
+
+note bottom
+  <b>Note:</b> Some events are defined but not processed in this FSM:
+  SYS_EVT_UPLOAD_START, SYS_EVT_NETWORK_CONNECTED,
+  SYS_EVT_BLUETOOTH_CONNECTED, SYS_EVT_BLUETOOTH_DISCONNECTED,
+  SYS_EVT_CHARGING, SYS_EVT_TRANSFER_MODE_CHANGE,
+  SYS_EVT_FILE_UPLOAD_START, SYS_EVT_FILE_UPLOAD_COMPLETE,
+  SYS_EVT_OTA_CHECK, SYS_EVT_OTA_STATUS, SYS_EVT_OTA_PROGRESS.
+  These events are reserved for future extensions.
+end note
+
+@enduml`;
+
+        // Encode the PlantUML script
+        const encoded = window.plantumlEncoder.encode(plantUmlScript);
+        // Use the PlantUML server (public)
+        const imgUrl = 'https://www.plantuml.com/plantuml/svg/' + encoded;
+        // Set the image source
+        document.getElementById('diagram').src = imgUrl;
+    </script>
