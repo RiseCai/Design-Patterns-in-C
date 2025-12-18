@@ -92,13 +92,18 @@ Call `fsm_os_context_destroy()` when the state machine is no longer needed.
 
 ## Examples
 
-Five complete examples are provided in `examples/os_adapter/`:
+Five core examples are provided in `examples/os_adapter/`:
 
 - `mealy_ui_example.c` – Shows event queuing and timer‑based debouncing.
 - `efsm_protocol_example.c` – Demonstrates network message processing with retransmission timers.
 - `moore_hierarchical_example.c` – Illustrates memory pool allocation and mutex‑protected state transitions.
 - `acceptor_regex_example.c` – Shows character‑by‑character pattern matching with timeout.
 - `parallel_fsm_example.c` – Demonstrates multi‑threaded component execution and synchronization.
+
+Additionally, two pipeline‑oriented examples demonstrate how to integrate the OS adapter with more complex, application‑specific state machines:
+
+- `data_pipeline_os_example.c` – Shows a data‑processing pipeline (parallel FSM) using OS queues and timers for stage coordination.
+- `task_pipeline_os_example.c` – Demonstrates a task‑processing workflow (EFSM) with event‑driven task scheduling, retry timers, and external system integration.
 
 To build all examples, a Makefile is provided in the same directory. Ensure the OS abstraction layer is compiled and linked, then run:
 
@@ -107,12 +112,24 @@ cd examples/os_adapter
 make
 ```
 
-Alternatively, compile a single example manually:
+Alternatively, compile a single example manually (example for data pipeline):
 
 ```bash
-gcc -I../os_abstraction_layer/include -I./src -DUSE_OS_ABSTRACTION \
-    mealy_ui_example.c src/fsm_os_adapter.c \
-    -L../os_abstraction_layer/build -los_abstract -o mealy_ui_example
+gcc -I../../src -I../../../os_abstraction_layer/include -DUSE_OS_ABSTRACTION \
+    data_pipeline_os_example.c ../../src/fsm_os_adapter.c \
+    ../../src/parallel_fsm.c \
+    ../../examples/product/system/pipeline/data_pipeline/src/data_pipeline.c \
+    -L../../../os_abstraction_layer/build -los_abstract -lpthread -o data_pipeline_os_example
+```
+
+For task pipeline:
+
+```bash
+gcc -I../../src -I../../../os_abstraction_layer/include -DUSE_OS_ABSTRACTION \
+    task_pipeline_os_example.c ../../src/fsm_os_adapter.c \
+    ../../src/efsm_protocol.c \
+    ../../examples/product/system/pipeline/task_pipeline/src/task_pipeline.c \
+    -L../../../os_abstraction_layer/build -los_abstract -lpthread -o task_pipeline_os_example
 ```
 
 ## Configuration

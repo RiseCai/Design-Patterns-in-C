@@ -102,8 +102,8 @@ int main(void)
             break;
         }
         printf("[Main] Processing character '%c'\n", ch);
-        acceptor_regex_feed(&acceptor, ch);
-        if (acceptor_regex_matched(&acceptor)) {
+        acceptor_machine_feed(&acceptor, ch);
+        if (acceptor_machine_is_accepting(&acceptor)) {
             printf("[Main] Pattern matched!\n");
             break;
         }

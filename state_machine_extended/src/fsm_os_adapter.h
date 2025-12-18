@@ -103,6 +103,12 @@ fsm_os_context_t *parallel_fsm_adapter_create(int num_components);
  */
 fsm_os_context_t *acceptor_regex_adapter_create(void);
 
+/**
+ * LED FSM Adapter (Product‑specific)
+ * Provides PWM update timer, command queue, and synchronization for LED control.
+ */
+fsm_os_context_t *led_fsm_adapter_create(void);
+
 /* ------------------------------------------------------------------------- */
 /* Integration helpers                                                       */
 /* ------------------------------------------------------------------------- */

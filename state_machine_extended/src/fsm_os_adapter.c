@@ -268,3 +268,44 @@ os_error_t fsm_os_cancel_timer(fsm_os_context_t *ctx)
     }
     return os_timer_stop(ctx->timer);
 }
+
+/* ------------------------------------------------------------------------- */
+/* LED FSM Adapter                                                           */
+/* ------------------------------------------------------------------------- */
+
+fsm_os_context_t *led_fsm_adapter_create(void)
+{
+    fsm_os_context_t *ctx = fsm_os_context_create();
+    if (!ctx) {
+        return NULL;
+    }
+
+    /* Create a command queue for LED commands (e.g., set color, effect) */
+    ctx->event_queue = os_queue_create(sizeof(int), 20); /* command as int + optional data */
+    if (!ctx->event_queue) {
+        fsm_os_context_destroy(ctx);
+        return NULL;
+    }
+
+    /* Create a timer for PWM updates (periodic) */
+    ctx->timer = os_timer_create(NULL, ctx, "led_pwm_timer");
+    if (!ctx->timer) {
+        fsm_os_context_destroy(ctx);
+        return NULL;
+    }
+
+    /* Create a semaphore for synchronizing PWM updates with command processing */
+    ctx->semaphore = os_semaphore_create(1, 1); /* binary semaphore */
+    if (!ctx->semaphore) {
+        fsm_os_context_destroy(ctx);
+        return NULL;
+    }
+
+    /* Create a memory pool for LED state objects (optional) */
+    ctx->memory_pool = os_memory_pool_create(128, 5); /* 5 LED states */
+    if (!ctx->memory_pool) {
+        /* Not critical, continue without memory pool */
+    }
+
+    return ctx;
+}

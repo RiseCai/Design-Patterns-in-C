@@ -19,12 +19,12 @@ typedef struct {
 /* Thread that periodically triggers state transitions */
 static void transition_thread(void *arg)
 {
-    struct moore_hierarchical *hfsm = (struct moore_hierarchical *)arg;
+    struct moore_hsm *hfsm = (struct moore_hsm *)arg;
     printf("[Transition Thread] Started\n");
 
     for (int i = 0; i < 5; i++) {
-        printf("[Transition Thread] Triggering transition %d\n", i);
-        moore_hierarchical_transition(hfsm, i % 3); /* some event */
+        printf("[Transition Thread] Triggering event %d\n", i);
+        moore_hsm_dispatch_event(hfsm, i % 3 + 1); /* some event (EV_POWER_ON etc.) */
         os_thread_sleep(300);
     }
 
@@ -49,15 +49,17 @@ int main(void)
     }
 
     /* Create the hierarchical state machine */
-    struct moore_hierarchical hfsm;
-    moore_hierarchical_init(&hfsm);
+    struct moore_hsm hfsm;
+    /* Use the root state defined in moore_hierarchical.c (state_off) */
+    extern struct moore_state state_off;
+    moore_hsm_init(&hfsm, &state_off);
 
     /* Attach the OS context (e.g., for memory pool) */
-    hfsm.user_data = os_ctx;
+    /* hfsm doesn't have user_data field, we can store it elsewhere if needed */
 
     /* Use the memory pool to allocate a state (if needed) */
     if (os_ctx->memory_pool) {
-        hierarchical_data_t *data = os_memory_pool_alloc(os_ctx->memory_pool);
+        hierarchical_data_t *data = os_memory_pool_alloc(os_ctx->memory_pool, 100);
         if (data) {
             data->depth = 1;
             snprintf(data->name, sizeof(data->name), "RootState");
@@ -79,7 +81,8 @@ int main(void)
     if (os_ctx->mutex) {
         os_mutex_lock(os_ctx->mutex, 100);
         printf("[Main] Mutex locked, performing critical section\n");
-        moore_hierarchical_enter(&hfsm);
+        /* Execute some state machine action */
+        moore_hsm_dispatch_event(&hfsm, 1); /* EV_POWER_ON */
         os_mutex_unlock(os_ctx->mutex);
     }
 

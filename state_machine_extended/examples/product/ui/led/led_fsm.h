@@ -116,6 +116,7 @@ typedef struct {
     uint32_t update_period_ms;          /* Effect update period in ms */
     uint32_t flow_period_ms;            /* Flow step period in ms */
     void (*pwm_update_cb)(uint8_t ch, uint8_t value); /* PWM update callback */
+    void *user_data;                    /* User-defined data (e.g., OS adapter) */
 } led_hsm_t;
 
 /* ==================== Public API ==================== */

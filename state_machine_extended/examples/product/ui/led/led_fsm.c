@@ -571,6 +571,9 @@ void led_hsm_init(led_hsm_t *hsm, void (*pwm_cb)(uint8_t ch, uint8_t value))
     /* Set PWM callback */
     hsm->pwm_update_cb = pwm_cb;
     
+    /* Initialize user_data to NULL */
+    hsm->user_data = NULL;
+    
     /* Initialize PWM values */
     memset(hsm->pwm_values, 0, PWM_CHANNELS);
     

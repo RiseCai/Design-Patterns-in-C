@@ -28,7 +28,7 @@ static void network_receiver_thread(void *arg)
     while (1) {
         /* Simulate receiving a message from the network */
         memset(msg.data, 0, sizeof(msg.data));
-        msg.len = snprintf((char *)msg.data, sizeof(msg.data), "Message %ld", (long)os_timer_get_tick());
+        msg.len = snprintf((char *)msg.data, sizeof(msg.data), "Message %ld", (long)os_get_tick_count());
         printf("[Network Receiver] Received: %s\n", msg.data);
 
         /* Send to the protocol queue */

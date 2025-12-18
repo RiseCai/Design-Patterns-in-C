@@ -46,4 +46,12 @@ void moore_hsm_set_temperature(struct moore_hsm *hsm, int temp);
 void moore_hsm_set_target(struct moore_hsm *hsm, int target);
 struct moore_state *moore_hsm_find_state(struct moore_hsm *hsm, const char *name);
 
+/* Global state instances (defined in moore_hierarchical.c) */
+extern struct moore_state state_off;
+extern struct moore_state state_on;
+extern struct moore_state state_heating;
+extern struct moore_state state_cooling;
+extern struct moore_state state_idle;
+extern struct moore_state state_fan_only;
+
 #endif /* __MOORE_HIERARCHICAL_H__ */

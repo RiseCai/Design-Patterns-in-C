@@ -22,12 +22,12 @@
 #include "moore_hierarchical.h"
 
 /* Forward declarations of states */
-static struct moore_state state_off;
-static struct moore_state state_on;
-static struct moore_state state_heating;
-static struct moore_state state_cooling;
-static struct moore_state state_idle;
-static struct moore_state state_fan_only;
+struct moore_state state_off;
+struct moore_state state_on;
+struct moore_state state_heating;
+struct moore_state state_cooling;
+struct moore_state state_idle;
+struct moore_state state_fan_only;
 
 /* Event definitions */
 enum {
