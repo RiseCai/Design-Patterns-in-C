@@ -100,7 +100,7 @@ HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
 **使用PAL：**
 ```c
 // 平台无关代码
-pal_gpio_write(PIN_LED, PAL_GPIO_HIGH);
+pal_gpio_write(PIN_LED, PAL_GPIO_HIGH); 
 
 // 在PC上：SDL2 GUI显示LED状态
 // 在STM32上：实际控制GPIO引脚
