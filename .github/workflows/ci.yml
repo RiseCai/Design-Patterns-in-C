@@ -1,0 +1,56 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-test:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up MinGW
+      run: |
+        # Use pre-installed MinGW on Windows runner
+        echo "C:\msys64\mingw64\bin" >> $env:GITHUB_PATH
+        echo "C:\msys64\usr\bin" >> $env:GITHUB_PATH
+
+    - name: Install SDL2 dependencies
+      run: |
+        # SDL2 and SDL2_ttf are already present in the repository as zip files
+        # Extract them if needed
+        if (-not (Test-Path "SDL2/SDL2-2.30.5")) {
+          Expand-Archive -Path "SDL2.zip" -DestinationPath "SDL2" -Force
+        }
+        if (-not (Test-Path "SDL2_ttf/SDL2_ttf-2.22.0")) {
+          Expand-Archive -Path "SDL2_ttf.zip" -DestinationPath "SDL2_ttf" -Force
+        }
+
+    - name: Build tests
+      working-directory: ./viper_architecture/test
+      run: |
+        make clean
+        make all
+
+    - name: Run tests
+      working-directory: ./viper_architecture/test
+      run: |
+        # Run all tests except pal_simulation if SDL2 not available
+        ./test_viper_module
+        ./test_integration_todo
+        ./test_viper_view
+        ./test_viper_interactor
+        ./test_viper_entity
+        ./test_viper_presenter
+        # Run pal_simulation if SDL2 is available (should be)
+        ./test_pal_simulation
+
+    - name: Run CI script
+      working-directory: ./viper_architecture/test
+      run: |
+        bash ci.sh
