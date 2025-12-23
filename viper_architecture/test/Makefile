@@ -1,10 +1,12 @@
 # Makefile for VIPER architecture tests
 
 CC = gcc
+PROJECT_ROOT = ../../..
 SDL2_INC = $(SDL2_PATH)/include
 SDL2_TTF_INC = $(SDL2_TTF_PATH)/include
-CFLAGS = -Wall -Wextra -std=c99 -I../include -I../../state_machine_extended/src \
+CFLAGS = -Wall -Wextra -std=c99 -DMYTRACE_NO_EXECINFO=1 -I../include -I../../state_machine_extended/src \
          -I../../platform_abstraction_layer/include -I../../os_abstraction_layer/include \
+         -I../../auto-gen/util \
          -I$(SDL2_INC) -I$(SDL2_TTF_INC)
 LDFLAGS = -lm
 
@@ -16,10 +18,12 @@ SDL2_TTF_LIB_PATH = $(SDL2_TTF_PATH)/lib/x64
 SDL_LIBS = -L$(SDL2_LIB_PATH) -L$(SDL2_TTF_LIB_PATH) -lSDL2 -lSDL2_ttf
 
 # State machine source files
+# MYTRACE_SRC is excluded when MYTRACE_NO_EXECINFO=1 because mytrace.h provides inline stubs
 STATE_MACHINE_SRCS = ../../state_machine_extended/src/mealy_machine.c \
                      ../../state_machine_extended/src/parallel_fsm.c \
                      ../../state_machine_extended/src/moore_hierarchical.c \
                      ../../state_machine_extended/src/efsm_protocol.c \
+                     ../../state_machine_extended/src/acceptor_regex.c \
                      ../../state_machine_extended/src/fsm_os_adapter.c \
                      ../../os_abstraction_layer/build/os_abstract_stub.c
 
@@ -39,29 +43,30 @@ TEST_EXES = $(TEST_SRCS:.c=)
 all: $(TEST_EXES)
 
 # Build each test executable
-test_viper_module: test_viper_module.c ../src/viper.c ../src/viper_view.c ../src/viper_presenter.c ../src/viper_interactor.c ../src/viper_entity.c $(STATE_MACHINE_SRCS)
+test_viper_module: test_viper_module.c ../src/viper.c ../src/viper_view.c ../src/viper_presenter.c ../src/viper_interactor.c ../src/viper_entity.c ../src/viper_router.c $(STATE_MACHINE_SRCS)
 	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
 
-test_integration_todo: test_integration_todo.c ../src/viper.c ../src/viper_view.c ../src/viper_presenter.c ../src/viper_interactor.c ../src/viper_entity.c $(STATE_MACHINE_SRCS)
+test_integration_todo: test_integration_todo.c ../src/viper.c ../src/viper_view.c ../src/viper_presenter.c ../src/viper_interactor.c ../src/viper_entity.c ../src/viper_router.c $(STATE_MACHINE_SRCS)
 	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
 
 test_pal_simulation: test_pal_simulation.c ../src/viper.c ../src/viper_view.c ../src/viper_presenter.c ../src/viper_interactor.c ../src/viper_entity.c \
+                     ../src/viper_router.c \
                      ../../platform_abstraction_layer/src/windows_simulator/pal_windows_simulator.c \
                      ../../platform_abstraction_layer/src/pal_os_adapter.c \
                      ../../os_abstraction_layer/build/os_abstract_stub.c \
                      $(STATE_MACHINE_SRCS)
 	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS) $(SDL_LIBS)
 
-test_viper_view: test_viper_view.c ../src/viper.c ../src/viper_view.c ../src/viper_presenter.c ../src/viper_interactor.c ../src/viper_entity.c $(STATE_MACHINE_SRCS)
+test_viper_view: test_viper_view.c ../src/viper.c ../src/viper_view.c ../src/viper_presenter.c ../src/viper_interactor.c ../src/viper_entity.c ../src/viper_router.c $(STATE_MACHINE_SRCS)
 	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
 
-test_viper_interactor: test_viper_interactor.c ../src/viper.c ../src/viper_view.c ../src/viper_presenter.c ../src/viper_interactor.c ../src/viper_entity.c $(STATE_MACHINE_SRCS)
+test_viper_interactor: test_viper_interactor.c ../src/viper.c ../src/viper_view.c ../src/viper_presenter.c ../src/viper_interactor.c ../src/viper_entity.c ../src/viper_router.c $(STATE_MACHINE_SRCS)
 	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
 
-test_viper_entity: test_viper_entity.c ../src/viper.c ../src/viper_view.c ../src/viper_presenter.c ../src/viper_interactor.c ../src/viper_entity.c $(STATE_MACHINE_SRCS)
+test_viper_entity: test_viper_entity.c ../src/viper.c ../src/viper_view.c ../src/viper_presenter.c ../src/viper_interactor.c ../src/viper_entity.c ../src/viper_router.c $(STATE_MACHINE_SRCS)
 	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
 
-test_viper_presenter: test_viper_presenter.c ../src/viper.c ../src/viper_view.c ../src/viper_presenter.c ../src/viper_interactor.c ../src/viper_entity.c $(STATE_MACHINE_SRCS)
+test_viper_presenter: test_viper_presenter.c ../src/viper.c ../src/viper_view.c ../src/viper_presenter.c ../src/viper_interactor.c ../src/viper_entity.c ../src/viper_router.c $(STATE_MACHINE_SRCS)
 	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
 
 # Run all tests

@@ -98,31 +98,14 @@ static void viper_presenter_destroy_internal(struct viper_presenter *presenter)
 /* VIPER Interactor Implementation */
 static struct viper_interactor *viper_interactor_create_internal(void)
 {
-    struct viper_interactor *interactor = (struct viper_interactor *)malloc(sizeof(struct viper_interactor));
-    if (!interactor) return NULL;
-    
-    memset(interactor, 0, sizeof(struct viper_interactor));
-    
-    /* Allocate and initialize Moore Hierarchical FSM */
-    interactor->fsm = (struct moore_hsm *)malloc(sizeof(struct moore_hsm));
-    if (!interactor->fsm) {
-        free(interactor);
-        return NULL;
-    }
-    
-    /* Note: Actual hierarchical FSM initialization would be done by the application */
-    memset(interactor->fsm, 0, sizeof(struct moore_hsm));
-    
-    return interactor;
+    /* Use the proper initialization function from viper_interactor.c */
+    return viper_interactor_init("VIPER_Interactor", 1, NULL);
 }
 
 static void viper_interactor_destroy_internal(struct viper_interactor *interactor)
 {
     if (interactor) {
-        if (interactor->fsm) {
-            free(interactor->fsm);
-        }
-        free(interactor);
+        viper_interactor_destroy(interactor);
     }
 }
 
@@ -270,37 +253,123 @@ int viper_module_process_event(struct viper_module *module,
     switch (event->target_component) {
         case VIPER_COMPONENT_VIEW:
             if (module->view) {
-                /* Process view event using Mealy FSM */
-                /* Implementation would depend on specific application */
-                return 0;
+                /* Map VIPER event to view event */
+                viper_view_event_t view_event;
+                switch (event->type) {
+                    case VIPER_EVENT_VIEW_ACTION:
+                        view_event = VIEW_EVENT_USER_INPUT;
+                        break;
+                    case VIPER_EVENT_DATA_UPDATE:
+                        view_event = VIEW_EVENT_DATA_RECEIVED;
+                        break;
+                    case VIPER_EVENT_ERROR:
+                        view_event = VIEW_EVENT_ERROR_OCCURRED;
+                        break;
+                    case VIPER_EVENT_NAVIGATION:
+                        view_event = VIEW_EVENT_NAVIGATE;
+                        break;
+                    case VIPER_EVENT_PRESENTATION:
+                        view_event = VIEW_EVENT_REFRESH;
+                        break;
+                    default:
+                        /* Unsupported event type for view */
+                        return -1;
+                }
+                return viper_view_process_event(module->view, view_event, event->data);
             }
             break;
             
         case VIPER_COMPONENT_PRESENTER:
             if (module->presenter) {
-                /* Process presenter event using Parallel FSM */
-                return 0;
+                /* Map VIPER event to presenter event */
+                viper_presenter_event_t presenter_event;
+                switch (event->type) {
+                    case VIPER_EVENT_VIEW_ACTION:
+                        presenter_event = PRESENTER_EVENT_VIEW_UPDATE;
+                        break;
+                    case VIPER_EVENT_DATA_UPDATE:
+                        presenter_event = PRESENTER_EVENT_DATA_READY;
+                        break;
+                    case VIPER_EVENT_ERROR:
+                        presenter_event = PRESENTER_EVENT_ERROR;
+                        break;
+                    case VIPER_EVENT_NAVIGATION:
+                        presenter_event = PRESENTER_EVENT_NAVIGATION_REQUEST;
+                        break;
+                    case VIPER_EVENT_BUSINESS_LOGIC:
+                        presenter_event = PRESENTER_EVENT_BUSINESS_LOGIC_COMPLETE;
+                        break;
+                    case VIPER_EVENT_PRESENTATION:
+                        presenter_event = PRESENTER_EVENT_VIEW_UPDATE;
+                        break;
+                    default:
+                        return -1;
+                }
+                return viper_presenter_process_event(module->presenter, presenter_event, event->data);
             }
             break;
             
         case VIPER_COMPONENT_INTERACTOR:
             if (module->interactor) {
-                /* Process interactor event using Moore Hierarchical FSM */
-                return 0;
+                /* Map VIPER event to interactor event */
+                viper_interactor_event_t interactor_event;
+                switch (event->type) {
+                    case VIPER_EVENT_VIEW_ACTION:
+                        interactor_event = INTERACTOR_EVENT_PROCESS_DATA;
+                        break;
+                    case VIPER_EVENT_BUSINESS_LOGIC:
+                        interactor_event = INTERACTOR_EVENT_EXECUTE_BUSINESS_RULE;
+                        break;
+                    case VIPER_EVENT_DATA_UPDATE:
+                        interactor_event = INTERACTOR_EVENT_PROCESS_DATA;
+                        break;
+                    case VIPER_EVENT_ERROR:
+                        interactor_event = INTERACTOR_EVENT_ERROR;
+                        break;
+                    default:
+                        return -1;
+                }
+                return viper_interactor_process_event(module->interactor, interactor_event, event->data);
             }
             break;
             
         case VIPER_COMPONENT_ENTITY:
             if (module->entity) {
-                /* Process entity event using EFSM */
-                return 0;
+                /* Map VIPER event to entity event */
+                viper_entity_event_t entity_event;
+                switch (event->type) {
+                    case VIPER_EVENT_DATA_UPDATE:
+                        entity_event = ENTITY_EVENT_UPDATE_DATA;
+                        break;
+                    case VIPER_EVENT_BUSINESS_LOGIC:
+                        entity_event = ENTITY_EVENT_VALIDATE_DATA;
+                        break;
+                    case VIPER_EVENT_ERROR:
+                        /* Entity doesn't have an error event, use UPDATE_DATA with error flag */
+                        entity_event = ENTITY_EVENT_UPDATE_DATA;
+                        break;
+                    default:
+                        return -1;
+                }
+                return viper_entity_process_event(module->entity, entity_event, event->data);
             }
             break;
             
         case VIPER_COMPONENT_ROUTER:
             if (module->router) {
-                /* Process router event using Acceptor/Regex FSM */
-                return 0;
+                /* Map VIPER event to router event */
+                viper_router_event_t router_event;
+                switch (event->type) {
+                    case VIPER_EVENT_NAVIGATION:
+                        router_event = ROUTER_EVENT_NAVIGATE;
+                        break;
+                    case VIPER_EVENT_ERROR:
+                        router_event = ROUTER_EVENT_ERROR;
+                        break;
+                    default:
+                        return -1;
+                }
+                return viper_router_process_event(module->router, router_event, event->data);
             }
             break;
             

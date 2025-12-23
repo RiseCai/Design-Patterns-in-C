@@ -166,4 +166,16 @@ viper_interactor_state_t viper_interactor_get_state(const struct viper_interacto
  */
 const struct viper_business_context *viper_interactor_get_context(const struct viper_interactor *interactor);
 
+/**
+ * Process an interactor event
+ * 
+ * @param interactor Interactor instance
+ * @param event Event to process
+ * @param data Event data
+ * @return 0 on success, negative on error
+ */
+int viper_interactor_process_event(struct viper_interactor *interactor,
+                                   viper_interactor_event_t event,
+                                   const void *data);
+
 #endif /* __VIPER_INTERACTOR_H__ */

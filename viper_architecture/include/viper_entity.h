@@ -181,4 +181,16 @@ viper_entity_state_t viper_entity_get_state(const struct viper_entity *entity);
  */
 const struct viper_entity_data *viper_entity_get_data(const struct viper_entity *entity);
 
+/**
+ * Process an entity event
+ * 
+ * @param entity Entity instance
+ * @param event Event to process
+ * @param data Event data
+ * @return 0 on success, negative on error
+ */
+int viper_entity_process_event(struct viper_entity *entity,
+                               viper_entity_event_t event,
+                               const void *data);
+
 #endif /* __VIPER_ENTITY_H__ */

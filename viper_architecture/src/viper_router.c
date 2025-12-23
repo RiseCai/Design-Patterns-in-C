@@ -299,3 +299,36 @@ const struct viper_navigation_context *viper_router_get_context(const struct vip
     if (!router) return NULL;
     return &router->context;
 }
+
+int viper_router_process_event(struct viper_router *router,
+                               viper_router_event_t event,
+                               const void *data)
+{
+    if (!router || !router->fsm) return -1;
+
+    printf("[Router] Processing event: %d\n", event);
+
+    switch (event) {
+        case ROUTER_EVENT_NAVIGATE:
+            /* data should be a string path */
+            return viper_router_navigate(router, (const char *)data, NULL, 0);
+        case ROUTER_EVENT_BACK:
+            return viper_router_navigate_back(router);
+        case ROUTER_EVENT_FORWARD:
+            return viper_router_navigate_forward(router);
+        case ROUTER_EVENT_TRANSITION:
+            /* Not implemented yet */
+            printf("[Router] TRANSITION event not implemented\n");
+            return -1;
+        case ROUTER_EVENT_ROUTE_CHANGED:
+            /* Not implemented yet */
+            printf("[Router] ROUTE_CHANGED event not implemented\n");
+            return -1;
+        case ROUTER_EVENT_ERROR:
+            router->fsm->current = &error_state;
+            return 0;
+        default:
+            printf("[Router] Unknown event: %d\n", event);
+            return -1;
+    }
+}

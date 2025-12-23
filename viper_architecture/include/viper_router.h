@@ -184,4 +184,16 @@ viper_router_state_t viper_router_get_state(const struct viper_router *router);
  */
 const struct viper_navigation_context *viper_router_get_context(const struct viper_router *router);
 
+/**
+ * Process a router event
+ * 
+ * @param router Router instance
+ * @param event Event to process
+ * @param data Event data
+ * @return 0 on success, negative on error
+ */
+int viper_router_process_event(struct viper_router *router,
+                               viper_router_event_t event,
+                               const void *data);
+
 #endif /* __VIPER_ROUTER_H__ */

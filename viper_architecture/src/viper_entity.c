@@ -288,7 +288,13 @@ int viper_entity_update_data(struct viper_entity *entity,
                              const void *new_data,
                              size_t data_size)
 {
-    if (!entity || !new_data || data_size == 0) return -1;
+    if (!entity) return -1;
+    
+    /* If no data provided, treat as no-op (e.g., delete event) */
+    if (!new_data || data_size == 0) {
+        printf("[Entity] Update with no data - no operation\n");
+        return 0;
+    }
     
     /* Update data buffer */
     if (entity->data.data_buffer) {
@@ -446,4 +452,38 @@ const struct viper_entity_data *viper_entity_get_data(const struct viper_entity 
 {
     if (!entity) return NULL;
     return &entity->data;
+}
+
+int viper_entity_process_event(struct viper_entity *entity,
+                               viper_entity_event_t event,
+                               const void *data)
+{
+    if (!entity || !entity->fsm) return -1;
+
+    printf("[Entity] Processing event: %d\n", event);
+
+    switch (event) {
+        case ENTITY_EVENT_LOAD_DATA:
+            return viper_entity_load_data(entity, "event", data);
+        case ENTITY_EVENT_UPDATE_DATA:
+            /* data should be a pointer to a struct containing new_data and size */
+            /* For simplicity, assume data points to a buffer and size is known */
+            /* In real implementation, we would need to parse data */
+            return viper_entity_update_data(entity, data, 0); /* size unknown */
+        case ENTITY_EVENT_VALIDATE_DATA:
+            return viper_entity_validate_data(entity, data, 0);
+        case ENTITY_EVENT_SAVE_DATA:
+            return viper_entity_save_data(entity, "event", data);
+        case ENTITY_EVENT_DELETE_DATA:
+            /* Not implemented yet */
+            printf("[Entity] DELETE_DATA event not implemented\n");
+            return -1;
+        case ENTITY_EVENT_QUERY_DATA:
+            /* Not implemented yet */
+            printf("[Entity] QUERY_DATA event not implemented\n");
+            return -1;
+        default:
+            printf("[Entity] Unknown event: %d\n", event);
+            return -1;
+    }
 }

@@ -480,3 +480,15 @@ const struct viper_business_context *viper_interactor_get_context(const struct v
     if (!interactor) return NULL;
     return &interactor->context;
 }
+
+int viper_interactor_process_event(struct viper_interactor *interactor,
+                                   viper_interactor_event_t event,
+                                   const void *data)
+{
+    if (!interactor || !interactor->fsm) return -1;
+
+    printf("[Interactor] Processing event: %d\n", event);
+
+    /* For simplicity, we just call process_request with NULL output */
+    return viper_interactor_process_request(interactor, event, data, 0, NULL, NULL);
+}

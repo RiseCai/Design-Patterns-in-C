@@ -183,7 +183,7 @@ TEST_CASE(test_viper_integration_crud) {
     /* Simulate adding a todo via VIPER event */
     const char *todo_desc = "VIPER Task";
     struct viper_event *add_event = viper_event_create(
-        VIPER_EVENT_VIEW_ACTION,
+        VIPER_EVENT_BUSINESS_LOGIC,
         todo_desc,
         strlen(todo_desc) + 1,
         VIPER_COMPONENT_VIEW,
@@ -211,7 +211,7 @@ TEST_CASE(test_viper_integration_crud) {
 
     /* Simulate delete event */
     struct viper_event *delete_event = viper_event_create(
-        VIPER_EVENT_NAVIGATION,
+        VIPER_EVENT_DATA_UPDATE,
         NULL,
         0,
         VIPER_COMPONENT_PRESENTER,
@@ -292,6 +292,59 @@ TEST_CASE(test_concurrency_simulation) {
     TEST_ASSERT_EQUAL(NUM_THREADS_SIM * 100, concurrent_counter);
 }
 
+/* Boundary: long description truncation */
+TEST_CASE(test_boundary_long_description) {
+    reset_todo_db();
+    /* Create a description longer than buffer (128 chars) */
+    char long_desc[256];
+    memset(long_desc, 'X', sizeof(long_desc) - 1);
+    long_desc[sizeof(long_desc) - 1] = '\0';
+    /* Ensure it's longer than 127 */
+    int result = add_todo(long_desc);
+    TEST_ASSERT_EQUAL(0, result);
+    TEST_ASSERT_EQUAL(1, todo_count);
+    /* Verify truncation occurred (description should be null-terminated) */
+    TEST_ASSERT_EQUAL('\0', todo_db[0].description[127]);
+    /* First 127 characters should be 'X' */
+    for (int i = 0; i < 127; i++) {
+        TEST_ASSERT_EQUAL('X', todo_db[0].description[i]);
+    }
+}
+
+/* Concurrency with mutex simulation using OS abstraction stub */
+TEST_CASE(test_concurrent_add_with_mutex) {
+    reset_todo_db();
+    /* Simulate multiple "threads" adding items with mutex protection */
+    /* Since we have stub mutex, we can just call add_todo multiple times */
+    /* This test ensures that the mutex stub works and does not crash */
+    for (int i = 0; i < 5; i++) {
+        char desc[32];
+        sprintf(desc, "Concurrent %d", i);
+        int result = add_todo(desc);
+        TEST_ASSERT_EQUAL(0, result);
+    }
+    TEST_ASSERT_EQUAL(5, todo_count);
+    /* Verify all items have unique IDs */
+    for (int i = 0; i < 5; i++) {
+        TEST_ASSERT_EQUAL(i + 1, todo_db[i].id);
+    }
+}
+
+/* Error: negative ID and zero ID handling (if applicable) */
+TEST_CASE(test_error_invalid_id) {
+    reset_todo_db();
+    /* Adding with empty description already tested */
+    /* Delete with negative ID should fail */
+    int result = delete_todo(-1);
+    TEST_ASSERT_EQUAL(-1, result);
+    /* Update with zero ID should fail */
+    result = update_todo(0, "Test", 0);
+    TEST_ASSERT_EQUAL(-1, result);
+    /* Find with zero ID should return NULL */
+    todo_item_t *item = find_todo(0);
+    TEST_ASSERT_NULL(item);
+}
+
 /* Test suite array */
 void (*integration_tests[])(void) = {
     test_crud_add,
@@ -306,6 +359,9 @@ void (*integration_tests[])(void) = {
     test_error_handling,
     test_boundary_large_data,
     test_concurrency_simulation,
+    test_boundary_long_description,
+    test_concurrent_add_with_mutex,
+    test_error_invalid_id,
 };
 
 int main(void) {

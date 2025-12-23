@@ -58,6 +58,21 @@ static pal_status_t pal_deinit_stub(void)
 pal_status_t pal_init(const pal_config_t *config) __attribute__((weak, alias("pal_init_stub")));
 pal_status_t pal_deinit(void) __attribute__((weak, alias("pal_deinit_stub")));
 
+pal_status_t pal_gpio_init(pal_gpio_pin_t pin, const pal_gpio_config_t *config) __attribute__((weak));
+pal_status_t pal_gpio_init(pal_gpio_pin_t pin, const pal_gpio_config_t *config)
+{
+    if (!pal_initialized) {
+        return PAL_STATUS_NOT_INITIALIZED;
+    }
+    printf("[STUB] pal_gpio_init pin=%u\n", pin);
+    if (pin < MAX_PINS) {
+        pin_initialized[pin] = true;
+        pin_states[pin] = (config && config->initial_state == PAL_GPIO_HIGH) ? PAL_GPIO_HIGH : PAL_GPIO_LOW;
+    }
+    return PAL_STATUS_OK;
+}
+
+pal_status_t pal_gpio_deinit(pal_gpio_pin_t pin) __attribute__((weak));
 pal_status_t pal_gpio_deinit(pal_gpio_pin_t pin)
 {
     printf("[STUB] pal_gpio_deinit pin=%u\n", pin);
@@ -67,6 +82,7 @@ pal_status_t pal_gpio_deinit(pal_gpio_pin_t pin)
     return PAL_STATUS_OK;
 }
 
+pal_status_t pal_gpio_write(pal_gpio_pin_t pin, pal_gpio_state_t state) __attribute__((weak));
 pal_status_t pal_gpio_write(pal_gpio_pin_t pin, pal_gpio_state_t state)
 {
     if (!pal_initialized) {
@@ -80,6 +96,7 @@ pal_status_t pal_gpio_write(pal_gpio_pin_t pin, pal_gpio_state_t state)
     return PAL_STATUS_OK;
 }
 
+pal_status_t pal_gpio_read(pal_gpio_pin_t pin, pal_gpio_state_t *state) __attribute__((weak));
 pal_status_t pal_gpio_read(pal_gpio_pin_t pin, pal_gpio_state_t *state)
 {
     if (!pal_initialized) {
@@ -94,6 +111,7 @@ pal_status_t pal_gpio_read(pal_gpio_pin_t pin, pal_gpio_state_t *state)
     return PAL_STATUS_OK;
 }
 
+pal_status_t pal_gpio_toggle(pal_gpio_pin_t pin) __attribute__((weak));
 pal_status_t pal_gpio_toggle(pal_gpio_pin_t pin)
 {
     if (!pal_initialized) {
@@ -108,6 +126,9 @@ pal_status_t pal_gpio_toggle(pal_gpio_pin_t pin)
 
 pal_status_t pal_gpio_set_interrupt_callback(pal_gpio_pin_t pin, 
                                              pal_callback_t callback, 
+                                             void *context) __attribute__((weak));
+pal_status_t pal_gpio_set_interrupt_callback(pal_gpio_pin_t pin, 
+                                             pal_callback_t callback, 
                                              void *context)
 {
     if (!pal_initialized) {
@@ -117,6 +138,7 @@ pal_status_t pal_gpio_set_interrupt_callback(pal_gpio_pin_t pin,
     return PAL_STATUS_OK;
 }
 
+pal_status_t pal_gpio_interrupt_enable(pal_gpio_pin_t pin, bool enable) __attribute__((weak));
 pal_status_t pal_gpio_interrupt_enable(pal_gpio_pin_t pin, bool enable)
 {
     if (!pal_initialized) {
