@@ -2,6 +2,7 @@
 #define __MY_TRACE_H__
 
 #include <stdio.h>   /* for printf */
+#include <stdint.h>
 
 /* Determine platform: execinfo.h is available on Linux/macOS but not Windows */
 #if defined(_WIN32) || defined(_WIN64)

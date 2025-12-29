@@ -35,6 +35,9 @@ struct acceptor_machine {
     struct acceptor_state *start;
 };
 
+/* Alias for compatibility */
+typedef struct acceptor_machine acceptor_regex;
+
 void acceptor_machine_init(struct acceptor_machine *am, struct acceptor_state *start);
 int acceptor_machine_feed(struct acceptor_machine *am, char c);
 int acceptor_machine_is_accepting(struct acceptor_machine *am);

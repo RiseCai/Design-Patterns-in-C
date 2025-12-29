@@ -12,7 +12,6 @@
 #ifndef __FSM_OS_ADAPTER_H__
 #define __FSM_OS_ADAPTER_H__
 
-#include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
 
