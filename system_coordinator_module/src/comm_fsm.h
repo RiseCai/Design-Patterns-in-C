@@ -129,6 +129,13 @@ unsigned long comm_fsm_get_bytes_received(struct comm_fsm *comm);
 void comm_fsm_start_transfer(struct comm_fsm *comm, const void *data, size_t size);
 void comm_fsm_stop_transfer(struct comm_fsm *comm);
 
+/** Upload monitoring */
+int comm_fsm_get_upload_speed(struct comm_fsm *comm);        /* in kbps */
+int comm_fsm_get_upload_progress(struct comm_fsm *comm);     /* 0-100% */
+
+/** Reset function */
+void comm_fsm_reset(struct comm_fsm *comm);
+
 /** Error handling */
 void comm_fsm_set_error(struct comm_fsm *comm, int code, const char *msg);
 int comm_fsm_get_error_code(struct comm_fsm *comm);

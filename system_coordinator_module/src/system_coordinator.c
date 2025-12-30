@@ -18,6 +18,10 @@
 #include "system_coordinator.h"
 #include "recording_fsm.h"
 #include "ota_fsm.h"
+#include "power_fsm.h"
+#include "comm_fsm.h"
+#include "audio_fsm.h"
+#include "../../state_machine_extended/src/efsm_protocol.h"
 
 /* Static operations structure */
 static struct system_coordinator_ops sys_ops;
@@ -186,20 +190,65 @@ static void enter_recording(struct system_coordinator *sys) {
     if (sys->recording_fsm) {
         recording_fsm_dispatch_event(sys->recording_fsm, REC_EVT_START, NULL);
     }
+    /* Ensure audio FSM is in recording mode */
+    if (sys->audio_fsm) {
+        audio_fsm_start_recording(sys->audio_fsm);
+    }
+    /* Ensure power FSM is in high-performance mode */
+    if (sys->power_fsm) {
+        power_fsm_dispatch_event(sys->power_fsm, POWER_EVT_WAKE_UP, NULL);
+    }
+    printf("Recording started\n");
 }
 
 static void enter_uploading(struct system_coordinator *sys) {
-    (void)sys; /* Unused parameter */
     printf("System entering UPLOADING state\n");
     /* Start file upload process */
     /* Activate 4G network connection */
+    
+    /* Ensure communication is connected for upload */
+    if (sys->comm_fsm && !comm_fsm_is_connected(sys->comm_fsm)) {
+        /* Attempt to connect */
+        comm_fsm_dispatch_event(sys->comm_fsm, COMM_EVT_CONNECT, NULL);
+    }
+    
+    /* Start file transfer */
+    if (sys->comm_fsm && comm_fsm_is_connected(sys->comm_fsm)) {
+        /* Notify communication FSM to start file upload */
+        comm_fsm_dispatch_event(sys->comm_fsm, COMM_EVT_DATA_READY, NULL);
+    }
+    
+    /* If there is a recording FSM, ensure recording is stopped */
+    if (sys->recording_fsm && recording_fsm_is_recording(sys->recording_fsm)) {
+        recording_fsm_dispatch_event(sys->recording_fsm, REC_EVT_STOP, NULL);
+    }
+    
+    printf("Uploading started\n");
 }
 
 static void enter_recording_and_uploading(struct system_coordinator *sys) {
-    (void)sys; /* Unused parameter */
     printf("System entering RECORDING_AND_UPLOADING state\n");
     /* Start both recording and streaming transfer */
     /* Activate audio processing and network connection */
+    
+    /* Ensure recording is started */
+    if (sys->recording_fsm && !recording_fsm_is_recording(sys->recording_fsm)) {
+        recording_fsm_dispatch_event(sys->recording_fsm, REC_EVT_START, NULL);
+    }
+    
+    /* Ensure communication is connected for streaming */
+    if (sys->comm_fsm && !comm_fsm_is_connected(sys->comm_fsm)) {
+        /* Attempt to connect */
+        comm_fsm_dispatch_event(sys->comm_fsm, COMM_EVT_CONNECT, NULL);
+    }
+    
+    /* Start streaming transfer */
+    if (sys->comm_fsm && comm_fsm_is_connected(sys->comm_fsm)) {
+        /* Notify communication FSM to start data transfer */
+        comm_fsm_dispatch_event(sys->comm_fsm, COMM_EVT_DATA_READY, NULL);
+    }
+    
+    printf("Recording and uploading started\n");
 }
 
 static void enter_error(struct system_coordinator *sys) {
@@ -210,19 +259,53 @@ static void enter_error(struct system_coordinator *sys) {
 }
 
 static void enter_sleep(struct system_coordinator *sys) {
-    (void)sys; /* Unused parameter */
     printf("System entering SLEEP state\n");
+    /* Check if OTA is in progress - if yes, cancel it */
+    if (sys->ota_fsm && ota_fsm_is_upgrading(sys->ota_fsm)) {
+        printf("OTA in progress - cancelling before sleep\n");
+        ota_fsm_dispatch_event(sys->ota_fsm, OTA_EVT_CANCEL, NULL);
+    }
     /* Put subsystems into low-power mode */
+    if (sys->power_fsm) {
+        /* Notify power FSM to enter sleep */
+        power_fsm_dispatch_event(sys->power_fsm, POWER_EVT_ENTER_SLEEP, NULL);
+    }
+    /* Stop recording if active */
+    if (sys->recording_fsm && recording_fsm_is_recording(sys->recording_fsm)) {
+        recording_fsm_dispatch_event(sys->recording_fsm, REC_EVT_STOP, NULL);
+    }
+    /* Disconnect communication if connected */
+    if (sys->comm_fsm && comm_fsm_is_connected(sys->comm_fsm)) {
+        comm_fsm_dispatch_event(sys->comm_fsm, COMM_EVT_DISCONNECT, NULL);
+    }
+    /* Put audio FSM into sleep */
+    if (sys->audio_fsm) {
+        audio_fsm_sleep(sys->audio_fsm);
+    }
+    /* Ensure EFSM protocol is paused */
+    if (sys->efsm_protocol) {
+        efsm_protocol_pause(sys->efsm_protocol);
+    }
+    printf("All subsystems set to low-power mode\n");
 }
 
 static void enter_ota(struct system_coordinator *sys) {
     printf("System entering OTA state\n");
+    /* Ensure power FSM is in charging mode if possible */
+    if (sys->power_fsm) {
+        power_fsm_dispatch_event(sys->power_fsm, POWER_EVT_CHARGING_START, NULL);
+    }
+    /* Ensure communication is connected */
+    if (sys->comm_fsm && !comm_fsm_is_connected(sys->comm_fsm)) {
+        comm_fsm_dispatch_event(sys->comm_fsm, COMM_EVT_CONNECT, NULL);
+    }
     /* Start OTA process */
     /* Notify OTA FSM to start upgrade */
     if (sys->ota_fsm) {
         ota_fsm_dispatch_event(sys->ota_fsm, OTA_EVT_START, NULL);
     }
     /* Block other subsystems from starting new operations */
+    printf("OTA process started\n");
 }
 
 static void enter_reset(struct system_coordinator *sys) {
@@ -231,21 +314,27 @@ static void enter_reset(struct system_coordinator *sys) {
     /* Reset all subsystems */
     if (sys->recording_fsm) {
         /* Reset recording FSM */
+        recording_fsm_reset(sys->recording_fsm);
     }
     if (sys->comm_fsm) {
         /* Reset communication FSM */
+        comm_fsm_reset(sys->comm_fsm);
     }
     if (sys->power_fsm) {
         /* Reset power FSM */
+        power_fsm_reset(sys->power_fsm);
     }
     if (sys->audio_fsm) {
         /* Reset audio FSM */
+        audio_fsm_reset(sys->audio_fsm);
     }
     if (sys->efsm_protocol) {
         /* Reset EFSM Protocol State Machine */
+        efsm_protocol_reset(sys->efsm_protocol);
     }
     if (sys->ota_fsm) {
         /* Reset OTA FSM */
+        ota_fsm_reset(sys->ota_fsm);
     }
     
     /* Clear error state */
@@ -256,10 +345,38 @@ static void enter_reset(struct system_coordinator *sys) {
     transition_to_state(sys, SYS_INIT);
 }
 
+/* Optional init and destroy handlers */
+static void init(struct system_coordinator *sys) {
+    /* Optional initialization */
+    printf("System coordinator init (optional)\n");
+}
+
+static void destroy(struct system_coordinator *sys) {
+    /* Optional cleanup */
+    printf("System coordinator destroy (optional)\n");
+}
+
 /* State exit handler */
 static void exit_state(struct system_coordinator *sys) {
     printf("System exiting state %s\n", state_names[sys->current_state]);
     /* Clean up current state if needed */
+    switch (sys->current_state) {
+        case SYS_RECORDING:
+            /* Stop any pending recording timers */
+            break;
+        case SYS_UPLOADING:
+            /* Cancel any pending upload operations */
+            break;
+        case SYS_OTA:
+            /* Ensure OTA is paused if possible */
+            break;
+        case SYS_SLEEP:
+            /* Wake up any sleeping subsystems */
+            break;
+        default:
+            /* No special cleanup */
+            break;
+    }
 }
 
 /* Do action handler */
@@ -268,20 +385,86 @@ static void do_action(struct system_coordinator *sys) {
     switch (sys->current_state) {
         case SYS_RECORDING:
             /* Monitor recording progress */
-            /* Check for errors */
+            if (sys->recording_fsm) {
+                int duration = recording_fsm_get_duration(sys->recording_fsm);
+                printf("Recording duration: %d seconds\n", duration);
+                /* Check for errors */
+                if (recording_fsm_get_error_code(sys->recording_fsm) != 0) {
+                    printf("Recording error detected: %s\n", 
+                           recording_fsm_get_error_msg(sys->recording_fsm));
+                    system_coordinator_dispatch_event(sys, SYS_EVT_ERROR, NULL);
+                }
+            }
+            /* Check battery level */
+            if (sys->power_fsm) {
+                int battery = power_fsm_get_battery_level(sys->power_fsm);
+                if (battery < 20) {
+                    printf("Low battery during recording\n");
+                    system_coordinator_dispatch_event(sys, SYS_EVT_LOW_BATTERY, NULL);
+                }
+            }
             break;
         case SYS_RECORDING_AND_UPLOADING:
             /* Monitor both recording and streaming */
-            /* Check network status and recording quality */
+            if (sys->recording_fsm) {
+                int duration = recording_fsm_get_duration(sys->recording_fsm);
+                printf("Recording duration: %d seconds\n", duration);
+            }
+            if (sys->comm_fsm) {
+                int upload_speed = comm_fsm_get_upload_speed(sys->comm_fsm);
+                printf("Upload speed: %d kbps\n", upload_speed);
+                if (!comm_fsm_is_connected(sys->comm_fsm)) {
+                    printf("Network disconnected during streaming\n");
+                    system_coordinator_dispatch_event(sys, SYS_EVT_NETWORK_DISCONNECTED, NULL);
+                }
+            }
             break;
         case SYS_UPLOADING:
             /* Monitor upload progress */
-            /* Check network status */
+            if (sys->comm_fsm) {
+                int progress = comm_fsm_get_upload_progress(sys->comm_fsm);
+                printf("Upload progress: %d%%\n", progress);
+                if (!comm_fsm_is_connected(sys->comm_fsm)) {
+                    printf("Network disconnected during upload\n");
+                    system_coordinator_dispatch_event(sys, SYS_EVT_NETWORK_DISCONNECTED, NULL);
+                }
+            }
             break;
         case SYS_IDLE:
             /* Periodic system checks */
+            if (sys->power_fsm) {
+                int battery = power_fsm_get_battery_level(sys->power_fsm);
+                printf("Battery level: %d%%\n", battery);
+                if (battery < 10) {
+                    printf("Critical battery, entering sleep\n");
+                    system_coordinator_dispatch_event(sys, SYS_EVT_LOW_BATTERY, NULL);
+                }
+            }
+            if (sys->ota_fsm && ota_fsm_has_update(sys->ota_fsm)) {
+                printf("OTA update available, prompting user\n");
+                /* Could auto-start OTA or wait for user confirmation */
+            }
+            break;
+        case SYS_OTA:
+            /* Monitor OTA progress */
+            if (sys->ota_fsm) {
+                int progress = ota_fsm_get_progress(sys->ota_fsm);
+                printf("OTA progress: %d%%\n", progress);
+                if (ota_fsm_get_error_code(sys->ota_fsm) != 0) {
+                    printf("OTA error: %s\n", ota_fsm_get_error_msg(sys->ota_fsm));
+                    system_coordinator_dispatch_event(sys, SYS_EVT_OTA_ERROR, NULL);
+                }
+            }
+            break;
+        case SYS_SLEEP:
+            /* Check if we should wake up (e.g., charging started) */
+            if (sys->power_fsm && power_fsm_is_charging(sys->power_fsm)) {
+                printf("Charging detected, waking up\n");
+                system_coordinator_dispatch_event(sys, SYS_EVT_POWER_ON, NULL);
+            }
             break;
         default:
+            /* No periodic actions for other states */
             break;
     }
 }
@@ -327,6 +510,52 @@ static void handle_idle_state(struct system_coordinator *sys, enum system_event 
             printf("Reset requested from IDLE state\n");
             transition_to_state(sys, SYS_RESET);
             break;
+        case SYS_EVT_POWER_ON:
+            printf("Power on in IDLE state (already powered)\n");
+            break;
+        case SYS_EVT_BLUETOOTH_CONNECTED:
+            printf("Bluetooth connected\n");
+            break;
+        case SYS_EVT_BLUETOOTH_DISCONNECTED:
+            printf("Bluetooth disconnected\n");
+            break;
+        case SYS_EVT_NETWORK_CONNECTED:
+            printf("Network connected\n");
+            break;
+        case SYS_EVT_NETWORK_DISCONNECTED:
+            printf("Network disconnected\n");
+            break;
+        case SYS_EVT_CHARGING:
+            printf("Charging started\n");
+            break;
+        case SYS_EVT_TRANSFER_MODE_CHANGE:
+            printf("Transfer mode changed\n");
+            break;
+        case SYS_EVT_STREAMING_START:
+            printf("Streaming start requested, but system is idle\n");
+            break;
+        case SYS_EVT_STREAMING_STOP:
+            /* Ignore */
+            break;
+        case SYS_EVT_FILE_UPLOAD_START:
+            printf("File upload start requested, transitioning to UPLOADING\n");
+            transition_to_state(sys, SYS_UPLOADING);
+            break;
+        case SYS_EVT_FILE_UPLOAD_COMPLETE:
+            /* Ignore */
+            break;
+        case SYS_EVT_OTA_CHECK:
+            printf("OTA check requested\n");
+            /* Forwarded to OTA FSM */
+            break;
+        case SYS_EVT_OTA_STATUS:
+            printf("OTA status requested\n");
+            /* Forwarded to OTA FSM */
+            break;
+        case SYS_EVT_OTA_PROGRESS:
+            printf("OTA progress update\n");
+            /* Forwarded to OTA FSM */
+            break;
         default:
             printf("Unhandled event %s in IDLE state\n", event_names[event]);
             break;
@@ -368,6 +597,48 @@ static void handle_recording_state(struct system_coordinator *sys, enum system_e
             printf("Reset requested during recording\n");
             transition_to_state(sys, SYS_RESET);
             break;
+        case SYS_EVT_NETWORK_CONNECTED:
+            printf("Network connected while recording, transitioning to RECORDING_AND_UPLOADING\n");
+            transition_to_state(sys, SYS_RECORDING_AND_UPLOADING);
+            break;
+        case SYS_EVT_UPLOAD_START:
+            printf("Upload start requested while recording, transitioning to RECORDING_AND_UPLOADING\n");
+            transition_to_state(sys, SYS_RECORDING_AND_UPLOADING);
+            break;
+        case SYS_EVT_UPLOAD_COMPLETE:
+            /* No upload in progress, ignore */
+            break;
+        case SYS_EVT_CHARGING:
+            printf("Charging started while recording\n");
+            break;
+        case SYS_EVT_BLUETOOTH_CONNECTED:
+            printf("Bluetooth connected while recording\n");
+            break;
+        case SYS_EVT_BLUETOOTH_DISCONNECTED:
+            printf("Bluetooth disconnected while recording\n");
+            break;
+        case SYS_EVT_TRANSFER_MODE_CHANGE:
+            printf("Transfer mode changed while recording\n");
+            break;
+        case SYS_EVT_STREAMING_STOP:
+            /* Not streaming yet, ignore */
+            break;
+        case SYS_EVT_FILE_UPLOAD_START:
+            printf("File upload start requested while recording, transitioning to RECORDING_AND_UPLOADING\n");
+            transition_to_state(sys, SYS_RECORDING_AND_UPLOADING);
+            break;
+        case SYS_EVT_FILE_UPLOAD_COMPLETE:
+            /* Ignore */
+            break;
+        case SYS_EVT_OTA_CHECK:
+            /* Forwarded to OTA FSM */
+            break;
+        case SYS_EVT_OTA_STATUS:
+            /* Forwarded to OTA FSM */
+            break;
+        case SYS_EVT_OTA_PROGRESS:
+            /* Forwarded to OTA FSM */
+            break;
         default:
             printf("Unhandled event %s in RECORDING state\n", event_names[event]);
             break;
@@ -403,6 +674,54 @@ static void handle_recording_and_uploading_state(struct system_coordinator *sys,
             printf("Reset requested during recording and uploading\n");
             transition_to_state(sys, SYS_RESET);
             break;
+        case SYS_EVT_REC_PAUSE:
+            printf("Pausing recording while uploading\n");
+            if (sys->recording_fsm) {
+                recording_fsm_dispatch_event(sys->recording_fsm, REC_EVT_PAUSE, data);
+            }
+            break;
+        case SYS_EVT_REC_RESUME:
+            printf("Resuming recording while uploading\n");
+            if (sys->recording_fsm) {
+                recording_fsm_dispatch_event(sys->recording_fsm, REC_EVT_RESUME, data);
+            }
+            break;
+        case SYS_EVT_NETWORK_CONNECTED:
+            /* Already connected, ignore */
+            break;
+        case SYS_EVT_UPLOAD_START:
+            /* Already uploading, ignore */
+            break;
+        case SYS_EVT_CHARGING:
+            printf("Charging started while recording and uploading\n");
+            break;
+        case SYS_EVT_BLUETOOTH_CONNECTED:
+            printf("Bluetooth connected while recording and uploading\n");
+            break;
+        case SYS_EVT_BLUETOOTH_DISCONNECTED:
+            printf("Bluetooth disconnected while recording and uploading\n");
+            break;
+        case SYS_EVT_TRANSFER_MODE_CHANGE:
+            printf("Transfer mode changed while recording and uploading\n");
+            break;
+        case SYS_EVT_STREAMING_START:
+            /* Already streaming, ignore */
+            break;
+        case SYS_EVT_FILE_UPLOAD_START:
+            /* Already uploading, ignore */
+            break;
+        case SYS_EVT_FILE_UPLOAD_COMPLETE:
+            /* Ignore */
+            break;
+        case SYS_EVT_OTA_CHECK:
+            /* Forwarded to OTA FSM */
+            break;
+        case SYS_EVT_OTA_STATUS:
+            /* Forwarded to OTA FSM */
+            break;
+        case SYS_EVT_OTA_PROGRESS:
+            /* Forwarded to OTA FSM */
+            break;
         default:
             printf("Unhandled event %s in RECORDING_AND_UPLOADING state\n", event_names[event]);
             break;
@@ -428,6 +747,45 @@ static void handle_uploading_state(struct system_coordinator *sys, enum system_e
             printf("Reset requested during uploading\n");
             transition_to_state(sys, SYS_RESET);
             break;
+        case SYS_EVT_NETWORK_CONNECTED:
+            /* Already connected, ignore */
+            break;
+        case SYS_EVT_UPLOAD_START:
+            /* Already uploading, ignore */
+            break;
+        case SYS_EVT_CHARGING:
+            printf("Charging started while uploading\n");
+            break;
+        case SYS_EVT_BLUETOOTH_CONNECTED:
+            printf("Bluetooth connected while uploading\n");
+            break;
+        case SYS_EVT_BLUETOOTH_DISCONNECTED:
+            printf("Bluetooth disconnected while uploading\n");
+            break;
+        case SYS_EVT_TRANSFER_MODE_CHANGE:
+            printf("Transfer mode changed while uploading\n");
+            break;
+        case SYS_EVT_STREAMING_START:
+            /* Start streaming while uploading? Not possible without recording */
+            break;
+        case SYS_EVT_STREAMING_STOP:
+            /* Ignore */
+            break;
+        case SYS_EVT_FILE_UPLOAD_START:
+            /* Already uploading, ignore */
+            break;
+        case SYS_EVT_FILE_UPLOAD_COMPLETE:
+            /* Ignore */
+            break;
+        case SYS_EVT_OTA_CHECK:
+            /* Forwarded to OTA FSM */
+            break;
+        case SYS_EVT_OTA_STATUS:
+            /* Forwarded to OTA FSM */
+            break;
+        case SYS_EVT_OTA_PROGRESS:
+            /* Forwarded to OTA FSM */
+            break;
         default:
             printf("Unhandled event %s in UPLOADING state\n", event_names[event]);
             break;
@@ -445,6 +803,45 @@ static void handle_error_state(struct system_coordinator *sys, enum system_event
             printf("Powering off from ERROR state\n");
             transition_to_state(sys, SYS_SHUTDOWN);
             break;
+        case SYS_EVT_NETWORK_CONNECTED:
+            printf("Network connected while in ERROR state\n");
+            break;
+        case SYS_EVT_NETWORK_DISCONNECTED:
+            printf("Network disconnected while in ERROR state\n");
+            break;
+        case SYS_EVT_BLUETOOTH_CONNECTED:
+            printf("Bluetooth connected while in ERROR state\n");
+            break;
+        case SYS_EVT_BLUETOOTH_DISCONNECTED:
+            printf("Bluetooth disconnected while in ERROR state\n");
+            break;
+        case SYS_EVT_CHARGING:
+            printf("Charging started while in ERROR state\n");
+            break;
+        case SYS_EVT_TRANSFER_MODE_CHANGE:
+            printf("Transfer mode changed while in ERROR state\n");
+            break;
+        case SYS_EVT_STREAMING_START:
+            /* Cannot start streaming while in error */
+            break;
+        case SYS_EVT_STREAMING_STOP:
+            /* Ignore */
+            break;
+        case SYS_EVT_FILE_UPLOAD_START:
+            /* Cannot start upload while in error */
+            break;
+        case SYS_EVT_FILE_UPLOAD_COMPLETE:
+            /* Ignore */
+            break;
+        case SYS_EVT_OTA_CHECK:
+            /* Forwarded to OTA FSM */
+            break;
+        case SYS_EVT_OTA_STATUS:
+            /* Forwarded to OTA FSM */
+            break;
+        case SYS_EVT_OTA_PROGRESS:
+            /* Forwarded to OTA FSM */
+            break;
         default:
             printf("Unhandled event %s in ERROR state\n", event_names[event]);
             break;
@@ -458,9 +855,52 @@ static void handle_sleep_state(struct system_coordinator *sys, enum system_event
             printf("Waking from SLEEP state\n");
             transition_to_state(sys, SYS_IDLE);
             break;
+        case SYS_EVT_POWER_OFF:
+            printf("Power off from SLEEP state - entering SHUTDOWN\n");
+            transition_to_state(sys, SYS_SHUTDOWN);
+            break;
         case SYS_EVT_RESET:
             printf("Reset requested from SLEEP state\n");
             transition_to_state(sys, SYS_RESET);
+            break;
+        case SYS_EVT_NETWORK_CONNECTED:
+            printf("Network connected while sleeping\n");
+            break;
+        case SYS_EVT_NETWORK_DISCONNECTED:
+            printf("Network disconnected while sleeping\n");
+            break;
+        case SYS_EVT_BLUETOOTH_CONNECTED:
+            printf("Bluetooth connected while sleeping\n");
+            break;
+        case SYS_EVT_BLUETOOTH_DISCONNECTED:
+            printf("Bluetooth disconnected while sleeping\n");
+            break;
+        case SYS_EVT_CHARGING:
+            printf("Charging started while sleeping\n");
+            break;
+        case SYS_EVT_TRANSFER_MODE_CHANGE:
+            printf("Transfer mode changed while sleeping\n");
+            break;
+        case SYS_EVT_STREAMING_START:
+            /* Cannot start streaming while sleeping */
+            break;
+        case SYS_EVT_STREAMING_STOP:
+            /* Ignore */
+            break;
+        case SYS_EVT_FILE_UPLOAD_START:
+            /* Cannot start upload while sleeping */
+            break;
+        case SYS_EVT_FILE_UPLOAD_COMPLETE:
+            /* Ignore */
+            break;
+        case SYS_EVT_OTA_CHECK:
+            /* Forwarded to OTA FSM */
+            break;
+        case SYS_EVT_OTA_STATUS:
+            /* Forwarded to OTA FSM */
+            break;
+        case SYS_EVT_OTA_PROGRESS:
+            /* Forwarded to OTA FSM */
             break;
         default:
             printf("Unhandled event %s in SLEEP state\n", event_names[event]);
@@ -499,6 +939,45 @@ static void handle_ota_state(struct system_coordinator *sys, enum system_event e
             }
             transition_to_state(sys, SYS_SHUTDOWN);
             break;
+        case SYS_EVT_NETWORK_CONNECTED:
+            printf("Network connected during OTA\n");
+            break;
+        case SYS_EVT_NETWORK_DISCONNECTED:
+            printf("Network disconnected during OTA\n");
+            break;
+        case SYS_EVT_BLUETOOTH_CONNECTED:
+            printf("Bluetooth connected during OTA\n");
+            break;
+        case SYS_EVT_BLUETOOTH_DISCONNECTED:
+            printf("Bluetooth disconnected during OTA\n");
+            break;
+        case SYS_EVT_CHARGING:
+            printf("Charging started during OTA\n");
+            break;
+        case SYS_EVT_TRANSFER_MODE_CHANGE:
+            printf("Transfer mode changed during OTA\n");
+            break;
+        case SYS_EVT_STREAMING_START:
+            /* Cannot start streaming while OTA */
+            break;
+        case SYS_EVT_STREAMING_STOP:
+            /* Ignore */
+            break;
+        case SYS_EVT_FILE_UPLOAD_START:
+            /* Cannot start upload while OTA */
+            break;
+        case SYS_EVT_FILE_UPLOAD_COMPLETE:
+            /* Ignore */
+            break;
+        case SYS_EVT_OTA_CHECK:
+            /* Already in OTA, ignore */
+            break;
+        case SYS_EVT_OTA_STATUS:
+            /* Already in OTA, ignore */
+            break;
+        case SYS_EVT_OTA_PROGRESS:
+            /* Already in OTA, ignore */
+            break;
         default:
             printf("Unhandled event %s in OTA state\n", event_names[event]);
             break;
@@ -510,6 +989,62 @@ static void handle_reset_state(struct system_coordinator *sys, enum system_event
     /* No events are processed in RESET state */
     (void)sys; (void)event; (void)data; /* Unused parameters */
     printf("System in RESET state - no events processed\n");
+}
+
+static void handle_shutdown_state(struct system_coordinator *sys, enum system_event event, void *data) {
+    (void)data; /* Unused parameter */
+    switch (event) {
+        case SYS_EVT_POWER_ON:
+            printf("Power on from SHUTDOWN state - transitioning to INIT\n");
+            transition_to_state(sys, SYS_INIT);
+            break;
+        case SYS_EVT_RESET:
+            printf("Reset requested from SHUTDOWN state\n");
+            transition_to_state(sys, SYS_RESET);
+            break;
+        case SYS_EVT_NETWORK_CONNECTED:
+            printf("Network connected while shutdown\n");
+            break;
+        case SYS_EVT_NETWORK_DISCONNECTED:
+            printf("Network disconnected while shutdown\n");
+            break;
+        case SYS_EVT_BLUETOOTH_CONNECTED:
+            printf("Bluetooth connected while shutdown\n");
+            break;
+        case SYS_EVT_BLUETOOTH_DISCONNECTED:
+            printf("Bluetooth disconnected while shutdown\n");
+            break;
+        case SYS_EVT_CHARGING:
+            printf("Charging started while shutdown\n");
+            break;
+        case SYS_EVT_TRANSFER_MODE_CHANGE:
+            printf("Transfer mode changed while shutdown\n");
+            break;
+        case SYS_EVT_STREAMING_START:
+            /* Cannot start streaming while shutdown */
+            break;
+        case SYS_EVT_STREAMING_STOP:
+            /* Ignore */
+            break;
+        case SYS_EVT_FILE_UPLOAD_START:
+            /* Cannot start upload while shutdown */
+            break;
+        case SYS_EVT_FILE_UPLOAD_COMPLETE:
+            /* Ignore */
+            break;
+        case SYS_EVT_OTA_CHECK:
+            /* Forwarded to OTA FSM */
+            break;
+        case SYS_EVT_OTA_STATUS:
+            /* Forwarded to OTA FSM */
+            break;
+        case SYS_EVT_OTA_PROGRESS:
+            /* Forwarded to OTA FSM */
+            break;
+        default:
+            printf("Unhandled event %s in SHUTDOWN state\n", event_names[event]);
+            break;
+    }
 }
 
 /* Forward OTA event to OTA FSM */
@@ -594,7 +1129,7 @@ static void handle_event(struct system_coordinator *sys, enum system_event event
             handle_sleep_state(sys, event, data);
             break;
         case SYS_SHUTDOWN:
-            /* No events handled in shutdown */
+            handle_shutdown_state(sys, event, data);
             break;
         case SYS_RESET:
             handle_reset_state(sys, event, data);
@@ -660,8 +1195,8 @@ static void init_operations(void) {
     static int initialized = 0;
     if (initialized) return;
     
-    sys_ops.init = NULL; /* Not used */
-    sys_ops.destroy = NULL; /* Not used */
+    sys_ops.init = init;
+    sys_ops.destroy = destroy;
     sys_ops.handle_event = handle_event;
     sys_ops.enter_init = enter_init;
     sys_ops.enter_idle = enter_idle;

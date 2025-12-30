@@ -519,3 +519,50 @@ static void do_action(struct comm_fsm *comm)
             break;
     }
 }
+
+/* Upload monitoring functions */
+int comm_fsm_get_upload_speed(struct comm_fsm *comm)
+{
+    if (!comm) return 0;
+    /* Simulate upload speed based on protocol and state */
+    switch (comm->protocol) {
+        case COMM_PROTOCOL_BLUETOOTH:
+            return 128; /* kbps */
+        case COMM_PROTOCOL_WIFI:
+            return 1024; /* kbps */
+        case COMM_PROTOCOL_USB:
+            return 5000; /* kbps */
+        default:
+            return 0;
+    }
+}
+
+int comm_fsm_get_upload_progress(struct comm_fsm *comm)
+{
+    if (!comm) return 0;
+    /* Simulate progress based on bytes sent */
+    static int simulated_progress = 0;
+    if (comm->current_state == COMM_TRANSFERRING) {
+        simulated_progress = (simulated_progress + 5) % 101;
+        return simulated_progress;
+    }
+    return 0;
+}
+
+/* Reset function */
+void comm_fsm_reset(struct comm_fsm *comm)
+{
+    if (!comm) return;
+    _MY_TRACE_STR("comm_fsm_reset\n");
+    /* Reset to initial state */
+    comm->current_state = COMM_IDLE;
+    comm->previous_state = COMM_IDLE;
+    comm->is_connected = 0;
+    comm->signal_strength = 0;
+    comm->data_rate = 0;
+    comm->bytes_sent = 0;
+    comm->bytes_received = 0;
+    comm->error_code = 0;
+    comm->error_msg[0] = '\0';
+    /* Keep configuration (protocol, address, etc.) unchanged */
+}

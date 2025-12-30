@@ -966,3 +966,61 @@ static void report_error(struct ota_fsm *ota, int code, const char *msg)
     ota->error_msg[sizeof(ota->error_msg)-1] = '\0';
     _MY_TRACE_STR("report_error: code=%d, msg=%s\n", code, msg);
 }
+
+/* Additional status functions implementation */
+
+int ota_fsm_is_upgrading(struct ota_fsm *ota)
+{
+    if (!ota) return 0;
+    /* Upgrading means we're in any active state except IDLE, COMPLETE, ERROR */
+    enum ota_state s = ota->current_state;
+    return (s == OTA_CHECKING ||
+            s == OTA_DOWNLOADING ||
+            s == OTA_VALIDATING ||
+            s == OTA_PREPARING ||
+            s == OTA_INSTALLING ||
+            s == OTA_REBOOTING ||
+            s == OTA_ROLLBACK);
+}
+
+int ota_fsm_has_update(struct ota_fsm *ota)
+{
+    if (!ota) return 0;
+    /* Check if there's a pending update (package URL not default) */
+    const char *default_url = "https://ota.example.com/firmware.bin";
+    if (strcmp(ota->package_url, default_url) != 0) {
+        return 1;
+    }
+    /* Also check if we're in CHECKING state (actively checking) */
+    if (ota->current_state == OTA_CHECKING) {
+        return 1;
+    }
+    return 0;
+}
+
+int ota_fsm_get_progress(struct ota_fsm *ota)
+{
+    /* Alias for ota_fsm_get_overall_progress */
+    return ota_fsm_get_overall_progress(ota);
+}
+
+void ota_fsm_reset(struct ota_fsm *ota)
+{
+    if (!ota) return;
+    _MY_TRACE_STR("ota_fsm_reset: resetting OTA FSM\n");
+    /* Reset to idle state */
+    ota->current_state = OTA_IDLE;
+    ota->previous_state = OTA_IDLE;
+    ota->overall_progress = 0;
+    ota->downloaded_size = 0;
+    ota->current_module_index = -1;
+    ota->part_current = 0;
+    ota->error_code = 0;
+    ota->error_msg[0] = '\0';
+    /* Reset all modules to idle */
+    for (int i = 0; i < ota->module_count; i++) {
+        ota->modules[i].state = OTA_MODULE_IDLE;
+        ota->modules[i].progress = 0;
+        ota->modules[i].error_code = 0;
+    }
+}

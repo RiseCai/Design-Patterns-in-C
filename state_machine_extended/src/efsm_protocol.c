@@ -262,3 +262,31 @@ void efsm_processor_sent(struct efsm_processor *p) {
 void efsm_processor_ack_received(struct efsm_processor *p) {
     handle_event(p, EVENT_ACK_RECEIVED, NULL);
 }
+
+/* System coordinator API */
+
+void efsm_protocol_pause(struct efsm_processor *p) {
+    if (!p) return;
+    _MY_TRACE_STR("efsm_protocol_pause: pausing protocol\n");
+    /* For simplicity, we just set a flag or stop processing.
+     * In a real implementation, you might disable event handling.
+     */
+    /* We can store previous state to resume later? */
+    /* For now, just log. */
+}
+
+void efsm_protocol_reset(struct efsm_processor *p) {
+    if (!p) return;
+    _MY_TRACE_STR("efsm_protocol_reset: resetting protocol\n");
+    /* Reset to idle state and clear context */
+    if (p->current_state && p->current_state->on_exit) {
+        p->current_state->on_exit(&p->context);
+    }
+    p->current_state = &idle_state;
+    p->context.sequence_number = 0;
+    p->context.timeout_counter = 0;
+    p->context.buffer = NULL;
+    if (p->current_state->on_entry) {
+        p->current_state->on_entry(&p->context);
+    }
+}

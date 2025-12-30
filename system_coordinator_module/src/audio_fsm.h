@@ -43,5 +43,11 @@ void audio_fsm_destroy(struct audio_fsm *fsm);
 void audio_fsm_dispatch_event(struct audio_fsm *fsm, enum audio_event event, void *data);
 enum audio_state audio_fsm_get_state(struct audio_fsm *fsm);
 const char *audio_fsm_get_state_name(enum audio_state state);
+const char *audio_fsm_get_event_name(enum audio_event event);
+
+/* Additional API functions for system coordinator */
+void audio_fsm_start_recording(struct audio_fsm *fsm);
+void audio_fsm_sleep(struct audio_fsm *fsm);
+void audio_fsm_reset(struct audio_fsm *fsm);
 
 #endif /* __AUDIO_FSM_H__ */

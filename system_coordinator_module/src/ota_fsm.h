@@ -208,4 +208,10 @@ const char *ota_fsm_get_module_type_name(enum ota_module_type type);
 const char *ota_fsm_get_module_state_name(enum ota_module_state state);
 const char *ota_fsm_get_package_format_name(enum ota_package_format format);
 
+/** Additional status functions */
+int ota_fsm_is_upgrading(struct ota_fsm *ota);
+int ota_fsm_has_update(struct ota_fsm *ota);
+int ota_fsm_get_progress(struct ota_fsm *ota);
+void ota_fsm_reset(struct ota_fsm *ota);
+
 #endif /* __OTA_FSM_H__ */
