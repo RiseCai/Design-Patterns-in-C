@@ -14,6 +14,12 @@ static void* g_backtrace_local_stack[MY_TRACE_SIZE];
 /* call once in top function such as main_entry() */
 void _my_trace_backtrace_init(void)
 {
+#ifdef _WIN32
+    /* Windows doesn't have backtrace, just initialize with dummy values */
+    memset(g_backtrace, 0, sizeof(g_backtrace));
+    g_backtrace_top = 0;
+    g_backtrace[g_backtrace_top++] = (void*)0x1;
+#else
     int addr_sz;
     addr_sz = backtrace(g_backtrace_local_stack, 3);
 
@@ -25,6 +31,7 @@ void _my_trace_backtrace_init(void)
     memset(g_backtrace, 0, sizeof(g_backtrace));
     g_backtrace_top = 0;
     g_backtrace[g_backtrace_top++] = g_backtrace_local_stack[2];
+#endif
 }
 
 /*
@@ -32,6 +39,10 @@ void _my_trace_backtrace_init(void)
  */
 int _my_trace_backtrace_indent(void)
 {
+#ifdef _WIN32
+    /* Windows stub: always return 0 */
+    return 0;
+#else
     /* bt at least 4, so offset is 3 from [0,1,2,3] */
     int ii, jj, addr_sz, trace_sz=6, offset=3;
     void *up_func = 0;
@@ -70,4 +81,5 @@ out:
 
 fail:
     return 0;
+#endif
 }

@@ -1,7 +1,12 @@
 #ifndef __MY_TRACE_H__
 #define __MY_TRACE_H__
 
+#ifdef _WIN32
+/* execinfo.h is not available on Windows, provide dummy functions */
+#include <windows.h>
+#else
 #include <execinfo.h>	/* backtrace */
+#endif
 
 void _my_trace_backtrace_init(void);
 int  _my_trace_backtrace_indent(void);
