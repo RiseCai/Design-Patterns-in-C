@@ -8,8 +8,8 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "../../src/fsm_os_adapter.h"
-#include "../../examples/product/system/pipeline/data_pipeline/include/data_pipeline.h"
+#include "fsm_os_adapter.h"
+#include "data_pipeline.h"
 
 /* Forward declarations for stage processing functions */
 static void stage_input_process(struct pipeline_stage_component *stage);

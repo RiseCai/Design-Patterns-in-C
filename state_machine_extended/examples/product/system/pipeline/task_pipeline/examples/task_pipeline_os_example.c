@@ -9,8 +9,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../../src/fsm_os_adapter.h"
-#include "../../examples/product/system/pipeline/task_pipeline/include/task_pipeline.h"
+#include "../../../../../../src/fsm_os_adapter.h"
+#include "../include/task_pipeline.h"
 
 /* Simulated external system adapters */
 static void mock_message_queue_send(const char *queue, void *status)
@@ -29,21 +29,18 @@ static void task_event_generator(void *arg)
     fsm_os_context_t *os_ctx = (fsm_os_context_t *)arg;
     printf("[Event Generator] Thread started\n");
 
-    /* Generate a sequence of task events */
+    /* Generate a sequence of task events with task IDs */
     const char *events[] = {
-        "TASK_SUBMIT",
-        "TASK_START",
-        "TASK_FINISH",
-        "TASK_FAIL",
-        "TASK_RETRY",
-        "TASK_CANCEL"
+        "1:TASK_FINISH",      /* task1 completes normally */
+        "2:TASK_FAIL",        /* task2 fails */
+        "2:TASK_RETRY",       /* task2 retries (state becomes PENDING) */
+        "2:TASK_START",       /* task2 starts again */
+        "2:TASK_FINISH",      /* task2 completes after retry */
+        "3:TASK_CANCEL"       /* task3 is cancelled */
     };
     for (int i = 0; i < 6; i++) {
         os_thread_sleep(300); /* simulate delay between events */
         printf("[Event Generator] Sending event: %s\n", events[i]);
-        /* In a real implementation, we would send a structured event.
-         * For simplicity, we just send a string.
-         */
         fsm_os_send_event(os_ctx, events[i], strlen(events[i]) + 1, 100);
     }
     printf("[Event Generator] Thread finished\n");
@@ -55,6 +52,17 @@ static void task_timeout_callback(void *arg)
     struct task_efsm *task = (struct task_efsm *)arg;
     printf("[Timeout] Task %d timed out\n", task->context.task_id);
     task_efsm_fail(task, "Timeout");
+}
+
+/* Helper to parse event string into task ID and event type */
+static int parse_event(const char *event_str, int *task_id, char *event_type, size_t event_type_size)
+{
+    char *colon = strchr(event_str, ':');
+    if (!colon) return -1;
+    *task_id = atoi(event_str);
+    strncpy(event_type, colon + 1, event_type_size - 1);
+    event_type[event_type_size - 1] = '\0';
+    return 0;
 }
 
 int main(void)
@@ -116,20 +124,39 @@ int main(void)
         os_error_t err = fsm_os_receive_event(os_ctx, event_buf, sizeof(event_buf), 1000);
         if (err == OS_OK) {
             printf("[Main] Received event: %s\n", event_buf);
-            /* Map event string to task event */
-            if (strcmp(event_buf, "TASK_SUBMIT") == 0) {
-                task_efsm_submit(&task1);
-            } else if (strcmp(event_buf, "TASK_START") == 0) {
-                task_efsm_start(&task1);
-            } else if (strcmp(event_buf, "TASK_FINISH") == 0) {
-                task_efsm_finish(&task1, "result");
-            } else if (strcmp(event_buf, "TASK_FAIL") == 0) {
-                task_efsm_fail(&task1, "simulated failure");
-            } else if (strcmp(event_buf, "TASK_RETRY") == 0) {
-                task_efsm_retry(&task1);
-            } else if (strcmp(event_buf, "TASK_CANCEL") == 0) {
-                task_efsm_cancel(&task1);
+            int task_id;
+            char event_type[32];
+            if (parse_event(event_buf, &task_id, event_type, sizeof(event_type)) != 0) {
+                printf("[Main] Invalid event format, skipping\n");
+                continue;
             }
+            /* Select task based on ID */
+            struct task_efsm *task = NULL;
+            if (task_id == 1) task = &task1;
+            else if (task_id == 2) task = &task2;
+            else if (task_id == 3) task = &task3;
+            else {
+                printf("[Main] Unknown task ID %d\n", task_id);
+                continue;
+            }
+            /* Map event type to action */
+            if (strcmp(event_type, "TASK_SUBMIT") == 0) {
+                task_efsm_submit(task);
+            } else if (strcmp(event_type, "TASK_START") == 0) {
+                task_efsm_start(task);
+            } else if (strcmp(event_type, "TASK_FINISH") == 0) {
+                task_efsm_finish(task, "result");
+            } else if (strcmp(event_type, "TASK_FAIL") == 0) {
+                task_efsm_fail(task, "simulated failure");
+            } else if (strcmp(event_type, "TASK_RETRY") == 0) {
+                task_efsm_retry(task);
+            } else if (strcmp(event_type, "TASK_CANCEL") == 0) {
+                task_efsm_cancel(task);
+            } else {
+                printf("[Main] Unknown event type: %s\n", event_type);
+            }
+            /* Print task state after processing */
+            printf("[Main] Task %d state: %d\n", task_id, task->context.state);
         } else {
             printf("[Main] No event received (timeout)\n");
         }

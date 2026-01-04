@@ -41,9 +41,16 @@ struct os_mutex {
 };
 
 struct os_queue {
-    mqd_t mq;
+    pthread_mutex_t mutex;
+    pthread_cond_t cond_not_empty;
+    pthread_cond_t cond_not_full;
     size_t item_size;
+    size_t queue_depth;
     char *buffer;
+    size_t head;
+    size_t tail;
+    size_t count;
+    bool closed;
 };
 
 struct os_timer {
