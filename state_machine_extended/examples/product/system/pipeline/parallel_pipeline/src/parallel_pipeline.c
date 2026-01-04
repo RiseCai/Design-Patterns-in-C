@@ -673,3 +673,346 @@ void parallel_rest_post_task_result(const char *url, const char *task_id, void *
     TRACE_INFO("[REST] POST to %s: task=%s, result=%p", url, task_id, result);
     /* Stub implementation */
 }
+
+/* ==================== Data Stream Extensions ==================== */
+
+void parallel_workflow_init_ex(struct parallel_workflow *pw,
+                              int capacity,
+                              int max_concurrent,
+                              int enable_data_streams)
+{
+    /* First do standard initialization */
+    parallel_workflow_init(pw, capacity, max_concurrent);
+    
+    /* Set data stream flag */
+    pw->enable_data_streams = enable_data_streams;
+    
+    /* Initialize data stream service if enabled */
+    if (enable_data_streams) {
+        pw->data_stream_service = data_stream_service_create();
+        pw->monitor = workflow_monitor_create();
+        /* Default task factory (creates legacy tasks) */
+        pw->task_factory = NULL; /* TODO: implement factory */
+    } else {
+        pw->data_stream_service = NULL;
+        pw->monitor = NULL;
+        pw->task_factory = NULL;
+    }
+    
+    TRACE_INFO("Parallel workflow extended init (data_streams=%d)", enable_data_streams);
+}
+
+int parallel_task_add_input_stream(struct parallel_task *task,
+                                  data_stream_t stream,
+                                  const char *stream_name)
+{
+    if (!task || !stream || !stream_name) {
+        TRACE_ERROR("Invalid parameters for add_input_stream");
+        return -1;
+    }
+    
+    if (task->stream_count >= MAX_DATA_STREAMS) {
+        TRACE_ERROR("Task %d cannot add more streams (max=%d)", task->task_id, MAX_DATA_STREAMS);
+        return -1;
+    }
+    
+    /* Allocate input streams array if not already allocated */
+    if (!task->input_streams) {
+        task->input_streams = (data_stream_t *)malloc(MAX_DATA_STREAMS * sizeof(data_stream_t));
+        if (!task->input_streams) {
+            TRACE_ERROR("Failed to allocate input streams array for task %d", task->task_id);
+            return -1;
+        }
+        memset(task->input_streams, 0, MAX_DATA_STREAMS * sizeof(data_stream_t));
+    }
+    
+    /* Add stream */
+    task->input_streams[task->stream_count] = stream;
+    task->stream_names[task->stream_count] = stream_name;
+    task->stream_count++;
+    
+    /* Update task type if needed */
+    if (task->type == TASK_TYPE_LEGACY) {
+        task->type = TASK_TYPE_HYBRID;
+    }
+    
+    TRACE_INFO("Task %d added input stream '%s'", task->task_id, stream_name);
+    return 0;
+}
+
+int parallel_task_add_output_stream(struct parallel_task *task,
+                                   data_stream_t stream,
+                                   const char *stream_name)
+{
+    if (!task || !stream || !stream_name) {
+        TRACE_ERROR("Invalid parameters for add_output_stream");
+        return -1;
+    }
+    
+    if (task->stream_count >= MAX_DATA_STREAMS) {
+        TRACE_ERROR("Task %d cannot add more streams (max=%d)", task->task_id, MAX_DATA_STREAMS);
+        return -1;
+    }
+    
+    /* Allocate output streams array if not already allocated */
+    if (!task->output_streams) {
+        task->output_streams = (data_stream_t *)malloc(MAX_DATA_STREAMS * sizeof(data_stream_t));
+        if (!task->output_streams) {
+            TRACE_ERROR("Failed to allocate output streams array for task %d", task->task_id);
+            return -1;
+        }
+        memset(task->output_streams, 0, MAX_DATA_STREAMS * sizeof(data_stream_t));
+    }
+    
+    /* Add stream */
+    task->output_streams[task->stream_count] = stream;
+    task->stream_names[task->stream_count] = stream_name;
+    task->stream_count++;
+    
+    /* Update task type if needed */
+    if (task->type == TASK_TYPE_LEGACY) {
+        task->type = TASK_TYPE_HYBRID;
+    }
+    
+    TRACE_INFO("Task %d added output stream '%s'", task->task_id, stream_name);
+    return 0;
+}
+
+int parallel_task_check_dependencies_ex(struct parallel_task *task)
+{
+    if (!task) return 0;
+    
+    /* Use polymorphic check if set */
+    if (task->check_dependencies) {
+        return task->check_dependencies(task);
+    }
+    
+    /* Default implementation based on task type */
+    switch (task->type) {
+        case TASK_TYPE_LEGACY:
+            /* Only check task dependencies */
+            if (task->workflow) {
+                return parallel_workflow_check_dependencies(task->workflow, task->task_id);
+            }
+            return (task->dependency_count == 0);
+            
+        case TASK_TYPE_HYBRID:
+            /* Check both task and data dependencies */
+            if (task->workflow) {
+                if (!parallel_workflow_check_dependencies(task->workflow, task->task_id)) {
+                    return 0;
+                }
+            }
+            /* Check data stream dependencies */
+            for (int i = 0; i < task->stream_count; i++) {
+                if (task->input_streams && task->input_streams[i]) {
+                    if (!data_stream_has_data(task->input_streams[i])) {
+                        return 0;
+                    }
+                }
+            }
+            return 1;
+            
+        case TASK_TYPE_DATAFLOW:
+            /* Only check data dependencies */
+            for (int i = 0; i < task->stream_count; i++) {
+                if (task->input_streams && task->input_streams[i]) {
+                    if (!data_stream_has_data(task->input_streams[i])) {
+                        return 0;
+                    }
+                }
+            }
+            return 1;
+            
+        default:
+            return 0;
+    }
+}
+
+/* Data stream service (stub implementation) */
+
+struct data_stream_service {
+    int stream_count;
+    data_stream_t *streams;
+    os_mutex_t *mutex;
+};
+
+struct data_stream_service *data_stream_service_create(void)
+{
+    struct data_stream_service *service = (struct data_stream_service *)malloc(sizeof(struct data_stream_service));
+    if (!service) return NULL;
+    
+    memset(service, 0, sizeof(struct data_stream_service));
+    service->mutex = os_mutex_create();
+    if (!service->mutex) {
+        free(service);
+        return NULL;
+    }
+    
+    TRACE_INFO("Data stream service created");
+    return service;
+}
+
+void data_stream_service_destroy(struct data_stream_service *service)
+{
+    if (!service) return;
+    
+    /* Destroy all streams */
+    if (service->streams) {
+        for (int i = 0; i < service->stream_count; i++) {
+            if (service->streams[i]) {
+                data_stream_destroy(service->streams[i]);
+            }
+        }
+        free(service->streams);
+    }
+    
+    if (service->mutex) {
+        os_mutex_destroy(service->mutex);
+    }
+    
+    free(service);
+    TRACE_INFO("Data stream service destroyed");
+}
+
+data_stream_t data_stream_service_create_stream(struct data_stream_service *service,
+                                               const char *name,
+                                               size_t element_size,
+                                               int capacity)
+{
+    if (!service || !name) return NULL;
+
+    struct data_stream_config config = {
+        .name = name,
+        .element_size = element_size,
+        .capacity = capacity,
+        .mode = STREAM_MODE_FIFO,  /* default mode */
+        .window_size = 0
+    };
+
+    data_stream_t stream = data_stream_create(&config);
+    if (!stream) return NULL;
+
+    os_mutex_lock(service->mutex, OS_WAIT_FOREVER);
+
+    /* Add to service's stream list */
+    service->stream_count++;
+    service->streams = (data_stream_t *)realloc(service->streams,
+                                                service->stream_count * sizeof(data_stream_t));
+    if (!service->streams) {
+        service->stream_count = 0;
+        os_mutex_unlock(service->mutex);
+        data_stream_destroy(stream);
+        return NULL;
+    }
+
+    service->streams[service->stream_count - 1] = stream;
+    os_mutex_unlock(service->mutex);
+
+    TRACE_INFO("Data stream '%s' created via service", name);
+    return stream;
+}
+
+void data_stream_service_destroy_stream(struct data_stream_service *service,
+                                       data_stream_t stream)
+{
+    if (!service || !stream) return;
+    
+    os_mutex_lock(service->mutex, OS_WAIT_FOREVER);
+    
+    /* Find and remove stream from list */
+    for (int i = 0; i < service->stream_count; i++) {
+        if (service->streams[i] == stream) {
+            /* Shift remaining streams */
+            for (int j = i; j < service->stream_count - 1; j++) {
+                service->streams[j] = service->streams[j + 1];
+            }
+            service->stream_count--;
+            service->streams = (data_stream_t *)realloc(service->streams, 
+                                                        service->stream_count * sizeof(data_stream_t));
+            break;
+        }
+    }
+    
+    os_mutex_unlock(service->mutex);
+    
+    /* Destroy the stream */
+    data_stream_destroy(stream);
+    TRACE_INFO("Data stream destroyed via service");
+}
+
+/* Workflow monitor (stub implementation) */
+
+struct workflow_monitor {
+    int task_count;
+    int stream_count;
+    timestamp_t start_time;
+    os_mutex_t *mutex;
+};
+
+struct workflow_monitor *workflow_monitor_create(void)
+{
+    struct workflow_monitor *monitor = (struct workflow_monitor *)malloc(sizeof(struct workflow_monitor));
+    if (!monitor) return NULL;
+    
+    memset(monitor, 0, sizeof(struct workflow_monitor));
+    monitor->mutex = os_mutex_create();
+    if (!monitor->mutex) {
+        free(monitor);
+        return NULL;
+    }
+    
+    monitor->start_time = os_get_timestamp();
+    TRACE_INFO("Workflow monitor created");
+    return monitor;
+}
+
+void workflow_monitor_destroy(struct workflow_monitor *monitor)
+{
+    if (!monitor) return;
+    
+    if (monitor->mutex) {
+        os_mutex_destroy(monitor->mutex);
+    }
+    
+    free(monitor);
+    TRACE_INFO("Workflow monitor destroyed");
+}
+
+int workflow_monitor_collect_stats(struct workflow_monitor *monitor,
+                                  struct parallel_workflow *pw)
+{
+    if (!monitor || !pw) return -1;
+    
+    os_mutex_lock(monitor->mutex, OS_WAIT_FOREVER);
+    
+    monitor->task_count = pw->task_count;
+    monitor->stream_count = 0; /* TODO: collect actual stream count */
+    
+    os_mutex_unlock(monitor->mutex);
+    return 0;
+}
+
+void workflow_monitor_print_report(struct workflow_monitor *monitor,
+                                  FILE *output)
+{
+    if (!monitor || !output) return;
+    
+    fprintf(output, "=== Workflow Monitor Report ===\n");
+    fprintf(output, "Tasks: %d\n", monitor->task_count);
+    fprintf(output, "Data Streams: %d\n", monitor->stream_count);
+    fprintf(output, "Uptime: %lld ms\n", (long long)(os_get_timestamp() - monitor->start_time));
+    fprintf(output, "==============================\n");
+}
+
+int workflow_monitor_register_callback(struct workflow_monitor *monitor,
+                                      monitor_callback_t callback,
+                                      void *user_data,
+                                      int interval_ms)
+{
+    if (!monitor || !callback) return -1;
+    
+    TRACE_INFO("Monitor callback registered (interval=%d ms)", interval_ms);
+    /* TODO: implement timer-based callback */
+    return 0;
+}

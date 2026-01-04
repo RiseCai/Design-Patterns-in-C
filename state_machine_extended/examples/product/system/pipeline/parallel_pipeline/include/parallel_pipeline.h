@@ -20,6 +20,7 @@
 #include "task_pipeline.h"
 #include "fsm_os_adapter.h"
 #include "parallel_fsm.h"
+#include "data_stream.h"
 
 /* Define TRACE_ERROR if not already defined */
 #ifndef TRACE_ERROR
@@ -28,6 +29,16 @@
 
 /** Maximum number of dependencies per task */
 #define MAX_DEPENDENCIES 10
+
+/** Maximum number of data streams per task */
+#define MAX_DATA_STREAMS 5
+
+/** Task type for backward compatibility */
+enum parallel_task_type {
+    TASK_TYPE_LEGACY,      /* Only task dependencies */
+    TASK_TYPE_HYBRID,      /* Task + data dependencies */
+    TASK_TYPE_DATAFLOW     /* Only data dependencies */
+};
 
 /** Parallel task states (extends task states) */
 enum parallel_task_state {
@@ -66,6 +77,16 @@ struct parallel_task {
     int error_code;                      /* Task error code */
     char error_msg[256];                 /* Task error message */
     struct parallel_workflow *workflow;  /* Parent workflow (optional) */
+    
+    /* Data stream extensions (added for hybrid model) */
+    enum parallel_task_type type;        /* Task type for backward compatibility */
+    data_stream_t *input_streams;        /* Input data streams */
+    data_stream_t *output_streams;       /* Output data streams */
+    int stream_count;                    /* Number of streams (both input+output) */
+    const char *stream_names[MAX_DATA_STREAMS]; /* Names for each stream */
+    
+    /* Dependency check function pointer (polymorphic) */
+    int (*check_dependencies)(struct parallel_task *task);
 };
 
 /** Parallel workflow manager */
@@ -82,6 +103,12 @@ struct parallel_workflow {
     void (*on_workflow_complete)(struct parallel_workflow *pw); /* Callback */
     void (*on_task_complete)(struct parallel_workflow *pw, int task_id); /* Callback */
     void *thread_pool;                   /* Private: Thread pool for task execution */
+    
+    /* Data stream extensions (added for hybrid model) */
+    int enable_data_streams;             /* Flag to enable data stream support */
+    struct data_stream_service *data_stream_service; /* Data stream service */
+    struct workflow_monitor *monitor;    /* Workflow monitoring */
+    struct parallel_task *(*task_factory)(int task_id, enum parallel_task_type type); /* Task factory */
 };
 
 /* Parallel task management */
@@ -120,5 +147,45 @@ typedef void (*parallel_rest_adapter_post)(const char *url, const char *json);
 /* Example adapters */
 void parallel_mq_send_task_status(const char *task_id, const char *status);
 void parallel_rest_post_task_result(const char *url, const char *task_id, void *result);
+
+/* Data stream extensions API */
+void parallel_workflow_init_ex(struct parallel_workflow *pw,
+                              int capacity,
+                              int max_concurrent,
+                              int enable_data_streams);
+
+int parallel_task_add_input_stream(struct parallel_task *task,
+                                  data_stream_t stream,
+                                  const char *stream_name);
+
+int parallel_task_add_output_stream(struct parallel_task *task,
+                                   data_stream_t stream,
+                                   const char *stream_name);
+
+int parallel_task_check_dependencies_ex(struct parallel_task *task);
+
+/* Data stream service */
+struct data_stream_service *data_stream_service_create(void);
+void data_stream_service_destroy(struct data_stream_service *service);
+data_stream_t data_stream_service_create_stream(struct data_stream_service *service,
+                                               const char *name,
+                                               size_t element_size,
+                                               int capacity);
+void data_stream_service_destroy_stream(struct data_stream_service *service,
+                                       data_stream_t stream);
+
+/* Workflow monitor */
+struct workflow_monitor *workflow_monitor_create(void);
+void workflow_monitor_destroy(struct workflow_monitor *monitor);
+int workflow_monitor_collect_stats(struct workflow_monitor *monitor,
+                                  struct parallel_workflow *pw);
+void workflow_monitor_print_report(struct workflow_monitor *monitor,
+                                  FILE *output);
+typedef void (*monitor_callback_t)(struct workflow_monitor *monitor,
+                                  void *user_data);
+int workflow_monitor_register_callback(struct workflow_monitor *monitor,
+                                      monitor_callback_t callback,
+                                      void *user_data,
+                                      int interval_ms);
 
 #endif /* __PARALLEL_PIPELINE_H__ */
