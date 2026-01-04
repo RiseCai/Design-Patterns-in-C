@@ -16,8 +16,6 @@
 #include <string.h>
 #include <stdlib.h>
 
-static void task_efsm_handle_event(struct task_efsm *task, enum task_event event, void *data);
-
 void task_efsm_init(struct task_efsm *task, int task_id, void *params)
 {
     if (!task) return;
@@ -151,13 +149,6 @@ void workflow_manager_stop(struct workflow_manager *wm)
     if (!wm) return;
     wm->context.state = WORKFLOW_FINISHED;
     TRACE_INFO("Workflow stopped.");
-}
-
-static void task_efsm_handle_event(struct task_efsm *task, enum task_event event, void *data)
-{
-    // This function would be called by the EFSM processor
-    // For simplicity, we just log.
-    TRACE_INFO("Task %d event %d", task->context.task_id, event);
 }
 
 /* Example adapters */

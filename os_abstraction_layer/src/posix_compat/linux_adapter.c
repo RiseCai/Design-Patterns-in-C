@@ -202,37 +202,195 @@ static os_error_t linux_mutex_destroy(os_mutex_t *mutex) {
 
 /* Queue */
 static os_queue_t *linux_queue_create(size_t item_size, size_t queue_depth) {
-    /* Not fully implemented */
-    return NULL;
+    if (item_size == 0 || queue_depth == 0) {
+        return NULL;
+    }
+    os_queue_t *queue = malloc(sizeof(os_queue_t));
+    if (!queue) {
+        return NULL;
+    }
+    if (pthread_mutex_init(&queue->mutex, NULL) != 0) {
+        free(queue);
+        return NULL;
+    }
+    if (pthread_cond_init(&queue->cond_not_empty, NULL) != 0) {
+        pthread_mutex_destroy(&queue->mutex);
+        free(queue);
+        return NULL;
+    }
+    if (pthread_cond_init(&queue->cond_not_full, NULL) != 0) {
+        pthread_cond_destroy(&queue->cond_not_empty);
+        pthread_mutex_destroy(&queue->mutex);
+        free(queue);
+        return NULL;
+    }
+    queue->item_size = item_size;
+    queue->queue_depth = queue_depth;
+    queue->buffer = malloc(item_size * queue_depth);
+    if (!queue->buffer) {
+        pthread_cond_destroy(&queue->cond_not_full);
+        pthread_cond_destroy(&queue->cond_not_empty);
+        pthread_mutex_destroy(&queue->mutex);
+        free(queue);
+        return NULL;
+    }
+    queue->head = 0;
+    queue->tail = 0;
+    queue->count = 0;
+    queue->closed = false;
+    return queue;
 }
 
 static os_error_t linux_queue_send(os_queue_t *queue, const void *item, uint32_t timeout_ms) {
-    (void)queue; (void)item; (void)timeout_ms;
-    return OS_ERROR_NOT_SUPPORTED;
+    if (!queue || !item || queue->closed) {
+        return OS_ERROR_INVALID_PARAM;
+    }
+    struct timespec ts;
+    if (timeout_ms != OS_WAIT_FOREVER) {
+        clock_gettime(CLOCK_REALTIME, &ts);
+        ts.tv_sec += timeout_ms / 1000;
+        ts.tv_nsec += (timeout_ms % 1000) * 1000000;
+        if (ts.tv_nsec >= 1000000000) {
+            ts.tv_sec += 1;
+            ts.tv_nsec -= 1000000000;
+        }
+    }
+    pthread_mutex_lock(&queue->mutex);
+    while (queue->count == queue->queue_depth && !queue->closed) {
+        if (timeout_ms == OS_WAIT_FOREVER) {
+            pthread_cond_wait(&queue->cond_not_full, &queue->mutex);
+        } else {
+            int ret = pthread_cond_timedwait(&queue->cond_not_full, &queue->mutex, &ts);
+            if (ret == ETIMEDOUT) {
+                pthread_mutex_unlock(&queue->mutex);
+                return OS_ERROR_TIMEOUT;
+            }
+        }
+    }
+    if (queue->closed) {
+        pthread_mutex_unlock(&queue->mutex);
+        return OS_ERROR;
+    }
+    /* Copy item into buffer */
+    char *dest = queue->buffer + queue->tail * queue->item_size;
+    memcpy(dest, item, queue->item_size);
+    queue->tail = (queue->tail + 1) % queue->queue_depth;
+    queue->count++;
+    pthread_cond_signal(&queue->cond_not_empty);
+    pthread_mutex_unlock(&queue->mutex);
+    return OS_OK;
 }
 
 static os_error_t linux_queue_receive(os_queue_t *queue, void *item, uint32_t timeout_ms) {
-    (void)queue; (void)item; (void)timeout_ms;
-    return OS_ERROR_NOT_SUPPORTED;
+    if (!queue || !item) {
+        return OS_ERROR_INVALID_PARAM;
+    }
+    struct timespec ts;
+    if (timeout_ms != OS_WAIT_FOREVER) {
+        clock_gettime(CLOCK_REALTIME, &ts);
+        ts.tv_sec += timeout_ms / 1000;
+        ts.tv_nsec += (timeout_ms % 1000) * 1000000;
+        if (ts.tv_nsec >= 1000000000) {
+            ts.tv_sec += 1;
+            ts.tv_nsec -= 1000000000;
+        }
+    }
+    pthread_mutex_lock(&queue->mutex);
+    while (queue->count == 0 && !queue->closed) {
+        if (timeout_ms == OS_WAIT_FOREVER) {
+            pthread_cond_wait(&queue->cond_not_empty, &queue->mutex);
+        } else {
+            int ret = pthread_cond_timedwait(&queue->cond_not_empty, &queue->mutex, &ts);
+            if (ret == ETIMEDOUT) {
+                pthread_mutex_unlock(&queue->mutex);
+                return OS_ERROR_TIMEOUT;
+            }
+        }
+    }
+    if (queue->closed && queue->count == 0) {
+        pthread_mutex_unlock(&queue->mutex);
+        return OS_ERROR;
+    }
+    /* Copy item from buffer */
+    char *src = queue->buffer + queue->head * queue->item_size;
+    memcpy(item, src, queue->item_size);
+    queue->head = (queue->head + 1) % queue->queue_depth;
+    queue->count--;
+    pthread_cond_signal(&queue->cond_not_full);
+    pthread_mutex_unlock(&queue->mutex);
+    return OS_OK;
 }
 
 static os_error_t linux_queue_peek(os_queue_t *queue, void *item, uint32_t timeout_ms) {
-    (void)queue; (void)item; (void)timeout_ms;
-    return OS_ERROR_NOT_SUPPORTED;
+    if (!queue || !item) {
+        return OS_ERROR_INVALID_PARAM;
+    }
+    struct timespec ts;
+    if (timeout_ms != OS_WAIT_FOREVER) {
+        clock_gettime(CLOCK_REALTIME, &ts);
+        ts.tv_sec += timeout_ms / 1000;
+        ts.tv_nsec += (timeout_ms % 1000) * 1000000;
+        if (ts.tv_nsec >= 1000000000) {
+            ts.tv_sec += 1;
+            ts.tv_nsec -= 1000000000;
+        }
+    }
+    pthread_mutex_lock(&queue->mutex);
+    while (queue->count == 0 && !queue->closed) {
+        if (timeout_ms == OS_WAIT_FOREVER) {
+            pthread_cond_wait(&queue->cond_not_empty, &queue->mutex);
+        } else {
+            int ret = pthread_cond_timedwait(&queue->cond_not_empty, &queue->mutex, &ts);
+            if (ret == ETIMEDOUT) {
+                pthread_mutex_unlock(&queue->mutex);
+                return OS_ERROR_TIMEOUT;
+            }
+        }
+    }
+    if (queue->closed && queue->count == 0) {
+        pthread_mutex_unlock(&queue->mutex);
+        return OS_ERROR;
+    }
+    /* Copy item without removing */
+    char *src = queue->buffer + queue->head * queue->item_size;
+    memcpy(item, src, queue->item_size);
+    pthread_mutex_unlock(&queue->mutex);
+    return OS_OK;
 }
 
 static size_t linux_queue_count(os_queue_t *queue) {
-    (void)queue;
-    return 0;
+    if (!queue) return 0;
+    size_t count;
+    pthread_mutex_lock(&queue->mutex);
+    count = queue->count;
+    pthread_mutex_unlock(&queue->mutex);
+    return count;
 }
 
 static size_t linux_queue_space(os_queue_t *queue) {
-    (void)queue;
-    return 0;
+    if (!queue) return 0;
+    size_t space;
+    pthread_mutex_lock(&queue->mutex);
+    space = queue->queue_depth - queue->count;
+    pthread_mutex_unlock(&queue->mutex);
+    return space;
 }
 
 static os_error_t linux_queue_destroy(os_queue_t *queue) {
-    (void)queue;
+    if (!queue) {
+        return OS_ERROR_INVALID_PARAM;
+    }
+    pthread_mutex_lock(&queue->mutex);
+    queue->closed = true;
+    pthread_cond_broadcast(&queue->cond_not_empty);
+    pthread_cond_broadcast(&queue->cond_not_full);
+    pthread_mutex_unlock(&queue->mutex);
+
+    pthread_cond_destroy(&queue->cond_not_full);
+    pthread_cond_destroy(&queue->cond_not_empty);
+    pthread_mutex_destroy(&queue->mutex);
+    free(queue->buffer);
+    free(queue);
     return OS_OK;
 }
 

@@ -41,7 +41,13 @@ static void task_event_generator(void *arg)
     for (int i = 0; i < 6; i++) {
         os_thread_sleep(300); /* simulate delay between events */
         printf("[Event Generator] Sending event: %s\n", events[i]);
-        fsm_os_send_event(os_ctx, events[i], strlen(events[i]) + 1, 100);
+        char buf[256] = {0};
+        strncpy(buf, events[i], sizeof(buf) - 1);
+        buf[sizeof(buf) - 1] = '\0';
+        os_error_t send_err = fsm_os_send_event(os_ctx, buf, sizeof(buf), 100);
+        if (send_err != OS_OK) {
+            printf("[Event Generator] Error sending event\n");
+        }
     }
     printf("[Event Generator] Thread finished\n");
 }
@@ -108,6 +114,9 @@ int main(void)
         return EXIT_FAILURE;
     }
 
+    /* Give the thread a moment to start and possibly send first event */
+    os_thread_sleep(100);
+
     /* Set up a timeout timer for task1 (one‑shot, 2000 ms) */
     os_timer_callback_t timeout_cb = task_timeout_callback;
     os_ctx->timer = os_timer_create(timeout_cb, &task1, "task_timeout");
@@ -120,7 +129,7 @@ int main(void)
     /* Main loop: process events from the queue */
     printf("[Main] Processing task events...\n");
     for (int i = 0; i < 6; i++) {
-        char event_buf[64];
+        char event_buf[256];
         os_error_t err = fsm_os_receive_event(os_ctx, event_buf, sizeof(event_buf), 1000);
         if (err == OS_OK) {
             printf("[Main] Received event: %s\n", event_buf);
