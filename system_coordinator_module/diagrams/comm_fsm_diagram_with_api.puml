@@ -19,20 +19,29 @@ state "COMM_TRANSFERRING" as transferring <<active>>
 state "COMM_DISCONNECTING" as disconnecting <<active>>
 state "COMM_ERROR" as error <<error>>
 
-idle --> connecting : COMM_EVT_CONNECT
-connecting --> connected : COMM_EVT_CONNECTED
-connected --> transferring : COMM_EVT_DATA_READY
-transferring --> connected : COMM_EVT_DATA_SENT
-connected --> disconnecting : COMM_EVT_DISCONNECT
-disconnecting --> idle : COMM_EVT_DISCONNECTED
-idle --> error : COMM_EVT_ERROR
-connecting --> error : COMM_EVT_ERROR
-connected --> error : COMM_EVT_ERROR
-transferring --> error : COMM_EVT_ERROR
-disconnecting --> error : COMM_EVT_ERROR
-error --> idle : COMM_EVT_RESET
-
 [*] --> idle
+
+idle --> connecting : COMM_EVT_CONNECT
+idle --> error : COMM_EVT_ERROR
+
+connecting --> connected : COMM_EVT_CONNECTED
+connecting --> error : COMM_EVT_TIMEOUT
+connecting --> error : COMM_EVT_ERROR
+connecting --> disconnecting : COMM_EVT_DISCONNECT
+
+connected --> transferring : COMM_EVT_DATA_READY
+connected --> disconnecting : COMM_EVT_DISCONNECT
+connected --> error : COMM_EVT_ERROR
+
+transferring --> connected : COMM_EVT_DATA_SENT
+transferring --> disconnecting : COMM_EVT_DISCONNECT
+transferring --> error : COMM_EVT_ERROR
+
+disconnecting --> idle : COMM_EVT_DISCONNECTED
+disconnecting --> error : COMM_EVT_ERROR
+
+error --> disconnecting : COMM_EVT_DISCONNECT
+error --> connecting : COMM_EVT_CONNECT
 
 note right of idle
   <b>Communication FSM API:</b>
@@ -42,6 +51,7 @@ note right of idle
   • comm_fsm_start_transfer()
   • comm_fsm_set_error()
   • comm_fsm_get_error_msg()
+  • comm_fsm_reset()
 end note
 
 note bottom

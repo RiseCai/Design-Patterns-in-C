@@ -175,6 +175,8 @@
         <button class="tab" onclick="switchTab('power-fsm')">Power FSM</button>
         <button class="tab" onclick="switchTab('audio-fsm')">Audio FSM</button>
         <button class="tab" onclick="switchTab('recording-fsm')">Recording FSM</button>
+        <button class="tab" onclick="switchTab('ota-fsm')">OTA FSM</button>
+        <button class="tab" onclick="switchTab('efsm-protocol')">EFSM Protocol</button>
         <button class="tab" onclick="switchTab('mapping')">Subsystem Mapping</button>
     </div>
 
@@ -219,7 +221,7 @@
 
     <div id="audio-fsm" class="tab-content">
         <h2>Audio FSM</h2>
-        <p>Controls audio playback, recording, and processing. States: IDLE, PLAYING, PAUSED, RECORDING, ERROR.</p>
+        <p>Controls audio playback, recording, and processing. States: OFF, IDLE, PLAYING, PAUSED, RECORDING, ERROR.</p>
         <div class="iframe-container">
             <iframe src="audio_fsm_diagram_with_api.html" title="Audio FSM Diagram"></iframe>
         </div>
@@ -232,7 +234,7 @@
 
     <div id="recording-fsm" class="tab-content">
         <h2>Recording FSM</h2>
-        <p>Manages the recording process (IDLE, RECORDING, PAUSED, STOPPED, UPLOADING, ERROR).</p>
+        <p>Manages the recording process (IDLE, WAIT_SYNC, RECORDING, PAUSED, STOPPING, ERROR).</p>
         <div class="iframe-container">
             <iframe src="recording_fsm_diagram_with_api.html" title="Recording FSM Diagram"></iframe>
         </div>
@@ -240,6 +242,32 @@
             <a href="recording_fsm_diagram_with_api.html" class="btn" target="_blank">Open in New Tab</a>
             <a href="../src/recording_fsm.h" class="btn btn-secondary">View Header</a>
             <a href="../src/recording_fsm.c" class="btn btn-secondary">View C Code</a>
+        </div>
+    </div>
+
+    <div id="ota-fsm" class="tab-content">
+        <h2>OTA FSM</h2>
+        <p>Manages Over‑The‑Air firmware updates. States: IDLE, CHECKING, DOWNLOADING, VALIDATING, PREPARING, INSTALLING, REBOOTING, ROLLBACK, COMPLETE, ERROR.</p>
+        <div class="iframe-container">
+            <iframe src="ota_fsm_diagram_with_api.html" title="OTA FSM Diagram"></iframe>
+        </div>
+        <div class="links">
+            <a href="ota_fsm_diagram_with_api.html" class="btn" target="_blank">Open in New Tab</a>
+            <a href="../src/ota_fsm.h" class="btn btn-secondary">View Header</a>
+            <a href="../src/ota_fsm.c" class="btn btn-secondary">View C Code</a>
+        </div>
+    </div>
+
+    <div id="efsm-protocol" class="tab-content">
+        <h2>EFSM Protocol</h2>
+        <p>Extended Finite State Machine protocol for communication between subsystems. Not a visual state machine but a protocol definition.</p>
+        <div class="iframe-container">
+            <iframe src="efsm_protocol_diagram_with_api.html" title="EFSM Protocol Diagram"></iframe>
+        </div>
+        <div class="links">
+            <a href="efsm_protocol_diagram_with_api.html" class="btn" target="_blank">Open in New Tab</a>
+            <a href="../src/efsm_protocol.h" class="btn btn-secondary">View Header</a>
+            <a href="../src/efsm_protocol.c" class="btn btn-secondary">View C Code</a>
         </div>
     </div>
 
@@ -275,10 +303,22 @@
                     <td>Recording audio, audio FSM active, power ON.</td>
                 </tr>
                 <tr>
+                    <td>SYS_RECORDING_AND_UPLOADING</td>
+                    <td>Recording, Audio, Communication, Power</td>
+                    <td>RECORDING, RECORDING, TRANSFERRING, ON</td>
+                    <td>Simultaneous recording and streaming/uploading.</td>
+                </tr>
+                <tr>
                     <td>SYS_UPLOADING</td>
                     <td>Communication, Recording</td>
-                    <td>TRANSFERRING, UPLOADING</td>
+                    <td>TRANSFERRING, STOPPING</td>
                     <td>Uploading recorded data via communication.</td>
+                </tr>
+                <tr>
+                    <td>SYS_OTA</td>
+                    <td>OTA FSM, Communication, Power</td>
+                    <td>DOWNLOADING, INSTALLING, TRANSFERRING, ON</td>
+                    <td>Over‑the‑air firmware update in progress.</td>
                 </tr>
                 <tr>
                     <td>SYS_ERROR</td>
@@ -298,6 +338,12 @@
                     <td>OFF, DISCONNECTED, IDLE</td>
                     <td>System shutting down, subsystems turned off.</td>
                 </tr>
+                <tr>
+                    <td>SYS_RESET</td>
+                    <td>All</td>
+                    <td>RESET, DISCONNECTED, IDLE</td>
+                    <td>System reset and recovery.</td>
+                </tr>
             </tbody>
         </table>
         <h3>Subsystem Dependencies</h3>
@@ -306,6 +352,8 @@
             <li><strong>Power FSM</strong>: Manages battery and power states, influences system‑wide sleep/shutdown.</li>
             <li><strong>Audio FSM</strong>: Handles audio playback and recording; active during RECORDING state.</li>
             <li><strong>Recording FSM</strong>: Manages recording lifecycle; coordinates with Audio FSM.</li>
+            <li><strong>OTA FSM</strong>: Handles over‑the‑air firmware updates; active during SYS_OTA state.</li>
+            <li><strong>EFSM Protocol</strong>: Defines communication protocol between subsystems; not a state machine but a coordination layer.</li>
         </ul>
     </div>
 

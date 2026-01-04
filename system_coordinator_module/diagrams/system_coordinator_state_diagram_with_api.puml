@@ -84,42 +84,50 @@ IDLE --> SHUTDOWN : SYS_EVT_POWER_OFF
 IDLE --> ERROR : SYS_EVT_ERROR
 IDLE --> SLEEP : SYS_EVT_LOW_BATTERY
 IDLE --> OTA : SYS_EVT_OTA_START
+IDLE --> RESET : SYS_EVT_RESET
+IDLE --> UPLOADING : SYS_EVT_FILE_UPLOAD_START
 
 RECORDING --> REC_UPL : SYS_EVT_STREAMING_START
+RECORDING --> REC_UPL : SYS_EVT_NETWORK_CONNECTED
+RECORDING --> REC_UPL : SYS_EVT_UPLOAD_START
+RECORDING --> REC_UPL : SYS_EVT_FILE_UPLOAD_START
 RECORDING --> UPLOADING : SYS_EVT_REC_STOP
 RECORDING --> ERROR : SYS_EVT_ERROR
+RECORDING --> RESET : SYS_EVT_RESET
 
 REC_UPL --> RECORDING : SYS_EVT_STREAMING_STOP
 REC_UPL --> RECORDING : SYS_EVT_UPLOAD_COMPLETE
 REC_UPL --> RECORDING : SYS_EVT_NETWORK_DISCONNECTED
 REC_UPL --> UPLOADING : SYS_EVT_REC_STOP
 REC_UPL --> ERROR : SYS_EVT_ERROR
+REC_UPL --> RESET : SYS_EVT_RESET
 
 UPLOADING --> IDLE : SYS_EVT_UPLOAD_COMPLETE
 UPLOADING --> ERROR : SYS_EVT_ERROR
+UPLOADING --> RESET : SYS_EVT_RESET
 
-ERROR --> INIT : SYS_EVT_RESET
+ERROR --> RESET : SYS_EVT_RESET
 ERROR --> SHUTDOWN : SYS_EVT_POWER_OFF
 
 ' RESET event transitions
 INIT --> RESET : SYS_EVT_RESET
-IDLE --> RESET : SYS_EVT_RESET
-RECORDING --> RESET : SYS_EVT_RESET
-REC_UPL --> RESET : SYS_EVT_RESET
-UPLOADING --> RESET : SYS_EVT_RESET
 SLEEP --> RESET : SYS_EVT_RESET
 OTA --> RESET : SYS_EVT_RESET
+SHUTDOWN --> RESET : SYS_EVT_RESET
 
 ' RESET auto-transition to INIT
 RESET --> INIT : Auto transition after reset
 
 SLEEP --> IDLE : SYS_EVT_POWER_ON
+SLEEP --> SHUTDOWN : SYS_EVT_POWER_OFF
+SLEEP --> RESET : SYS_EVT_RESET
 
 ' OTA state transitions
 OTA --> IDLE : SYS_EVT_OTA_COMPLETE
 OTA --> IDLE : SYS_EVT_OTA_CANCEL
 OTA --> ERROR : SYS_EVT_OTA_ERROR
 OTA --> SHUTDOWN : SYS_EVT_POWER_OFF
+OTA --> RESET : SYS_EVT_RESET
 
 ' OTA self-transitions (forwarded to OTA FSM)
 OTA --> OTA : SYS_EVT_OTA_CHECK (forwarded)
@@ -184,7 +192,20 @@ note right of IDLE
   <b>Entry function:</b> enter_idle()
   <b>Do action:</b> do_action() periodic checks
   <b>Subsystems:</b> [[power_fsm_diagram_with_api.html power_fsm]] (low battery management), [[comm_fsm_diagram_with_api.html comm_fsm]] (network monitoring)
+  <b>Subsystem APIs:</b>
+  • <b>Power FSM:</b> power_fsm_init(), power_fsm_dispatch_event(), power_fsm_get_state(), power_fsm_get_state_name()
+  • <b>Communication FSM:</b> comm_fsm_init(), comm_fsm_dispatch_event(), comm_fsm_is_connected(), comm_fsm_start_transfer(), comm_fsm_set_error(), comm_fsm_get_error_msg(), comm_fsm_reset()
   <b>Main operational state</b>
+end note
+
+note right of IDLE
+  <b>system coordinator FSM API:</b>
+  • system_coordinator_init()
+  • system_coordinator_dispatch_event()
+  • system_coordinator_get_state()
+  • system_coordinator_set_error()
+  • system_coordinator_get_error_msg()
+  • system_coordinator_reset()
 end note
 
 note right of RECORDING
@@ -250,12 +271,13 @@ end note
 
 note bottom
   <b>Note:</b> Some events are defined but not processed in this FSM:
-  SYS_EVT_UPLOAD_START, SYS_EVT_NETWORK_CONNECTED,
   SYS_EVT_BLUETOOTH_CONNECTED, SYS_EVT_BLUETOOTH_DISCONNECTED,
   SYS_EVT_CHARGING, SYS_EVT_TRANSFER_MODE_CHANGE,
-  SYS_EVT_FILE_UPLOAD_START, SYS_EVT_FILE_UPLOAD_COMPLETE,
-  SYS_EVT_OTA_CHECK, SYS_EVT_OTA_STATUS, SYS_EVT_OTA_PROGRESS.
+  SYS_EVT_FILE_UPLOAD_COMPLETE.
   These events are reserved for future extensions.
+  Other events like SYS_EVT_UPLOAD_START, SYS_EVT_NETWORK_CONNECTED,
+  SYS_EVT_FILE_UPLOAD_START, SYS_EVT_OTA_CHECK, SYS_EVT_OTA_STATUS,
+  SYS_EVT_OTA_PROGRESS are processed (forwarded or handled).
 end note
 
 @enduml

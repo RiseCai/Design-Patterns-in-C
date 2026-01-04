@@ -3,10 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>System Coordinator FSM with API Mapping - TWS Earphone System</title>
-    <script src="https://cdn.jsdelivr.net/npm/plantuml-encoder@1.4.0/dist/plantuml-encoder.min.js"></script>
+    <title>System Coordinator FSM - TWS Earphone System</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f9f9f9; }
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f9f9f9;
+        }
         .container {
             max-width: 1200px;
             margin: 0 auto;
@@ -15,15 +18,42 @@
             border-radius: 8px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
-        h1 { color: #333; border-bottom: 2px solid #7209b7; padding-bottom: 10px; }
-        h2 { color: #555; }
-        table { border-collapse: collapse; width: 100%; margin-top: 20px; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-        th { background-color: #f2f2f2; }
-        code { background-color: #f5f5f5; padding: 2px 4px; border-radius: 3px; }
-        pre { background: #f0f0f0; padding: 10px; overflow: auto; }
-        img { max-width: 100%; border: 1px solid #ccc; }
-        .diagram { text-align: center; margin: 20px 0; overflow: auto; }
+        h1 {
+            color: #333;
+            border-bottom: 2px solid #0d6efd;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #555;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        code {
+            background-color: #f5f5f5;
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+        pre {
+            background: #f0f0f0;
+            padding: 10px;
+            overflow: auto;
+        }
+        .diagram {
+            text-align: center;
+            margin: 20px 0;
+            overflow: auto;
+        }
         .note {
             margin-top: 20px;
             padding: 15px;
@@ -31,31 +61,35 @@
             border-left: 4px solid #2196F3;
             font-size: 14px;
         }
-        .links { margin-top: 20px; }
+        .links {
+            margin-top: 20px;
+        }
         .links a {
             display: inline-block;
             margin-right: 15px;
             padding: 8px 15px;
-            background-color: #7209b7;
+            background-color: #0d6efd;
             color: white;
             text-decoration: none;
             border-radius: 4px;
         }
-        .links a:hover { background-color: #560a86; }
+        .links a:hover {
+            background-color: #0b5ed7;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>System Coordinator FSM with API Mapping - TWS Earphone System</h1>
-        <p>Diagram showing the system coordinator state machine with corresponding C API functions and state actions.</p>
+        <h1>System Coordinator FSM (with API Mapping)</h1>
+        <p>This diagram shows the system coordinator FSM with API calls and subsystem activation.</p>
         
         <div class="diagram">
-            <img id="diagram" alt="System Coordinator State Diagram">
+            <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" contentStyleType="text/css" data-diagram-type="STATE" height="1735px" preserveAspectRatio="none" style="width:4839px;height:1735px;background:#FFFFFF;" version="1.1" viewBox="0 0 4839 1735" width="4839px" zoomAndPan="magnify"><title>System Coordinator FSM - TWS Earphone System (with API Mapping)</title><defs/><g><g class="title" data-source-line="1"><text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="462.8066" x="2181.467" y="24.5332">System Coordinator FSM - TWS Earphone System (with API Mapping)</text></g><path d="M3698.5,125.6094 L4158.2739,125.6094 A12.5,12.5 0 0 1 4170.7739,138.1094 L4170.7739,151.9609 L3686,151.9609 L3686,138.1094 A12.5,12.5 0 0 1 3698.5,125.6094" fill="#FFFFFF"/><rect fill="none" height="101.0547" rx="12.5" ry="12.5" style="stroke:#000000;stroke-width:0.5;" width="484.7739" x="3686" y="125.6094"/><line style="stroke:#000000;stroke-width:0.5;" x1="3686" x2="4170.7739" y1="151.9609" y2="151.9609"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="57.7954" x="3899.4893" y="144.1045">SYS_INIT</text><g id="INIT.INIT_ENTRY"><rect fill="#F1F1F1" height="52.7031" rx="12.5" ry="12.5" style="stroke:#181818;stroke-width:0.5;" width="148.4385" x="3698" y="163.9609"/><line style="stroke:#181818;stroke-width:0.5;" x1="3698" x2="3846.4385" y1="190.3125" y2="190.3125"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="62.1245" x="3741.157" y="182.4561">INIT_Entry</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="128.4385" x="3703" y="208.8076">"Initialize subsystems"</text></g><g id="INIT.INIT_DO"><rect fill="#F1F1F1" height="52.7031" rx="12.5" ry="12.5" style="stroke:#181818;stroke-width:0.5;" width="146.2866" x="3864" y="163.9609"/><line style="stroke:#181818;stroke-width:0.5;" x1="3864" x2="4010.2866" y1="190.3125" y2="190.3125"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="48.4009" x="3912.9429" y="182.4561">INIT_Do</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="126.2866" x="3869" y="208.8076">"Initialization process"</text></g><g id="INIT.INIT_EXIT"><rect fill="#F1F1F1" height="52.7031" rx="12.5" ry="12.5" style="stroke:#181818;stroke-width:0.5;" width="133.2739" x="4028.5" y="163.9609"/><line style="stroke:#181818;stroke-width:0.5;" x1="4028.5" x2="4161.7739" y1="190.3125" y2="190.3125"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="53.4536" x="4068.4102" y="182.4561">INIT_Exit</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="113.2739" x="4033.5" y="208.8076">"Transition to IDLE"</text></g><path d="M1867,324.6094 L2284.2803,324.6094 A12.5,12.5 0 0 1 2296.7803,337.1094 L2296.7803,350.9609 L1854.5,350.9609 L1854.5,337.1094 A12.5,12.5 0 0 1 1867,324.6094" fill="#90EE90"/><rect fill="none" height="101.0547" rx="12.5" ry="12.5" style="stroke:#006400;stroke-width:0.5;" width="442.2803" x="1854.5" y="324.6094"/><line style="stroke:#006400;stroke-width:0.5;" x1="1854.5" x2="2296.7803" y1="350.9609" y2="350.9609"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="62.1436" x="2044.5684" y="343.1045">SYS_IDLE</text><g id="IDLE.IDLE_ENTRY"><rect fill="#F1F1F1" height="52.7031" rx="12.5" ry="12.5" style="stroke:#181818;stroke-width:0.5;" width="108.7021" x="1866.5" y="362.9609"/><line style="stroke:#181818;stroke-width:0.5;" x1="1866.5" x2="1975.2021" y1="389.3125" y2="389.3125"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="66.4727" x="1887.6147" y="381.4561">IDLE_Entry</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="88.7021" x="1871.5" y="407.8076">"System ready"</text></g><g id="IDLE.IDLE_DO"><rect fill="#F1F1F1" height="52.7031" rx="12.5" ry="12.5" style="stroke:#181818;stroke-width:0.5;" width="168.6748" x="1993.5" y="362.9609"/><line style="stroke:#181818;stroke-width:0.5;" x1="1993.5" x2="2162.1748" y1="389.3125" y2="389.3125"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="52.749" x="2051.4629" y="381.4561">IDLE_Do</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="148.6748" x="1998.5" y="407.8076">"Monitor battery, network"</text></g><g id="IDLE.IDLE_EXIT"><rect fill="#F1F1F1" height="52.7031" rx="12.5" ry="12.5" style="stroke:#181818;stroke-width:0.5;" width="107.2803" x="2180.5" y="362.9609"/><line style="stroke:#181818;stroke-width:0.5;" x1="2180.5" x2="2287.7803" y1="389.3125" y2="389.3125"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="57.8018" x="2205.2393" y="381.4561">IDLE_Exit</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="87.2803" x="2185.5" y="407.8076">"Leaving IDLE"</text></g><path d="M2388.5,527.1094 L2874.3481,527.1094 A12.5,12.5 0 0 1 2886.8481,539.6094 L2886.8481,553.4609 L2376,553.4609 L2376,539.6094 A12.5,12.5 0 0 1 2388.5,527.1094" fill="#90EE90"/><rect fill="none" height="101.0547" rx="12.5" ry="12.5" style="stroke:#006400;stroke-width:0.5;" width="510.8481" x="2376" y="527.1094"/><line style="stroke:#006400;stroke-width:0.5;" x1="2376" x2="2886.8481" y1="553.4609" y2="553.4609"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="112.6899" x="2575.0791" y="545.6045">SYS_RECORDING</text><g id="RECORDING.REC_ENTRY"><rect fill="#F1F1F1" height="52.7031" rx="12.5" ry="12.5" style="stroke:#181818;stroke-width:0.5;" width="137.019" x="2388" y="565.4609"/><line style="stroke:#181818;stroke-width:0.5;" x1="2388" x2="2525.019" y1="591.8125" y2="591.8125"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="117.019" x="2398" y="583.9561">RECORDING_Entry</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="94.4912" x="2393" y="610.3076">"Start recording"</text></g><g id="RECORDING.REC_DO"><rect fill="#F1F1F1" height="52.7031" rx="12.5" ry="12.5" style="stroke:#181818;stroke-width:0.5;" width="188.2129" x="2543.5" y="565.4609"/><line style="stroke:#181818;stroke-width:0.5;" x1="2543.5" x2="2731.7129" y1="591.8125" y2="591.8125"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="103.2954" x="2585.9587" y="583.9561">RECORDING_Do</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="168.2129" x="2548.5" y="610.3076">"Record audio, process data"</text></g><g id="RECORDING.REC_EXIT"><rect fill="#F1F1F1" height="52.7031" rx="12.5" ry="12.5" style="stroke:#181818;stroke-width:0.5;" width="128.3481" x="2749.5" y="565.4609"/><line style="stroke:#181818;stroke-width:0.5;" x1="2749.5" x2="2877.8481" y1="591.8125" y2="591.8125"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="108.3481" x="2759.5" y="583.9561">RECORDING_Exit</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="93.7803" x="2754.5" y="610.3076">"Stop recording"</text></g><path d="M2607.5,709.6094 L3231.6411,709.6094 A12.5,12.5 0 0 1 3244.1411,722.1094 L3244.1411,735.9609 L2595,735.9609 L2595,722.1094 A12.5,12.5 0 0 1 2607.5,709.6094" fill="#90EE90"/><rect fill="none" height="101.0547" rx="12.5" ry="12.5" style="stroke:#006400;stroke-width:0.5;" width="649.1411" x="2595" y="709.6094"/><line style="stroke:#006400;stroke-width:0.5;" x1="2595" x2="3244.1411" y1="735.9609" y2="735.9609"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="231.1689" x="2803.9861" y="728.1045">SYS_RECORDING_AND_UPLOADING</text><g id="REC_UPL.REC_UPL_ENTRY"><rect fill="#F1F1F1" height="52.7031" rx="12.5" ry="12.5" style="stroke:#181818;stroke-width:0.5;" width="187.4639" x="2607" y="747.9609"/><line style="stroke:#181818;stroke-width:0.5;" x1="2607" x2="2794.4639" y1="774.3125" y2="774.3125"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="97.5381" x="2651.9629" y="766.4561">REC_UPL_Entry</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="167.4639" x="2612" y="792.8076">"Start recording &amp; streaming"</text></g><g id="REC_UPL.REC_UPL_DO"><rect fill="#F1F1F1" height="52.7031" rx="12.5" ry="12.5" style="stroke:#181818;stroke-width:0.5;" width="214.5874" x="2812" y="747.9609"/><line style="stroke:#181818;stroke-width:0.5;" x1="2812" x2="3026.5874" y1="774.3125" y2="774.3125"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="83.8145" x="2877.3865" y="766.4561">REC_UPL_Do</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="194.5874" x="2817" y="792.8076">"Record + upload simultaneously"</text></g><g id="REC_UPL.REC_UPL_EXIT"><rect fill="#F1F1F1" height="52.7031" rx="12.5" ry="12.5" style="stroke:#181818;stroke-width:0.5;" width="189.6411" x="3045.5" y="747.9609"/><line style="stroke:#181818;stroke-width:0.5;" x1="3045.5" x2="3235.1411" y1="774.3125" y2="774.3125"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="88.8672" x="3095.887" y="766.4561">REC_UPL_Exit</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="169.6411" x="3050.5" y="792.8076">"Stop recording or streaming"</text></g><path d="M2983,888.6094 L3396.2866,888.6094 A12.5,12.5 0 0 1 3408.7866,901.1094 L3408.7866,914.9609 L2970.5,914.9609 L2970.5,901.1094 A12.5,12.5 0 0 1 2983,888.6094" fill="#90EE90"/><rect fill="none" height="101.0547" rx="12.5" ry="12.5" style="stroke:#006400;stroke-width:0.5;" width="438.2866" x="2970.5" y="888.6094"/><line style="stroke:#006400;stroke-width:0.5;" x1="2970.5" x2="3408.7866" y1="914.9609" y2="914.9609"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="109.8145" x="3134.7361" y="907.1045">SYS_UPLOADING</text><g id="UPLOADING.UPL_ENTRY"><rect fill="#F1F1F1" height="52.7031" rx="12.5" ry="12.5" style="stroke:#181818;stroke-width:0.5;" width="134.1436" x="2982.5" y="926.9609"/><line style="stroke:#181818;stroke-width:0.5;" x1="2982.5" x2="3116.6436" y1="953.3125" y2="953.3125"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="114.1436" x="2992.5" y="945.4561">UPLOADING_Entry</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="79.333" x="2987.5" y="971.8076">"Start upload"</text></g><g id="UPLOADING.UPL_DO"><rect fill="#F1F1F1" height="52.7031" rx="12.5" ry="12.5" style="stroke:#181818;stroke-width:0.5;" width="120.4199" x="3134.5" y="926.9609"/><line style="stroke:#181818;stroke-width:0.5;" x1="3134.5" x2="3254.9199" y1="953.3125" y2="953.3125"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="100.4199" x="3144.5" y="945.4561">UPLOADING_Do</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="99.5693" x="3139.5" y="971.8076">"Upload to cloud"</text></g><g id="UPLOADING.UPL_EXIT"><rect fill="#F1F1F1" height="52.7031" rx="12.5" ry="12.5" style="stroke:#181818;stroke-width:0.5;" width="126.7866" x="3273" y="926.9609"/><line style="stroke:#181818;stroke-width:0.5;" x1="3273" x2="3399.7866" y1="953.3125" y2="953.3125"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="105.4727" x="3283.657" y="945.4561">UPLOADING_Exit</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="106.7866" x="3278" y="971.8076">"Upload complete"</text></g><path d="M19.5,527.1094 L553.5229,527.1094 A12.5,12.5 0 0 1 566.0229,539.6094 L566.0229,553.4609 L7,553.4609 L7,539.6094 A12.5,12.5 0 0 1 19.5,527.1094" fill="#90EE90"/><rect fill="none" height="101.0547" rx="12.5" ry="12.5" style="stroke:#006400;stroke-width:0.5;" width="559.0229" x="7" y="527.1094"/><line style="stroke:#006400;stroke-width:0.5;" x1="7" x2="566.0229" y1="553.4609" y2="553.4609"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="59.9663" x="256.5283" y="545.6045">SYS_OTA</text><g id="OTA.OTA_ENTRY"><rect fill="#F1F1F1" height="52.7031" rx="12.5" ry="12.5" style="stroke:#181818;stroke-width:0.5;" width="136.1494" x="19" y="565.4609"/><line style="stroke:#181818;stroke-width:0.5;" x1="19" x2="155.1494" y1="591.8125" y2="591.8125"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="64.2954" x="54.927" y="583.9561">OTA_Entry</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="116.1494" x="24" y="610.3076">"Start OTA process"</text></g><g id="OTA.OTA_DO"><rect fill="#F1F1F1" height="52.7031" rx="12.5" ry="12.5" style="stroke:#181818;stroke-width:0.5;" width="179.5483" x="173" y="565.4609"/><line style="stroke:#181818;stroke-width:0.5;" x1="173" x2="352.5483" y1="591.8125" y2="591.8125"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="50.5718" x="237.4883" y="583.9561">OTA_Do</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="159.5483" x="178" y="610.3076">"Download &amp; install update"</text></g><g id="OTA.OTA_EXIT"><rect fill="#F1F1F1" height="52.7031" rx="12.5" ry="12.5" style="stroke:#181818;stroke-width:0.5;" width="186.0229" x="371" y="565.4609"/><line style="stroke:#181818;stroke-width:0.5;" x1="371" x2="557.0229" y1="591.8125" y2="591.8125"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="55.6245" x="436.1992" y="583.9561">OTA_Exit</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="166.0229" x="376" y="610.3076">"OTA complete or cancelled"</text></g><path d="M2261,1067.6094 L2648.1221,1067.6094 A12.5,12.5 0 0 1 2660.6221,1080.1094 L2660.6221,1093.9609 L2248.5,1093.9609 L2248.5,1080.1094 A12.5,12.5 0 0 1 2261,1067.6094" fill="#F08080"/><rect fill="none" height="101.0547" rx="12.5" ry="12.5" style="stroke:#8B0000;stroke-width:0.5;" width="412.1221" x="2248.5" y="1067.6094"/><line style="stroke:#8B0000;stroke-width:0.5;" x1="2248.5" x2="2660.6221" y1="1093.9609" y2="1093.9609"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="80.1899" x="2414.4661" y="1086.1045">SYS_ERROR</text><g id="ERROR.ERR_ENTRY"><rect fill="#F1F1F1" height="52.7031" rx="12.5" ry="12.5" style="stroke:#181818;stroke-width:0.5;" width="104.519" x="2260.5" y="1105.9609"/><line style="stroke:#181818;stroke-width:0.5;" x1="2260.5" x2="2365.019" y1="1132.3125" y2="1132.3125"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="84.519" x="2270.5" y="1124.4561">ERROR_Entry</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="81.4849" x="2265.5" y="1150.8076">"Handle error"</text></g><g id="ERROR.ERR_DO"><rect fill="#F1F1F1" height="52.7031" rx="12.5" ry="12.5" style="stroke:#181818;stroke-width:0.5;" width="111.5776" x="2384" y="1105.9609"/><line style="stroke:#181818;stroke-width:0.5;" x1="2384" x2="2495.5776" y1="1132.3125" y2="1132.3125"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="70.7954" x="2404.3911" y="1124.4561">ERROR_Do</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="91.5776" x="2389" y="1150.8076">"Error recovery"</text></g><g id="ERROR.ERR_EXIT"><rect fill="#F1F1F1" height="52.7031" rx="12.5" ry="12.5" style="stroke:#181818;stroke-width:0.5;" width="137.6221" x="2514" y="1105.9609"/><line style="stroke:#181818;stroke-width:0.5;" x1="2514" x2="2651.6221" y1="1132.3125" y2="1132.3125"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="75.8481" x="2544.887" y="1124.4561">ERROR_Exit</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="117.6221" x="2519" y="1150.8076">"Reset or shutdown"</text></g><path d="M1511,1067.6094 L1855.8145,1067.6094 A12.5,12.5 0 0 1 1868.3145,1080.1094 L1868.3145,1093.9609 L1498.5,1093.9609 L1498.5,1080.1094 A12.5,12.5 0 0 1 1511,1067.6094" fill="#FFFFFF"/><rect fill="none" height="101.0547" rx="12.5" ry="12.5" style="stroke:#000000;stroke-width:0.5;" width="369.8145" x="1498.5" y="1067.6094"/><line style="stroke:#000000;stroke-width:0.5;" x1="1498.5" x2="1868.3145" y1="1093.9609" y2="1093.9609"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="75.1563" x="1645.8291" y="1086.1045">SYS_SLEEP</text><g id="SLEEP.SLEEP_ENTRY"><rect fill="#F1F1F1" height="52.7031" rx="12.5" ry="12.5" style="stroke:#181818;stroke-width:0.5;" width="123.1558" x="1510.5" y="1105.9609"/><line style="stroke:#181818;stroke-width:0.5;" x1="1510.5" x2="1633.6558" y1="1132.3125" y2="1132.3125"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="79.4854" x="1532.3352" y="1124.4561">SLEEP_Entry</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="103.1558" x="1515.5" y="1150.8076">"Enter low-power"</text></g><g id="SLEEP.SLEEP_DO"><rect fill="#F1F1F1" height="52.7031" rx="12.5" ry="12.5" style="stroke:#181818;stroke-width:0.5;" width="98.6094" x="1651.5" y="1105.9609"/><line style="stroke:#181818;stroke-width:0.5;" x1="1651.5" x2="1750.1094" y1="1132.3125" y2="1132.3125"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="65.7617" x="1667.9238" y="1124.4561">SLEEP_Do</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="78.6094" x="1656.5" y="1150.8076">"Sleep mode"</text></g><g id="SLEEP.SLEEP_EXIT"><rect fill="#F1F1F1" height="52.7031" rx="12.5" ry="12.5" style="stroke:#181818;stroke-width:0.5;" width="90.8145" x="1768.5" y="1105.9609"/><line style="stroke:#181818;stroke-width:0.5;" x1="1768.5" x2="1859.3145" y1="1132.3125" y2="1132.3125"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="70.8145" x="1778.5" y="1124.4561">SLEEP_Exit</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="60.5313" x="1773.5" y="1150.8076">"Wake up"</text></g><path d="M1383.5,1246.6094 L1795.4473,1246.6094 A12.5,12.5 0 0 1 1807.9473,1259.1094 L1807.9473,1272.9609 L1371,1272.9609 L1371,1259.1094 A12.5,12.5 0 0 1 1383.5,1246.6094" fill="#FFFFFF"/><rect fill="none" height="101.0547" rx="12.5" ry="12.5" style="stroke:#000000;stroke-width:0.5;" width="436.9473" x="1371" y="1246.6094"/><line style="stroke:#000000;stroke-width:0.5;" x1="1371" x2="1807.9473" y1="1272.9609" y2="1272.9609"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="109.7891" x="1534.5791" y="1265.1045">SYS_SHUTDOWN</text><g id="SHUTDOWN.SHUT_ENTRY"><rect fill="#F1F1F1" height="52.7031" rx="12.5" ry="12.5" style="stroke:#181818;stroke-width:0.5;" width="134.1182" x="1383" y="1284.9609"/><line style="stroke:#181818;stroke-width:0.5;" x1="1383" x2="1517.1182" y1="1311.3125" y2="1311.3125"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="114.1182" x="1393" y="1303.4561">SHUTDOWN_Entry</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="46.8076" x="1388" y="1329.8076">"(none)"</text></g><g id="SHUTDOWN.SHUT_DO"><rect fill="#F1F1F1" height="52.7031" rx="12.5" ry="12.5" style="stroke:#181818;stroke-width:0.5;" width="120.3945" x="1535" y="1284.9609"/><line style="stroke:#181818;stroke-width:0.5;" x1="1535" x2="1655.3945" y1="1311.3125" y2="1311.3125"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="100.3945" x="1545" y="1303.4561">SHUTDOWN_Do</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="64.1431" x="1540" y="1329.8076">"Power off"</text></g><g id="SHUTDOWN.SHUT_EXIT"><rect fill="#F1F1F1" height="52.7031" rx="12.5" ry="12.5" style="stroke:#181818;stroke-width:0.5;" width="125.4473" x="1673.5" y="1284.9609"/><line style="stroke:#181818;stroke-width:0.5;" x1="1673.5" x2="1798.9473" y1="1311.3125" y2="1311.3125"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="105.4473" x="1683.5" y="1303.4561">SHUTDOWN_Exit</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="70.6367" x="1678.5" y="1329.8076">"System off"</text></g><path d="M2736,1425.6094 L3144.9258,1425.6094 A12.5,12.5 0 0 1 3157.4258,1438.1094 L3157.4258,1451.9609 L2723.5,1451.9609 L2723.5,1438.1094 A12.5,12.5 0 0 1 2736,1425.6094" fill="#FFFFFF"/><rect fill="none" height="101.0547" rx="12.5" ry="12.5" style="stroke:#000000;stroke-width:0.5;" width="433.9258" x="2723.5" y="1425.6094"/><line style="stroke:#000000;stroke-width:0.5;" x1="2723.5" x2="3157.4258" y1="1451.9609" y2="1451.9609"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="76.5845" x="2902.1707" y="1444.1045">SYS_RESET</text><g id="RESET.RESET_ENTRY"><rect fill="#F1F1F1" height="52.7031" rx="12.5" ry="12.5" style="stroke:#181818;stroke-width:0.5;" width="135.4321" x="2735.5" y="1463.9609"/><line style="stroke:#181818;stroke-width:0.5;" x1="2735.5" x2="2870.9321" y1="1490.3125" y2="1490.3125"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="80.9136" x="2762.7593" y="1482.4561">RESET_Entry</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="115.4321" x="2740.5" y="1508.8076">"Reset subsystems"</text></g><g id="RESET.RESET_DO"><rect fill="#F1F1F1" height="52.7031" rx="12.5" ry="12.5" style="stroke:#181818;stroke-width:0.5;" width="112.3203" x="2889" y="1463.9609"/><line style="stroke:#181818;stroke-width:0.5;" x1="2889" x2="3001.3203" y1="1490.3125" y2="1490.3125"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="67.1899" x="2911.5652" y="1482.4561">RESET_Do</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="92.3203" x="2894" y="1508.8076">"Reset process"</text></g><g id="RESET.RESET_EXIT"><rect fill="#F1F1F1" height="52.7031" rx="12.5" ry="12.5" style="stroke:#181818;stroke-width:0.5;" width="128.9258" x="3019.5" y="1463.9609"/><line style="stroke:#181818;stroke-width:0.5;" x1="3019.5" x2="3148.4258" y1="1490.3125" y2="1490.3125"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="72.2427" x="3047.8416" y="1482.4561">RESET_Exit</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="108.9258" x="3024.5" y="1508.8076">"Transition to INIT"</text></g><ellipse cx="3928.5" cy="54.6094" fill="#222222" rx="10" ry="10" style="stroke:#222222;stroke-width:1;"/><g class="entity" data-entity="GMN2" data-source-line="184" data-uid="ent0003" id="entity_GMN2"><path d="M4206,146.6094 L4206,172.1094 L4171.21,176.1094 L4206,180.1094 L4206,205.6641 A0,0 0 0 0 4206,205.6641 L4402.5571,205.6641 A0,0 0 0 0 4402.5571,205.6641 L4402.5571,156.6094 L4392.5571,146.6094 L4206,146.6094 A0,0 0 0 0 4206,146.6094" fill="#FEFFDD" style="stroke:#181818;stroke-width:0.5;"/><path d="M4392.5571,146.6094 L4392.5571,156.6094 L4402.5571,156.6094 L4392.5571,146.6094" fill="#FEFFDD" style="stroke:#181818;stroke-width:0.5;"/><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="36.1182" x="4212" y="165.1045">State:</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="57.7954" x="4251.73" y="165.1045">SYS_INIT</text><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="92.4346" x="4212" y="181.4561">Entry function:</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="62.1372" x="4308.0464" y="181.4561">enter_init()</text><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="26" x="4212" y="197.8076">API:</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="145.9453" x="4241.6118" y="197.8076">system_coordinator_init()</text></g><g class="entity" data-entity="GMN5" data-source-line="190" data-uid="ent0006" id="entity_GMN5"><path d="M2614,304.6094 L2614,445.4219 L3803.3052,445.4219 L3803.3052,314.6094 L3793.3052,304.6094 L2614,304.6094" fill="#FEFFDD" style="stroke:#181818;stroke-width:0.5;"/><path d="M3793.3052,304.6094 L3793.3052,314.6094 L3803.3052,314.6094 L3793.3052,304.6094" fill="#FEFFDD" style="stroke:#181818;stroke-width:1;"/><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="36.1182" x="2620" y="323.1045">State:</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="62.1436" x="2659.73" y="323.1045">SYS_IDLE</text><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="92.4346" x="2620" y="339.4561">Entry function:</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="65.7554" x="2716.0464" y="339.4561">enter_idle()</text><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="63.5527" x="2620" y="355.8076">Do action:</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="158.2471" x="2687.1646" y="355.8076">do_action() periodic checks</text><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="80.9199" x="2620" y="372.1592">Subsystems:</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="3.6118" x="2700.9199" y="372.1592">&#160;</text><a href="power_fsm_diagram_with_api.html" target="_top" title="power_fsm_diagram_with_api.html" xlink:actuate="onRequest" xlink:href="power_fsm_diagram_with_api.html" xlink:show="new" xlink:title="power_fsm_diagram_with_api.html" xlink:type="simple"><text fill="#0000FF" font-family="sans-serif" font-size="13" lengthAdjust="spacing" text-decoration="underline" textLength="63.5781" x="2704.5317" y="372.1592">power_fsm</text></a><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="154.6226" x="2771.7217" y="372.1592">(low battery management),</text><a href="comm_fsm_diagram_with_api.html" target="_top" title="comm_fsm_diagram_with_api.html" xlink:actuate="onRequest" xlink:href="comm_fsm_diagram_with_api.html" xlink:show="new" xlink:title="comm_fsm_diagram_with_api.html" xlink:type="simple"><text fill="#0000FF" font-family="sans-serif" font-size="13" lengthAdjust="spacing" text-decoration="underline" textLength="63.5591" x="2929.9561" y="372.1592">comm_fsm</text></a><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="118.4854" x="2997.127" y="372.1592">(network monitoring)</text><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="106.2026" x="2620" y="388.5107">Subsystem APIs:</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="5.2813" x="2620" y="404.8623">&#8226;</text><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="74.3945" x="2628.8931" y="404.8623">Power FSM:</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="590.3257" x="2706.8994" y="404.8623">power_fsm_init(), power_fsm_dispatch_event(), power_fsm_get_state(), power_fsm_get_state_name()</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="5.2813" x="2620" y="421.2139">&#8226;</text><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="133.6055" x="2628.8931" y="421.2139">Communication FSM:</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="1022.1948" x="2766.1104" y="421.2139">comm_fsm_init(), comm_fsm_dispatch_event(), comm_fsm_is_connected(), comm_fsm_start_transfer(), comm_fsm_set_error(), comm_fsm_get_error_msg(), comm_fsm_reset()</text><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="137.249" x="2620" y="437.5654">Main operational state</text></g><g class="entity" data-entity="GMN8" data-source-line="201" data-uid="ent0009" id="entity_GMN8"><path d="M2332,313.1094 L2332,371.1094 L2296.67,375.1094 L2332,379.1094 L2332,437.5703 A0,0 0 0 0 2332,437.5703 L2578.6719,437.5703 A0,0 0 0 0 2578.6719,437.5703 L2578.6719,323.1094 L2568.6719,313.1094 L2332,313.1094 A0,0 0 0 0 2332,313.1094" fill="#FEFFDD" style="stroke:#181818;stroke-width:0.5;"/><path d="M2568.6719,313.1094 L2568.6719,323.1094 L2578.6719,323.1094 L2568.6719,313.1094" fill="#FEFFDD" style="stroke:#181818;stroke-width:0.5;"/><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="181.3081" x="2338" y="331.6045">system coordinator FSM API:</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="154.8384" x="2338" y="347.9561">&#8226; system_coordinator_init()</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="225.6719" x="2338" y="364.3076">&#8226; system_coordinator_dispatch_event()</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="191.7056" x="2338" y="380.6592">&#8226; system_coordinator_get_state()</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="190.2393" x="2338" y="397.0107">&#8226; system_coordinator_set_error()</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="222.7583" x="2338" y="413.3623">&#8226; system_coordinator_get_error_msg()</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="167.1211" x="2338" y="429.7139">&#8226; system_coordinator_reset()</text></g><g class="entity" data-entity="GMN11" data-source-line="211" data-uid="ent0012" id="entity_GMN11"><path d="M3650,540.1094 L3650,573.6094 L2887.2,577.6094 L3650,581.6094 L3650,615.5156 A0,0 0 0 0 3650,615.5156 L3942.6733,615.5156 A0,0 0 0 0 3942.6733,615.5156 L3942.6733,550.1094 L3932.6733,540.1094 L3650,540.1094 A0,0 0 0 0 3650,540.1094" fill="#FEFFDD" style="stroke:#181818;stroke-width:0.5;"/><path d="M3932.6733,540.1094 L3932.6733,550.1094 L3942.6733,550.1094 L3932.6733,540.1094" fill="#FEFFDD" style="stroke:#181818;stroke-width:0.5;"/><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="36.1182" x="3656" y="558.6045">State:</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="112.6899" x="3695.73" y="558.6045">SYS_RECORDING</text><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="92.4346" x="3656" y="574.9561">Entry function:</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="99.7153" x="3752.0464" y="574.9561">enter_recording()</text><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="63.5527" x="3656" y="591.3076">Do action:</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="155.3462" x="3723.1646" y="591.3076">monitor recording progress</text><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="80.9199" x="3656" y="607.6592">Subsystems:</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="3.6118" x="3736.9199" y="607.6592">&#160;</text><a href="recording_fsm_diagram_with_api.html" target="_top" title="recording_fsm_diagram_with_api.html" xlink:actuate="onRequest" xlink:href="recording_fsm_diagram_with_api.html" xlink:show="new" xlink:title="recording_fsm_diagram_with_api.html" xlink:type="simple"><text fill="#0000FF" font-family="sans-serif" font-size="13" lengthAdjust="spacing" text-decoration="underline" textLength="82.3672" x="3740.5317" y="607.6592">recording_fsm</text></a><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="3.6118" x="3822.8989" y="607.6592">,</text><a href="audio_fsm_diagram_with_api.html" target="_top" title="audio_fsm_diagram_with_api.html" xlink:actuate="onRequest" xlink:href="audio_fsm_diagram_with_api.html" xlink:show="new" xlink:title="audio_fsm_diagram_with_api.html" xlink:type="simple"><text fill="#0000FF" font-family="sans-serif" font-size="13" lengthAdjust="spacing" text-decoration="underline" textLength="59.979" x="3830.1226" y="607.6592">audio_fsm</text></a><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="33.96" x="3893.7134" y="607.6592">active</text></g><g class="entity" data-entity="GMN14" data-source-line="218" data-uid="ent0015" id="entity_GMN14"><path d="M3279,722.6094 L3279,756.1094 L3244.15,760.1094 L3279,764.1094 L3279,798.0156 A0,0 0 0 0 3279,798.0156 L3642.4561,798.0156 A0,0 0 0 0 3642.4561,798.0156 L3642.4561,732.6094 L3632.4561,722.6094 L3279,722.6094 A0,0 0 0 0 3279,722.6094" fill="#FEFFDD" style="stroke:#181818;stroke-width:0.5;"/><path d="M3632.4561,722.6094 L3632.4561,732.6094 L3642.4561,732.6094 L3632.4561,722.6094" fill="#FEFFDD" style="stroke:#181818;stroke-width:0.5;"/><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="36.1182" x="3285" y="741.1045">State:</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="231.1689" x="3324.73" y="741.1045">SYS_RECORDING_AND_UPLOADING</text><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="92.4346" x="3285" y="757.4561">Entry function:</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="192.2515" x="3381.0464" y="757.4561">enter_recording_and_uploading()</text><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="63.5527" x="3285" y="773.8076">Do action:</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="174.1289" x="3352.1646" y="773.8076">monitor recording &amp; streaming</text><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="80.9199" x="3285" y="790.1592">Subsystems:</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="3.6118" x="3365.9199" y="790.1592">&#160;</text><a href="recording_fsm_diagram_with_api.html" target="_top" title="recording_fsm_diagram_with_api.html" xlink:actuate="onRequest" xlink:href="recording_fsm_diagram_with_api.html" xlink:show="new" xlink:title="recording_fsm_diagram_with_api.html" xlink:type="simple"><text fill="#0000FF" font-family="sans-serif" font-size="13" lengthAdjust="spacing" text-decoration="underline" textLength="82.3672" x="3369.5317" y="790.1592">recording_fsm</text></a><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="3.6118" x="3451.8989" y="790.1592">,</text><a href="audio_fsm_diagram_with_api.html" target="_top" title="audio_fsm_diagram_with_api.html" xlink:actuate="onRequest" xlink:href="audio_fsm_diagram_with_api.html" xlink:show="new" xlink:title="audio_fsm_diagram_with_api.html" xlink:type="simple"><text fill="#0000FF" font-family="sans-serif" font-size="13" lengthAdjust="spacing" text-decoration="underline" textLength="59.979" x="3459.1226" y="790.1592">audio_fsm</text></a><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="3.6118" x="3519.1016" y="790.1592">,</text><a href="comm_fsm_diagram_with_api.html" target="_top" title="comm_fsm_diagram_with_api.html" xlink:actuate="onRequest" xlink:href="comm_fsm_diagram_with_api.html" xlink:show="new" xlink:title="comm_fsm_diagram_with_api.html" xlink:type="simple"><text fill="#0000FF" font-family="sans-serif" font-size="13" lengthAdjust="spacing" text-decoration="underline" textLength="63.5591" x="3526.3252" y="790.1592">comm_fsm</text></a><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="33.96" x="3593.4961" y="790.1592">active</text></g><g class="entity" data-entity="GMN17" data-source-line="225" data-uid="ent0018" id="entity_GMN17"><path d="M3775,901.6094 L3775,935.1094 L3408.72,939.1094 L3775,943.1094 L3775,977.0156 A0,0 0 0 0 3775,977.0156 L3993.9517,977.0156 A0,0 0 0 0 3993.9517,977.0156 L3993.9517,911.6094 L3983.9517,901.6094 L3775,901.6094 A0,0 0 0 0 3775,901.6094" fill="#FEFFDD" style="stroke:#181818;stroke-width:0.5;"/><path d="M3983.9517,901.6094 L3983.9517,911.6094 L3993.9517,911.6094 L3983.9517,901.6094" fill="#FEFFDD" style="stroke:#181818;stroke-width:0.5;"/><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="36.1182" x="3781" y="920.1045">State:</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="109.8145" x="3820.73" y="920.1045">SYS_UPLOADING</text><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="92.4346" x="3781" y="936.4561">Entry function:</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="101.9053" x="3877.0464" y="936.4561">enter_uploading()</text><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="63.5527" x="3781" y="952.8076">Do action:</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="88.1816" x="3848.1646" y="952.8076">upload to cloud</text><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="80.9199" x="3781" y="969.1592">Subsystems:</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="3.6118" x="3861.9199" y="969.1592">&#160;</text><a href="comm_fsm_diagram_with_api.html" target="_top" title="comm_fsm_diagram_with_api.html" xlink:actuate="onRequest" xlink:href="comm_fsm_diagram_with_api.html" xlink:show="new" xlink:title="comm_fsm_diagram_with_api.html" xlink:type="simple"><text fill="#0000FF" font-family="sans-serif" font-size="13" lengthAdjust="spacing" text-decoration="underline" textLength="63.5591" x="3865.5317" y="969.1592">comm_fsm</text></a><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="33.96" x="3932.7026" y="969.1592">active</text></g><g class="entity" data-entity="GMN20" data-source-line="232" data-uid="ent0021" id="entity_GMN20"><path d="M2695.5,1080.6094 L2695.5,1114.1094 L2660.53,1118.1094 L2695.5,1122.1094 L2695.5,1156.0156 A0,0 0 0 0 2695.5,1156.0156 L2943.3271,1156.0156 A0,0 0 0 0 2943.3271,1156.0156 L2943.3271,1090.6094 L2933.3271,1080.6094 L2695.5,1080.6094 A0,0 0 0 0 2695.5,1080.6094" fill="#FEFFDD" style="stroke:#181818;stroke-width:0.5;"/><path d="M2933.3271,1080.6094 L2933.3271,1090.6094 L2943.3271,1090.6094 L2933.3271,1080.6094" fill="#FEFFDD" style="stroke:#181818;stroke-width:0.5;"/><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="36.1182" x="2701.5" y="1099.1045">State:</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="80.1899" x="2741.23" y="1099.1045">SYS_ERROR</text><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="92.4346" x="2701.5" y="1115.4561">Entry function:</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="72.9663" x="2797.5464" y="1115.4561">enter_error()</text><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="93.8882" x="2701.5" y="1131.8076">Error handling:</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="129.3271" x="2799" y="1131.8076">error_code, error_msg</text><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="62.8672" x="2701.5" y="1148.1592">Recovery:</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="108.3926" x="2767.979" y="1148.1592">Reset or shutdown</text></g><g class="entity" data-entity="GMN23" data-source-line="239" data-uid="ent0024" id="entity_GMN23"><path d="M1370,523.6094 L1370,573.6094 L566.12,577.6094 L1370,581.6094 L1370,631.7188 A0,0 0 0 0 1370,631.7188 L1844.6479,631.7188 A0,0 0 0 0 1844.6479,631.7188 L1844.6479,533.6094 L1834.6479,523.6094 L1370,523.6094 A0,0 0 0 0 1370,523.6094" fill="#FEFFDD" style="stroke:#181818;stroke-width:0.5;"/><path d="M1834.6479,523.6094 L1834.6479,533.6094 L1844.6479,533.6094 L1834.6479,523.6094" fill="#FEFFDD" style="stroke:#181818;stroke-width:0.5;"/><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="36.1182" x="1376" y="542.1045">State:</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="59.9663" x="1415.73" y="542.1045">SYS_OTA</text><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="92.4346" x="1376" y="558.4561">Entry function:</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="63.5908" x="1472.0464" y="558.4561">enter_ota()</text><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="63.5527" x="1376" y="574.8076">Do action:</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="148.1606" x="1443.1646" y="574.8076">download &amp; install update</text><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="80.9199" x="1376" y="591.1592">Subsystems:</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="3.6118" x="1456.9199" y="591.1592">&#160;</text><a href="ota_fsm_diagram_with_api.html" target="_top" title="ota_fsm_diagram_with_api.html" xlink:actuate="onRequest" xlink:href="ota_fsm_diagram_with_api.html" xlink:show="new" xlink:title="ota_fsm_diagram_with_api.html" xlink:type="simple"><text fill="#0000FF" font-family="sans-serif" font-size="13" lengthAdjust="spacing" text-decoration="underline" textLength="46.2427" x="1460.5317" y="591.1592">ota_fsm</text></a><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="33.96" x="1510.3862" y="591.1592">active</text><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="74.3945" x="1376" y="607.5107">Transitions:</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="319.3062" x="1454.0063" y="607.5107">From IDLE (OTA_START), From INIT (pending update)</text><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="72.9727" x="1376" y="623.8623">Exit events:</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="377.0635" x="1452.5845" y="623.8623">OTA_COMPLETE, OTA_CANCEL, OTA_ERROR, POWER_OFF</text></g><g class="entity" data-entity="GMN26" data-source-line="248" data-uid="ent0027" id="entity_GMN26"><path d="M1904,1072.1094 L1904,1114.1094 L1868.8,1118.1094 L1904,1122.1094 L1904,1163.8672 A0,0 0 0 0 1904,1163.8672 L2213.0503,1163.8672 A0,0 0 0 0 2213.0503,1163.8672 L2213.0503,1082.1094 L2203.0503,1072.1094 L1904,1072.1094 A0,0 0 0 0 1904,1072.1094" fill="#FEFFDD" style="stroke:#181818;stroke-width:0.5;"/><path d="M2203.0503,1072.1094 L2203.0503,1082.1094 L2213.0503,1082.1094 L2203.0503,1072.1094" fill="#FEFFDD" style="stroke:#181818;stroke-width:0.5;"/><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="36.1182" x="1910" y="1090.6045">State:</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="75.1563" x="1949.73" y="1090.6045">SYS_SLEEP</text><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="92.4346" x="1910" y="1106.9561">Entry function:</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="76.5972" x="2006.0464" y="1106.9561">enter_sleep()</text><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="63.5527" x="1910" y="1123.3076">Do action:</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="94.8022" x="1977.1646" y="1123.3076">low&#8209;power sleep</text><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="80.9199" x="1910" y="1139.6592">Subsystems:</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="3.6118" x="1990.9199" y="1139.6592">&#160;</text><a href="power_fsm_diagram_with_api.html" target="_top" title="power_fsm_diagram_with_api.html" xlink:actuate="onRequest" xlink:href="power_fsm_diagram_with_api.html" xlink:show="new" xlink:title="power_fsm_diagram_with_api.html" xlink:type="simple"><text fill="#0000FF" font-family="sans-serif" font-size="13" lengthAdjust="spacing" text-decoration="underline" textLength="63.5781" x="1994.5317" y="1139.6592">power_fsm</text></a><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="75.8672" x="2061.7217" y="1139.6592">(sleep mode)</text><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="104.5776" x="1910" y="1156.0107">Wake&#8209;up events:</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="179.8608" x="2018.1895" y="1156.0107">POWER_ON, LOW_BATTERY</text></g><g class="entity" data-entity="GMN29" data-source-line="256" data-uid="ent0030" id="entity_GMN29"><path d="M1843,1251.1094 L1843,1293.1094 L1808.48,1297.1094 L1843,1301.1094 L1843,1342.8672 A0,0 0 0 0 1843,1342.8672 L2325.665,1342.8672 A0,0 0 0 0 2325.665,1342.8672 L2325.665,1261.1094 L2315.665,1251.1094 L1843,1251.1094 A0,0 0 0 0 1843,1251.1094" fill="#FEFFDD" style="stroke:#181818;stroke-width:0.5;"/><path d="M2315.665,1251.1094 L2315.665,1261.1094 L2325.665,1261.1094 L2315.665,1251.1094" fill="#FEFFDD" style="stroke:#181818;stroke-width:0.5;"/><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="36.1182" x="1849" y="1269.6045">State:</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="109.7891" x="1888.73" y="1269.6045">SYS_SHUTDOWN</text><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="92.4346" x="1849" y="1285.9561">Entry function:</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="37.5781" x="1945.0464" y="1285.9561">(none)</text><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="63.5527" x="1849" y="1302.3076">Do action:</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="113.4644" x="1916.1646" y="1302.3076">power off sequence</text><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="68.6245" x="1849" y="1318.6592">Final state:</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="132.9707" x="1921.2363" y="1318.6592">No outgoing transitions</text><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="26" x="1849" y="1335.0107">API:</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="432.0532" x="1878.6118" y="1335.0107">system_coordinator_dispatch_event(sys, SYS_EVT_POWER_OFF, NULL)</text></g><g class="entity" data-entity="GMN32" data-source-line="264" data-uid="ent0033" id="entity_GMN32"><path d="M3192.5,1430.1094 L3192.5,1521.8672 L3636.1714,1521.8672 L3636.1714,1440.1094 L3626.1714,1430.1094 L3192.5,1430.1094" fill="#FEFFDD" style="stroke:#181818;stroke-width:0.5;"/><path d="M3626.1714,1430.1094 L3626.1714,1440.1094 L3636.1714,1440.1094 L3626.1714,1430.1094" fill="#FEFFDD" style="stroke:#181818;stroke-width:1;"/><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="36.1182" x="3198.5" y="1448.6045">State:</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="76.5845" x="3238.23" y="1448.6045">SYS_RESET</text><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="92.4346" x="3198.5" y="1464.9561">Entry function:</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="74.4199" x="3294.5464" y="1464.9561">enter_reset()</text><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="63.5527" x="3198.5" y="1481.3076">Do action:</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="101.1436" x="3265.6646" y="1481.3076">reset subsystems</text><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="96.7637" x="3198.5" y="1497.6592">Auto transition:</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="157.5044" x="3298.8755" y="1497.6592">to INIT after reset complete</text><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="26" x="3198.5" y="1514.0107">API:</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="393.0596" x="3228.1118" y="1514.0107">system_coordinator_dispatch_event(sys, SYS_EVT_RESET, NULL)</text></g><g class="entity" data-entity="GMN35" data-source-line="272" data-uid="ent0036" id="entity_GMN35"><path d="M3145,1587.6094 L3145,1728.4219 L3684.0068,1728.4219 L3684.0068,1597.6094 L3674.0068,1587.6094 L3145,1587.6094" fill="#FEFFDD" style="stroke:#181818;stroke-width:0.5;"/><path d="M3674.0068,1587.6094 L3674.0068,1597.6094 L3684.0068,1597.6094 L3674.0068,1587.6094" fill="#FEFFDD" style="stroke:#181818;stroke-width:1;"/><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="33.2173" x="3151" y="1606.1045">Note:</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="323.7305" x="3187.8291" y="1606.1045">Some events are defined but not processed in this FSM:</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="502.0552" x="3151" y="1622.4561">SYS_EVT_BLUETOOTH_CONNECTED, SYS_EVT_BLUETOOTH_DISCONNECTED,</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="391.5425" x="3151" y="1638.8076">SYS_EVT_CHARGING, SYS_EVT_TRANSFER_MODE_CHANGE,</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="236.2534" x="3151" y="1655.1592">SYS_EVT_FILE_UPLOAD_COMPLETE.</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="279.646" x="3151" y="1671.5107">These events are reserved for future extensions.</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="502.8105" x="3151" y="1687.8623">Other events like SYS_EVT_UPLOAD_START, SYS_EVT_NETWORK_CONNECTED,</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="518.0068" x="3151" y="1704.2139">SYS_EVT_FILE_UPLOAD_START, SYS_EVT_OTA_CHECK, SYS_EVT_OTA_STATUS,</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="398.125" x="3151" y="1720.5654">SYS_EVT_OTA_PROGRESS are processed (forwarded or handled).</text></g><!--link *start* to INIT--><g class="link" data-entity-1="*start*" data-entity-2="INIT" data-source-line="75" data-uid="lnk3" id="link_*start*_INIT"><path d="M3928.5,64.9894 C3928.5,78.0794 3928.5,96.7994 3928.5,119.4994" fill="none" id="*start*-to-INIT" style="stroke:#181818;stroke-width:1;"/><polygon fill="#181818" points="3928.5,125.4994,3932.5,116.4994,3928.5,120.4994,3924.5,116.4994,3928.5,125.4994" style="stroke:#181818;stroke-width:1;"/></g><!--link INIT to IDLE--><g class="link" data-entity-1="INIT" data-entity-2="IDLE" data-source-line="78" data-uid="lnk4" id="link_INIT_IDLE"><path d="M3685.88,180.8894 C3368.33,189.3294 2795.6,216.6094 2314.5,304.6094 C2286.45,309.7394 2262.7585,315.2703 2234.4585,322.9903" fill="none" id="INIT-to-IDLE" style="stroke:#181818;stroke-width:1;"/><polygon fill="#181818" points="2228.67,324.5694,2238.4054,326.0598,2233.4937,323.2535,2236.3,318.3418,2228.67,324.5694" style="stroke:#181818;stroke-width:1;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="183.5425" x="2621.5" y="271.1045">Auto transition after initialization</text></g><!--link INIT to OTA--><g class="link" data-entity-1="INIT" data-entity-2="OTA" data-source-line="79" data-uid="lnk5" id="link_INIT_OTA"><path d="M3685.61,179.0394 C3264.78,184.9394 2373.54,208.7894 1627.5,304.6094 C1217.23,357.2994 750.5018,462.7388 490.2018,525.6988" fill="none" id="INIT-to-OTA" style="stroke:#181818;stroke-width:1;"/><polygon fill="#181818" points="484.37,527.1094,494.0581,528.8814,489.2299,525.9339,492.1774,521.1056,484.37,527.1094" style="stroke:#181818;stroke-width:1;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="207.4097" x="1628.5" y="380.6045">If pending firmware update detected</text></g><!--link IDLE to RECORDING--><g class="link" data-entity-1="IDLE" data-entity-2="RECORDING" data-source-line="81" data-uid="lnk6" id="link_IDLE_RECORDING"><path d="M2212.94,425.6694 C2298.64,456.5794 2402.8758,494.1638 2488.5558,525.0638" fill="none" id="IDLE-to-RECORDING" style="stroke:#181818;stroke-width:1;"/><polygon fill="#181818" points="2494.2,527.0994,2487.0908,520.2833,2489.4965,525.4031,2484.3767,527.8088,2494.2,527.0994" style="stroke:#181818;stroke-width:1;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="143.0444" x="2388.5" y="490.1045">SYS_EVT_REC_START</text></g><!--link IDLE to SHUTDOWN--><g class="link" data-entity-1="IDLE" data-entity-2="SHUTDOWN" data-source-line="82" data-uid="lnk7" id="link_IDLE_SHUTDOWN"><path d="M2014.77,425.7494 C1984.17,452.6694 1947.87,487.7194 1920.5,523.6094 C1887.46,566.9294 1901.69,593.7594 1862.5,631.6094 C1711.37,777.5594 1549.46,662.2094 1438.5,840.6094 C1419.48,871.1894 1178.44,494.0294 1480.5,1168.6094 C1493.35,1197.3194 1510.657,1220.1116 1531.117,1241.9416" fill="none" id="IDLE-to-SHUTDOWN" style="stroke:#181818;stroke-width:1;"/><polygon fill="#181818" points="1535.22,1246.3194,1531.984,1237.0173,1531.8008,1242.6712,1526.1469,1242.4881,1535.22,1246.3194" style="stroke:#181818;stroke-width:1;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="148.0908" x="1439.5" y="855.1045">SYS_EVT_POWER_OFF</text></g><!--link IDLE to ERROR--><g class="link" data-entity-1="IDLE" data-entity-2="ERROR" data-source-line="83" data-uid="lnk8" id="link_IDLE_ERROR"><path d="M2090.69,425.8694 C2109.84,486.7294 2144.94,592.3994 2183.5,679.6094 C2249.71,829.3494 2356.4537,984.0423 2413.7837,1062.6223" fill="none" id="IDLE-to-ERROR" style="stroke:#181818;stroke-width:1;"/><polygon fill="#181818" points="2417.32,1067.4694,2415.2469,1057.8412,2414.3731,1063.4301,2408.7841,1062.5563,2417.32,1067.4694" style="stroke:#181818;stroke-width:1;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="112.7026" x="2250.5" y="765.6045">SYS_EVT_ERROR</text></g><!--link IDLE to SLEEP--><g class="link" data-entity-1="IDLE" data-entity-2="SLEEP" data-source-line="84" data-uid="lnk9" id="link_IDLE_SLEEP"><path d="M2044.68,425.8094 C2034.93,441.6694 2024.19,459.3294 2014.5,475.6094 C1973.58,544.3994 1975.62,570.0194 1924.5,631.6094 C1890.48,672.5994 1863.13,665.3494 1833.5,709.6094 C1794.72,767.5394 1808.08,793.0094 1784.5,858.6094 C1758.18,931.8394 1727.1231,1009.9885 1706.1231,1061.8185" fill="none" id="IDLE-to-SLEEP" style="stroke:#181818;stroke-width:1;"/><polygon fill="#181818" points="1703.87,1067.3794,1710.9569,1060.5401,1705.7476,1062.7453,1703.5424,1057.536,1703.87,1067.3794" style="stroke:#181818;stroke-width:1;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="162.5508" x="1834.5" y="765.6045">SYS_EVT_LOW_BATTERY</text></g><!--link SLEEP to IDLE--><g class="link" data-entity-1="SLEEP" data-entity-2="IDLE" data-source-line="120" data-uid="lnk36" id="link_SLEEP_IDLE"><path d="M1846.33,1067.5294 C1940.48,1033.8194 2040.5,986.9794 2040.5,940.1094 C2040.5,576.6094 2040.5,576.6094 2040.5,576.6094 C2040.5,524.6694 2050.6188,472.0986 2060.4488,431.7786" fill="none" id="SLEEP-to-IDLE" style="stroke:#181818;stroke-width:1;"/><polygon fill="#181818" points="2061.87,425.9494,2055.8521,433.7458,2060.6857,430.8071,2063.6244,435.6407,2061.87,425.9494" style="stroke:#181818;stroke-width:1;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="141.5972" x="2041.5" y="765.6045">SYS_EVT_POWER_ON</text></g><!--link IDLE to OTA--><g class="link" data-entity-1="IDLE" data-entity-2="OTA" data-source-line="85" data-uid="lnk10" id="link_IDLE_OTA"><path d="M1873.57,425.6794 C1767.84,449.8194 1635.86,477.1194 1516.5,493.6094 C1192.12,538.4194 822.1256,559.0901 572.0756,568.6501" fill="none" id="IDLE-to-OTA" style="stroke:#181818;stroke-width:1;"/><polygon fill="#181818" points="566.08,568.8794,575.2262,572.5326,571.0763,568.6884,574.9206,564.5385,566.08,568.8794" style="stroke:#181818;stroke-width:1;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="142.3208" x="1625.5" y="490.1045">SYS_EVT_OTA_START</text></g><!--link OTA to IDLE--><g class="link" data-entity-1="OTA" data-entity-2="IDLE" data-source-line="125" data-uid="lnk39" id="link_OTA_IDLE"><path d="M566.04,542.5994 C732.29,522.5894 947.37,497.0894 1138.5,475.6094 C1383.36,448.0994 1658.492,419.1281 1848.422,399.4381" fill="none" id="OTA-to-IDLE" style="stroke:#181818;stroke-width:1;"/><polygon fill="#181818" points="1854.39,398.8194,1845.0255,395.7688,1849.4167,399.335,1845.8504,403.7261,1854.39,398.8194" style="stroke:#181818;stroke-width:1;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="171.2217" x="1139.5" y="490.1045">SYS_EVT_OTA_COMPLETE</text></g><!--link OTA to IDLE--><g class="link" data-entity-1="OTA" data-entity-2="IDLE" data-source-line="126" data-uid="lnk40" id="link_OTA_IDLE"><path d="M566.26,565.0694 C821.52,552.5394 1179.08,529.3794 1315.5,493.6094 C1333.97,488.7694 1336.18,480.9694 1354.5,475.6094 C1518.22,427.6894 1703.7941,403.1762 1848.2941,390.1962" fill="none" id="OTA-to-IDLE-1" style="stroke:#181818;stroke-width:1;"/><polygon fill="#181818" points="1854.27,389.6594,1844.9482,386.4806,1849.2901,390.1067,1845.664,394.4485,1854.27,389.6594" style="stroke:#181818;stroke-width:1;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="152.4453" x="1355.5" y="490.1045">SYS_EVT_OTA_CANCEL</text></g><!--link IDLE to RESET--><g class="link" data-entity-1="IDLE" data-entity-2="RESET" data-source-line="86" data-uid="lnk11" id="link_IDLE_RESET"><path d="M2222.98,425.6094 C2252.95,433.7894 2284.48,441.0694 2314.5,445.6094 C2507.12,474.7294 3877.52,432.5394 4067.5,475.6094 C4163.86,497.4594 4406.07,640.3894 4418.5,661.6094 C4439.23,696.9994 4370.5,986.5994 4370.5,1027.6094 C4370.5,1027.6094 4370.5,1027.6094 4370.5,1298.1094 C4370.5,1464.0094 3687.49,1362.3594 3174.5,1425.6094 C3168.94,1426.2994 3169.2497,1426.2008 3163.5797,1427.0108" fill="none" id="IDLE-to-RESET" style="stroke:#181818;stroke-width:1;"/><polygon fill="#181818" points="3157.64,1427.8594,3167.1152,1430.5464,3162.5897,1427.1523,3165.9839,1422.6268,3157.64,1427.8594" style="stroke:#181818;stroke-width:1;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="109.0972" x="4394.5" y="944.6045">SYS_EVT_RESET</text></g><!--link IDLE to UPLOADING--><g class="link" data-entity-1="IDLE" data-entity-2="UPLOADING" data-source-line="87" data-uid="lnk12" id="link_IDLE_UPLOADING"><path d="M2223.3,425.6894 C2253.17,433.8294 2284.59,441.0794 2314.5,445.6094 C2408.33,459.8194 3935.77,437.0694 4022.5,475.6094 C4125.95,521.5794 4154.93,556.3194 4196.5,661.6094 C4236.35,762.5494 4348.54,701.1694 4035.5,858.6094 C4021.53,865.6394 3660.6278,897.7439 3414.6478,918.9539" fill="none" id="IDLE-to-UPLOADING" style="stroke:#181818;stroke-width:1;"/><polygon fill="#181818" points="3408.67,919.4694,3417.9804,922.6814,3413.6515,919.0398,3417.2931,914.711,3408.67,919.4694" style="stroke:#181818;stroke-width:1;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="203.7407" x="4206.5" y="676.1045">SYS_EVT_FILE_UPLOAD_START</text></g><!--link UPLOADING to IDLE--><g class="link" data-entity-1="UPLOADING" data-entity-2="IDLE" data-source-line="104" data-uid="lnk26" id="link_UPLOADING_IDLE"><path d="M3408.82,924.8794 C3595.4,909.2194 3844.54,876.4394 3918.5,810.6094 C3966.65,767.7594 4004.99,570.2494 3960.5,523.6094 C3834.13,391.1094 2495.1,475.7094 2314.5,445.6094 C2285.52,440.7794 2260.8593,435.1856 2231.7693,427.2656" fill="none" id="UPLOADING-to-IDLE" style="stroke:#181818;stroke-width:1;"/><polygon fill="#181818" points="2225.98,425.6894,2233.6131,431.9132,2230.8044,427.0029,2235.7147,424.1941,2225.98,425.6894" style="stroke:#181818;stroke-width:1;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="197.958" x="3976.5" y="676.1045">SYS_EVT_UPLOAD_COMPLETE</text></g><!--link RECORDING to REC_UPL--><g class="link" data-entity-1="RECORDING" data-entity-2="REC_UPL" data-source-line="89" data-uid="lnk13" id="link_RECORDING_REC_UPL"><path d="M2887.24,587.1494 C3006.38,597.0594 3130.08,617.9494 3167.5,661.6094 C3184.36,681.2794 3186.4474,693.004 3172.4274,705.574" fill="none" id="RECORDING-to-REC_UPL" style="stroke:#181818;stroke-width:1;"/><polygon fill="#181818" points="3167.96,709.5794,3177.3313,706.5496,3171.6828,706.2416,3171.9908,700.5931,3167.96,709.5794" style="stroke:#181818;stroke-width:1;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="192.8799" x="3178.5" y="676.1045">SYS_EVT_STREAMING_START</text></g><!--link RECORDING to REC_UPL--><g class="link" data-entity-1="RECORDING" data-entity-2="REC_UPL" data-source-line="90" data-uid="lnk14" id="link_RECORDING_REC_UPL"><path d="M2887.16,590.3794 C3090.59,602.4394 3346.49,624.7394 3379.5,661.6094 C3384.84,667.5694 3384.65,673.4894 3379.5,679.6094 C3373.7,686.4994 3322.4044,697.1698 3250.1744,709.4998" fill="none" id="RECORDING-to-REC_UPL-1" style="stroke:#181818;stroke-width:1;"/><polygon fill="#181818" points="3244.26,710.5094,3253.8047,712.9379,3249.1887,709.668,3252.4586,705.052,3244.26,710.5094" style="stroke:#181818;stroke-width:1;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="221.7617" x="3384.5" y="676.1045">SYS_EVT_NETWORK_CONNECTED</text></g><!--link RECORDING to REC_UPL--><g class="link" data-entity-1="RECORDING" data-entity-2="REC_UPL" data-source-line="91" data-uid="lnk15" id="link_RECORDING_REC_UPL"><path d="M2887.16,582.6294 C3161.93,589.6594 3566.08,608.9294 3614.5,661.6094 C3668.07,719.8994 3340.15,700.5794 3261.5,709.6094 C3255.84,710.2594 3256.0773,710.2145 3250.3273,710.9045" fill="none" id="RECORDING-to-REC_UPL-2" style="stroke:#181818;stroke-width:1;"/><polygon fill="#181818" points="3244.37,711.6194,3253.7825,714.5186,3249.3344,711.0236,3252.8293,706.5756,3244.37,711.6194" style="stroke:#181818;stroke-width:1;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="169.0571" x="3621.5" y="676.1045">SYS_EVT_UPLOAD_START</text></g><!--link RECORDING to REC_UPL--><g class="link" data-entity-1="RECORDING" data-entity-2="REC_UPL" data-source-line="92" data-uid="lnk16" id="link_RECORDING_REC_UPL"><path d="M2375.67,604.9294 C2269.46,621.2094 2177.07,645.5894 2207.5,679.6094 C2211,683.5194 2402.6637,704.7541 2588.7937,724.5741" fill="none" id="RECORDING-to-REC_UPL-3" style="stroke:#181818;stroke-width:1;"/><polygon fill="#181818" points="2594.76,725.2094,2586.2341,720.2789,2589.7881,724.6799,2585.3871,728.2339,2594.76,725.2094" style="stroke:#181818;stroke-width:1;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="203.7407" x="2208.5" y="676.1045">SYS_EVT_FILE_UPLOAD_START</text></g><!--link REC_UPL to RECORDING--><g class="link" data-entity-1="REC_UPL" data-entity-2="RECORDING" data-source-line="97" data-uid="lnk20" id="link_REC_UPL_RECORDING"><path d="M2594.79,734.3994 C2529.47,722.6294 2474.15,705.2594 2452.5,679.6094 C2435.35,659.2994 2438.4221,645.6865 2458.3821,631.7365" fill="none" id="REC_UPL-to-RECORDING" style="stroke:#181818;stroke-width:1;"/><polygon fill="#181818" points="2463.3,628.2994,2453.6317,630.1765,2459.2017,631.1637,2458.2145,636.7337,2463.3,628.2994" style="stroke:#181818;stroke-width:1;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="185.6626" x="2453.5" y="676.1045">SYS_EVT_STREAMING_STOP</text></g><!--link REC_UPL to RECORDING--><g class="link" data-entity-1="REC_UPL" data-entity-2="RECORDING" data-source-line="98" data-uid="lnk21" id="link_REC_UPL_RECORDING"><path d="M2723.06,709.4894 C2707.38,701.0394 2692.58,691.1594 2679.5,679.6094 C2664.15,666.0494 2655.5645,652.0657 2648.1145,633.7857" fill="none" id="REC_UPL-to-RECORDING-1" style="stroke:#181818;stroke-width:1;"/><polygon fill="#181818" points="2645.85,628.2294,2645.5425,638.0734,2647.737,632.8596,2652.9509,635.0542,2645.85,628.2294" style="stroke:#181818;stroke-width:1;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="197.958" x="2680.5" y="676.1045">SYS_EVT_UPLOAD_COMPLETE</text></g><!--link REC_UPL to RECORDING--><g class="link" data-entity-1="REC_UPL" data-entity-2="RECORDING" data-source-line="99" data-uid="lnk22" id="link_REC_UPL_RECORDING"><path d="M2909.92,709.5794 C2904.42,692.4494 2895.84,674.3794 2882.5,661.6094 C2868.83,648.5194 2858.2951,640.385 2841.4351,631.095" fill="none" id="REC_UPL-to-RECORDING-2" style="stroke:#181818;stroke-width:1;"/><polygon fill="#181818" points="2836.18,628.1994,2842.1322,636.0461,2840.5592,630.6124,2845.993,629.0394,2836.18,628.1994" style="stroke:#181818;stroke-width:1;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="243.4326" x="2897.5" y="676.1045">SYS_EVT_NETWORK_DISCONNECTED</text></g><!--link RECORDING to UPLOADING--><g class="link" data-entity-1="RECORDING" data-entity-2="UPLOADING" data-source-line="93" data-uid="lnk17" id="link_RECORDING_UPLOADING"><path d="M2887.07,588.0094 C3221.45,601.5794 3768.82,628.6694 3799.5,661.6094 C3804.95,667.4594 3802.68,672.2694 3799.5,679.6094 C3791.02,699.1494 3678.11,800.2394 3659.5,810.6094 C3582.7,853.4194 3496.5689,881.1082 3414.4289,900.5382" fill="none" id="RECORDING-to-UPLOADING" style="stroke:#181818;stroke-width:1;"/><polygon fill="#181818" points="3408.59,901.9194,3418.2691,903.7402,3413.4557,900.7684,3416.4275,895.955,3408.59,901.9194" style="stroke:#181818;stroke-width:1;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="135.8271" x="3774.5" y="765.6045">SYS_EVT_REC_STOP</text></g><!--link RECORDING to ERROR--><g class="link" data-entity-1="RECORDING" data-entity-2="ERROR" data-source-line="94" data-uid="lnk18" id="link_RECORDING_ERROR"><path d="M2375.79,599.4694 C2294.82,611.7494 2219.74,631.1294 2194.5,661.6094 C2189.4,667.7694 2189.33,673.5094 2194.5,679.6094 C2247.23,741.7994 2317.06,652.7394 2375.5,709.6094 C2473.11,804.5994 2470.2391,975.4684 2461.7491,1061.5284" fill="none" id="RECORDING-to-ERROR" style="stroke:#181818;stroke-width:1;"/><polygon fill="#181818" points="2461.16,1067.4994,2466.0243,1058.9356,2461.6509,1062.5235,2458.0629,1058.1502,2461.16,1067.4994" style="stroke:#181818;stroke-width:1;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="112.7026" x="2453.5" y="855.1045">SYS_EVT_ERROR</text></g><!--link RECORDING to RESET--><g class="link" data-entity-1="RECORDING" data-entity-2="RESET" data-source-line="95" data-uid="lnk19" id="link_RECORDING_RESET"><path d="M2887.28,590.5994 C3211.75,606.7094 3739.91,636.2394 3827.5,661.6094 C4009.8,714.4194 4047.5,837.8194 4047.5,1027.6094 C4047.5,1027.6094 4047.5,1027.6094 4047.5,1298.1094 C4047.5,1494.1694 3367.5,1391.1394 3174.5,1425.6094 C3168.98,1426.5994 3169.2883,1426.5093 3163.6583,1427.5593" fill="none" id="RECORDING-to-RESET" style="stroke:#181818;stroke-width:1;"/><polygon fill="#181818" points="3157.76,1428.6594,3167.3408,1430.9415,3162.6752,1427.7427,3165.8741,1423.0771,3157.76,1428.6594" style="stroke:#181818;stroke-width:1;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="109.0972" x="4048.5" y="1034.1045">SYS_EVT_RESET</text></g><!--link REC_UPL to UPLOADING--><g class="link" data-entity-1="REC_UPL" data-entity-2="UPLOADING" data-source-line="100" data-uid="lnk23" id="link_REC_UPL_UPLOADING"><path d="M2995.07,810.6494 C3032.2,834.9894 3071.8021,860.9499 3108.9321,885.2899" fill="none" id="REC_UPL-to-UPLOADING" style="stroke:#181818;stroke-width:1;"/><polygon fill="#181818" points="3113.95,888.5794,3108.6161,880.2999,3109.7684,885.8382,3104.2301,886.9905,3113.95,888.5794" style="stroke:#181818;stroke-width:1;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="135.8271" x="3064.5" y="855.1045">SYS_EVT_REC_STOP</text></g><!--link REC_UPL to ERROR--><g class="link" data-entity-1="REC_UPL" data-entity-2="ERROR" data-source-line="101" data-uid="lnk24" id="link_REC_UPL_ERROR"><path d="M2854.84,810.6094 C2766.25,878.4294 2612.8141,995.9019 2524.1141,1063.8119" fill="none" id="REC_UPL-to-ERROR" style="stroke:#181818;stroke-width:1;"/><polygon fill="#181818" points="2519.35,1067.4594,2528.9277,1065.1643,2523.32,1064.4198,2524.0645,1058.8122,2519.35,1067.4594" style="stroke:#181818;stroke-width:1;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="112.7026" x="2749.5" y="944.6045">SYS_EVT_ERROR</text></g><!--link REC_UPL to RESET--><g class="link" data-entity-1="REC_UPL" data-entity-2="RESET" data-source-line="102" data-uid="lnk25" id="link_REC_UPL_RESET"><path d="M2927.23,810.6194 C2936.43,871.1094 2951.63,976.6394 2960.5,1067.6094 C2968.23,1146.9394 2969.05,1166.9394 2971.5,1246.6094 C2972.88,1291.4794 2976.84,1303.0394 2971.5,1347.6094 C2968.38,1373.6194 2963.37,1396.1957 2957.08,1419.5557" fill="none" id="REC_UPL-to-RESET" style="stroke:#181818;stroke-width:1;"/><polygon fill="#181818" points="2955.52,1425.3494,2961.7225,1417.6989,2956.82,1420.5213,2953.9976,1415.6189,2955.52,1425.3494" style="stroke:#181818;stroke-width:1;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="109.0972" x="2970.5" y="1123.6045">SYS_EVT_RESET</text></g><!--link UPLOADING to ERROR--><g class="link" data-entity-1="UPLOADING" data-entity-2="ERROR" data-source-line="105" data-uid="lnk27" id="link_UPLOADING_ERROR"><path d="M2983.78,989.6494 C2882.71,1013.9894 2767.0632,1041.8345 2666.0032,1066.1745" fill="none" id="UPLOADING-to-ERROR" style="stroke:#181818;stroke-width:1;"/><polygon fill="#181818" points="2660.17,1067.5794,2669.8564,1069.3608,2665.031,1066.4086,2667.9832,1061.5832,2660.17,1067.5794" style="stroke:#181818;stroke-width:1;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="112.7026" x="2845.5" y="1034.1045">SYS_EVT_ERROR</text></g><!--link UPLOADING to RESET--><g class="link" data-entity-1="UPLOADING" data-entity-2="RESET" data-source-line="106" data-uid="lnk28" id="link_UPLOADING_RESET"><path d="M3183.66,989.6994 C3171.03,1078.8494 3134.29,1268.6994 3039.5,1395.6094 C3031.52,1406.2894 3026.248,1412.3648 3016.028,1421.5248" fill="none" id="UPLOADING-to-RESET" style="stroke:#181818;stroke-width:1;"/><polygon fill="#181818" points="3011.56,1425.5294,3020.9318,1422.5012,3015.2833,1422.1922,3015.5923,1416.5438,3011.56,1425.5294" style="stroke:#181818;stroke-width:1;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="109.0972" x="3136.5" y="1213.1045">SYS_EVT_RESET</text></g><!--link ERROR to RESET--><g class="link" data-entity-1="ERROR" data-entity-2="RESET" data-source-line="108" data-uid="lnk29" id="link_ERROR_RESET"><path d="M2618.76,1168.7494 C2666.35,1188.1394 2716.27,1213.7694 2756.5,1246.6094 C2820.02,1298.4694 2873.1077,1370.4765 2906.2177,1420.4865" fill="none" id="ERROR-to-RESET" style="stroke:#181818;stroke-width:1;"/><polygon fill="#181818" points="2909.53,1425.4894,2907.8969,1415.7769,2906.7698,1421.3203,2901.2264,1420.1932,2909.53,1425.4894" style="stroke:#181818;stroke-width:1;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="109.0972" x="2853.5" y="1302.6045">SYS_EVT_RESET</text></g><!--link ERROR to SHUTDOWN--><g class="link" data-entity-1="ERROR" data-entity-2="SHUTDOWN" data-source-line="109" data-uid="lnk30" id="link_ERROR_SHUTDOWN"><path d="M2248.27,1164.8994 C2242.28,1166.1594 2236.35,1167.3994 2230.5,1168.6094 C2050.99,1205.7194 2005.21,1210.4594 1825.5,1246.6094 C1819.75,1247.7694 1819.8084,1247.7377 1813.9384,1248.9377" fill="none" id="ERROR-to-SHUTDOWN" style="stroke:#181818;stroke-width:1;"/><polygon fill="#181818" points="1808.06,1250.1394,1817.6788,1252.2557,1812.9587,1249.1379,1816.0765,1244.4178,1808.06,1250.1394" style="stroke:#181818;stroke-width:1;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="148.0908" x="2077.5" y="1213.1045">SYS_EVT_POWER_OFF</text></g><!--link INIT to RESET--><g class="link" data-entity-1="INIT" data-entity-2="RESET" data-source-line="112" data-uid="lnk31" id="link_INIT_RESET"><path d="M4144.29,226.6794 C4318.39,269.7894 4534.5,331.8294 4534.5,374.1094 C4534.5,374.1094 4534.5,374.1094 4534.5,1298.1094 C4534.5,1327.8494 4245.79,1390.6094 4210.5,1395.6094 C3754.42,1460.2294 3631.9,1371.0594 3174.5,1425.6094 C3168.93,1426.2694 3169.2426,1426.1814 3163.5726,1426.9714" fill="none" id="INIT-to-RESET" style="stroke:#181818;stroke-width:1;"/><polygon fill="#181818" points="3157.63,1427.7994,3167.0959,1430.5191,3162.5822,1427.1094,3165.9919,1422.5957,3157.63,1427.7994" style="stroke:#181818;stroke-width:1;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="109.0972" x="4535.5" y="855.1045">SYS_EVT_RESET</text></g><!--link RESET to INIT--><g class="link" data-entity-1="RESET" data-entity-2="INIT" data-source-line="118" data-uid="lnk35" id="link_RESET_INIT"><path d="M3157.63,1427.7794 C3163.3,1426.9994 3168.93,1426.2694 3174.5,1425.6094 C3662.39,1367.8694 3790.57,1443.7594 4279.5,1395.6094 C4449.1,1378.9094 4685.5,1367.9494 4685.5,1298.1094 C4685.5,374.1094 4685.5,374.1094 4685.5,374.1094 C4685.5,287.5194 4585.94,331.0794 4503.5,304.6094 C4423.44,278.9094 4402.4,275.6394 4320.5,256.6094 C4272.31,245.4094 4226.4564,235.5009 4176.8864,225.2809" fill="none" id="RESET-to-INIT" style="stroke:#181818;stroke-width:1;"/><polygon fill="#181818" points="4171.01,224.0694,4179.0169,229.8043,4175.907,225.079,4180.6323,221.9691,4171.01,224.0694" style="stroke:#181818;stroke-width:1;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="145.2407" x="4686.5" y="855.1045">Auto transition after reset</text></g><!--link SLEEP to RESET--><g class="link" data-entity-1="SLEEP" data-entity-2="RESET" data-source-line="113" data-uid="lnk32" id="link_SLEEP_RESET"><path d="M1868.69,1164.8294 C1874.69,1166.1294 1880.64,1167.3994 1886.5,1168.6094 C2088.27,1210.3794 2153.48,1166.9394 2343.5,1246.6094 C2414.26,1276.2794 2415.87,1311.3794 2483.5,1347.6094 C2537.05,1376.2994 2553.42,1377.7694 2611.5,1395.6094 C2647.31,1406.6094 2679.8739,1415.5852 2717.3139,1425.0752" fill="none" id="SLEEP-to-RESET" style="stroke:#181818;stroke-width:1;"/><polygon fill="#181818" points="2723.13,1426.5494,2715.3887,1420.4607,2718.2833,1425.3209,2713.4231,1428.2154,2723.13,1426.5494" style="stroke:#181818;stroke-width:1;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="109.0972" x="2484.5" y="1302.6045">SYS_EVT_RESET</text></g><!--link SLEEP to RESET--><g class="link" data-entity-1="SLEEP" data-entity-2="RESET" data-source-line="122" data-uid="lnk38" id="link_SLEEP_RESET"><path d="M1868.57,1165.4794 C1874.6,1166.5894 1880.59,1167.6394 1886.5,1168.6094 C2043.57,1194.3694 2473.41,1148.1794 2598.5,1246.6094 C2636.32,1276.3694 2603.99,1313.0794 2637.5,1347.6094 C2670.39,1381.4994 2708.1685,1404.4279 2751.6985,1423.1579" fill="none" id="SLEEP-to-RESET-1" style="stroke:#181818;stroke-width:1;"/><polygon fill="#181818" points="2757.21,1425.5294,2750.5238,1418.2979,2752.6171,1423.5532,2747.3618,1425.6465,2757.21,1425.5294" style="stroke:#181818;stroke-width:1;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="109.0972" x="2638.5" y="1302.6045">SYS_EVT_RESET</text></g><!--link OTA to RESET--><g class="link" data-entity-1="OTA" data-entity-2="RESET" data-source-line="114" data-uid="lnk33" id="link_OTA_RESET"><path d="M566.07,617.9594 C710.36,646.4094 856.5,691.8294 856.5,759.1094 C856.5,759.1094 856.5,759.1094 856.5,1298.1094 C856.5,1391.0394 2183.6139,1448.3226 2717.3739,1467.6226" fill="none" id="OTA-to-RESET" style="stroke:#181818;stroke-width:1;"/><polygon fill="#181818" points="2723.37,1467.8394,2714.5204,1463.5168,2718.3733,1467.6587,2714.2313,1471.5115,2723.37,1467.8394" style="stroke:#181818;stroke-width:1;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="109.0972" x="857.5" y="1034.1045">SYS_EVT_RESET</text></g><!--link OTA to RESET--><g class="link" data-entity-1="OTA" data-entity-2="RESET" data-source-line="129" data-uid="lnk43" id="link_OTA_RESET"><path d="M323.83,628.2794 C346.27,663.0394 370.5,711.5794 370.5,759.1094 C370.5,759.1094 370.5,759.1094 370.5,1298.1094 C370.5,1415.6294 2097.4911,1459.3839 2717.3211,1471.3139" fill="none" id="OTA-to-RESET-1" style="stroke:#181818;stroke-width:1;"/><polygon fill="#181818" points="2723.32,1471.4294,2714.3986,1467.2569,2718.3209,1471.3332,2714.2447,1475.2554,2723.32,1471.4294" style="stroke:#181818;stroke-width:1;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="109.0972" x="371.5" y="1034.1045">SYS_EVT_RESET</text></g><!--link SHUTDOWN to RESET--><g class="link" data-entity-1="SHUTDOWN" data-entity-2="RESET" data-source-line="115" data-uid="lnk34" id="link_SHUTDOWN_RESET"><path d="M1808.27,1344.7294 C1814.06,1345.7294 1819.82,1346.6894 1825.5,1347.6094 C2135.89,1397.7994 2492.0457,1434.8247 2717.3557,1455.7447" fill="none" id="SHUTDOWN-to-RESET" style="stroke:#181818;stroke-width:1;"/><polygon fill="#181818" points="2723.33,1456.2994,2714.7384,1451.4844,2718.3514,1455.8371,2713.9987,1459.4502,2723.33,1456.2994" style="stroke:#181818;stroke-width:1;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="109.0972" x="2162.5" y="1392.1045">SYS_EVT_RESET</text></g><!--link SLEEP to SHUTDOWN--><g class="link" data-entity-1="SLEEP" data-entity-2="SHUTDOWN" data-source-line="121" data-uid="lnk37" id="link_SLEEP_SHUTDOWN"><path d="M1657.07,1168.8894 C1644.2,1193.1194 1631.5738,1216.8801 1618.7138,1241.1001" fill="none" id="SLEEP-to-SHUTDOWN" style="stroke:#181818;stroke-width:1;"/><polygon fill="#181818" points="1615.9,1246.3994,1623.6535,1240.3262,1618.2448,1241.9833,1616.5878,1236.5746,1615.9,1246.3994" style="stroke:#181818;stroke-width:1;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="148.0908" x="1640.5" y="1213.1045">SYS_EVT_POWER_OFF</text></g><!--link OTA to ERROR--><g class="link" data-entity-1="OTA" data-entity-2="ERROR" data-source-line="127" data-uid="lnk41" id="link_OTA_ERROR"><path d="M566.23,594.7694 C785.36,609.2294 1071.42,632.6094 1184.5,661.6094 C1377.89,711.1994 1415.59,756.1594 1596.5,840.6094 C1612.71,848.1794 1615.92,851.9094 1632.5,858.6094 C1845.74,944.8094 2093.5594,1019.1018 2262.1294,1065.9818" fill="none" id="OTA-to-ERROR" style="stroke:#181818;stroke-width:1;"/><polygon fill="#181818" points="2267.91,1067.5894,2260.3108,1061.3242,2263.0928,1066.2497,2258.1673,1069.0317,2267.91,1067.5894" style="stroke:#181818;stroke-width:1;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="146.6563" x="1633.5" y="855.1045">SYS_EVT_OTA_ERROR</text></g><!--link OTA to SHUTDOWN--><g class="link" data-entity-1="OTA" data-entity-2="SHUTDOWN" data-source-line="128" data-uid="lnk42" id="link_OTA_SHUTDOWN"><path d="M566,583.7194 C821.06,596.2194 1158.5,636.0094 1158.5,759.1094 C1158.5,759.1094 1158.5,759.1094 1158.5,1119.1094 C1158.5,1170.9294 1260.6979,1213.5467 1368.5579,1244.8567" fill="none" id="OTA-to-SHUTDOWN" style="stroke:#181818;stroke-width:1;"/><polygon fill="#181818" points="1374.32,1246.5294,1366.7919,1240.179,1369.5182,1245.1355,1364.5617,1247.8618,1374.32,1246.5294" style="stroke:#181818;stroke-width:1;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="148.0908" x="1159.5" y="944.6045">SYS_EVT_POWER_OFF</text></g><!--link OTA to OTA--><g class="link" data-entity-1="OTA" data-entity-2="OTA" data-source-line="132" data-uid="lnk44" id="link_OTA_OTA"><path d="M566.1,573.2794 C587.69,574.2294 601,575.6794 601,577.6094 C601,579.5394 593.6842,580.7256 572.0942,581.6756" fill="none" id="OTA-to-OTA" style="stroke:#181818;stroke-width:1;"/><polygon fill="#181818" points="566.1,581.9394,575.2671,585.5399,571.0952,581.7196,574.9155,577.5476,566.1,581.9394" style="stroke:#181818;stroke-width:1;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="215.2935" x="607" y="583.1045">SYS_EVT_OTA_CHECK (forwarded)</text></g><!--link OTA to OTA--><g class="link" data-entity-1="OTA" data-entity-2="OTA" data-source-line="133" data-uid="lnk45" id="link_OTA_OTA"><path d="M566.29,566.2094 C700.67,565.4194 828,569.2194 828,577.6094 C828,585.9994 706.6699,589.8346 572.2899,589.0446" fill="none" id="OTA-to-OTA-1" style="stroke:#181818;stroke-width:1;"/><polygon fill="#181818" points="566.29,589.0094,575.2663,593.0622,571.2899,589.0388,575.3134,585.0624,566.29,589.0094" style="stroke:#181818;stroke-width:1;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="221.0698" x="834" y="583.1045">SYS_EVT_OTA_STATUS (forwarded)</text></g><!--link OTA to OTA--><g class="link" data-entity-1="OTA" data-entity-2="OTA" data-source-line="134" data-uid="lnk46" id="link_OTA_OTA"><path d="M566.02,561.8294 C791.48,557.4994 1061,562.7594 1061,577.6094 C1061,592.4594 797.4789,597.8346 572.0189,593.5046" fill="none" id="OTA-to-OTA-2" style="stroke:#181818;stroke-width:1;"/><polygon fill="#181818" points="566.02,593.3894,574.9415,597.5615,571.0191,593.4854,575.0951,589.5629,566.02,593.3894" style="stroke:#181818;stroke-width:1;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="243.4707" x="1067" y="583.1045">SYS_EVT_OTA_PROGRESS (forwarded)</text></g><!--link RECORDING to RECORDING--><g class="link" data-entity-1="RECORDING" data-entity-2="RECORDING" data-source-line="137" data-uid="lnk47" id="link_RECORDING_RECORDING"><path d="M2887.41,573.1694 C2908.73,574.1194 2922,575.5994 2922,577.6094 C2922,579.6194 2914.7241,580.8323 2893.4041,581.7823" fill="none" id="RECORDING-to-RECORDING" style="stroke:#181818;stroke-width:1;"/><polygon fill="#181818" points="2887.41,582.0494,2896.5791,585.6448,2892.405,581.8268,2896.223,577.6527,2887.41,582.0494" style="stroke:#181818;stroke-width:1;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="203.0425" x="2928" y="583.1045">SYS_EVT_REC_PAUSE (handled)</text></g><!--link RECORDING to RECORDING--><g class="link" data-entity-1="RECORDING" data-entity-2="RECORDING" data-source-line="138" data-uid="lnk48" id="link_RECORDING_RECORDING"><path d="M2887.21,566.2494 C3014.64,565.3094 3137,569.0994 3137,577.6094 C3137,586.1194 3020.6398,589.9536 2893.2098,589.0136" fill="none" id="RECORDING-to-RECORDING-1" style="stroke:#181818;stroke-width:1;"/><polygon fill="#181818" points="2887.21,588.9694,2896.1802,593.0357,2892.2099,589.0063,2896.2393,585.0359,2887.21,588.9694" style="stroke:#181818;stroke-width:1;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="214.5889" x="3143" y="583.1045">SYS_EVT_REC_RESUME (handled)</text></g><!--link RECORDING to RECORDING--><g class="link" data-entity-1="RECORDING" data-entity-2="RECORDING" data-source-line="139" data-uid="lnk49" id="link_RECORDING_RECORDING"><path d="M2887.16,561.9894 C3101.68,557.3694 3363,562.5694 3363,577.6094 C3363,592.6494 3107.6786,597.9786 2893.1586,593.3586" fill="none" id="RECORDING-to-RECORDING-2" style="stroke:#181818;stroke-width:1;"/><polygon fill="#181818" points="2887.16,593.2294,2896.0718,597.4222,2892.1588,593.337,2896.244,589.4241,2887.16,593.2294" style="stroke:#181818;stroke-width:1;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="221.0889" x="3369" y="583.1045">SYS_EVT_LOW_BATTERY (handled)</text></g><!--link UPLOADING to UPLOADING--><g class="link" data-entity-1="UPLOADING" data-entity-2="UPLOADING" data-source-line="140" data-uid="lnk50" id="link_UPLOADING_UPLOADING"><path d="M3408.53,925.7094 C3429.92,928.4094 3443.5,932.8794 3443.5,939.1094 C3443.5,945.3394 3435.8728,949.058 3414.4828,951.758" fill="none" id="UPLOADING-to-UPLOADING" style="stroke:#181818;stroke-width:1;"/><polygon fill="#181818" points="3408.53,952.5094,3417.9601,955.3508,3413.4906,951.8832,3416.9582,947.4138,3408.53,952.5094" style="stroke:#181818;stroke-width:1;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="301.9707" x="3449.5" y="944.6045">SYS_EVT_NETWORK_DISCONNECTED (handled)</text></g><!--link IDLE to GMN5--><g class="link" data-entity-1="IDLE" data-entity-2="GMN5" data-source-line="190" data-uid="lnk7" id="link_IDLE_GMN5"><path d="M2168.75,324.5094 C2216.16,301.6294 2275.55,277.1594 2332,265.6094 C2547.41,221.5494 2796.46,261.1894 2973.91,304.5994" fill="none" id="IDLE-GMN5" style="stroke:#181818;stroke-width:1;stroke-dasharray:7.0,7.0;"/></g><!--link RESET to GMN32--><g class="link" data-entity-1="RESET" data-entity-2="GMN32" data-source-line="264" data-uid="lnk34" id="link_RESET_GMN32"><path d="M3157.6,1476.1094 C3169.22,1476.1094 3180.84,1476.1094 3192.47,1476.1094" fill="none" id="RESET-GMN32" style="stroke:#181818;stroke-width:1;stroke-dasharray:7.0,7.0;"/></g><!--link GMN32 to GMN35--><g class="link" data-entity-1="GMN32" data-entity-2="GMN35" data-source-line="272" data-uid="lnk37" id="link_GMN32_GMN35"><path d="M3414.5,1522.5294 C3414.5,1542.2194 3414.5,1565.7094 3414.5,1587.5094" fill="none" id="GMN32-GMN35" style="stroke:#181818;stroke-width:1;stroke-dasharray:7.0,7.0;"/></g><!--SRC=[nLfTRkCu4dxNAGW_p2IxJYyM-nOq0hXj9HsCOnksCjb68n0OcxQ5oA9NefFE31QOA-mLzcXpaYaMVoMBSXexm3wrnVfO_Af8rW_J8XCv8uktIh0T6N9UhhA22bwIwyKTkI39muB4jDnlUM5HPw-Ps9B1x9RSqVq-ApRdKLGzPyMUbdH7Aa458xz6X7oYo-TDoG_5QiXpNdxyMF1oH_EhA_AmpGIJ25YEbKtffnmcjirdPSbB08oppLOCUKdpfWw36D7oUSvMRKheKcGlp6YvAHahcbeiHAenY6jUY4Ns2oD__qVqxoZwaOpOEWEdeBrLfCpkBRuiqjl9RT8Zj2Bo1_4CaqxHE2bAuqAKRnQPnfDa_WNmJ0vVNJN08-wGeod0Llm84t_BXAVldxWyWq500cUVusWSAoJy89x9FaSG-HpnCyXHIWr7_Dt24JLOZlZLmN4U3wVpqUta1k7sAy3MoZtAC1Pcx2PesXBTmjfJRAYZtlSmJmUJKNe_6qy7lXro96o5b3Pim94EEn3WMO6VhPOeLRuTED1XIvsz_GhmjtBFWaxsReBc7-3kAJRiJp6V9WF4mRy1jY3nUE9NYASKQeRuyvWXJZVSyAE3MpoVJ-U8n5_4XIwF7eeyWl0T9gZ0cg94jb3K2Wr9rDT1SZ6EunaYyLSWbA7COwc_GpoLMFFK7yTCjHB3L7zsSVryduoc3nC5rnyXnbhiauQX3ivcWg4jqMsihM9B7FLsXef5dEZB2By2Z55M2mhu7Gu9Kcm30dwqXGDKue81VZQv_aXkYqnaD2UYf4K5FtaHVVtB8xcukC8y8o4BrEW05JbxeXLR4LwG2gk6TEbgYmzBaktsETi1SIhXvn6cIjGeyz4b6Hm4z_GHkXQi99bYals2izmaUSCloUsQx5a1Qsp8EYjthxHavB1VIMOh9jXIG44GeNuvn-MJIu8tykT4nkrqaGpcYOFPe-HGi-b3F4-drzSEfIwnW-2tfmIlZnEFfm_ffq6InFCl3gICC10PG1fKr07nsSAt4xlGx23Njv1ZbK1hYvpTsWkOZToKHJAF1tSoqAe9f_2JE7cOpdzAXzF991ucyUZaZ1gVK-1Z2-epsgnMspYTDQ3jczGaqERZoF0A7HpVQMhTJhYsPpYzcutZ93w9DpuUtIvgRhQJJdd10eC-yDPlzO1RmRkb8NlguFOrwvZ0gcfg6E3adVSK8fIQpruWvFXnoiMGzWNKpGtBvQNjc6r8TPXeg568U1TUn8FuXz5LIKsm3OR6abLCH1xVnXPfPqmyHAVBJXaElANjLJFmMuyqrfVnp9wFBinWCep75j4yErXNuVanY4uhkhV7sC3ozKKjTwrv2TbZ1VaBN2qXq0oVMsN7WNhuEHx-v4thma8GI-uNxmJFvjCRu5g7otnxH7bBYrKEX6LldXLgNywFesjhofiDxXUnLV7UMS3h_kxxfdbvpvjNZmHjeQmj_daAR06IqoUMgpkjYwDBw3fDqG2z-k59LIDLBpADj8_0ieBiIxvabO5WGGIWf7urPV-igWctaduVAHbTlVKYqmM3u8x32hmaJrJ0NNthauA9Lru-Qv1POipeYwnUj7BNlKhTWfO2L2-nYjhq8jsjWcYEWn10LXdl6_O4wXwgK4RzGl2zho6gjvR7Yv0Vu1o1DJkxe6xEtA9_XGehvtH5gcnto0Kj63zK-Pj3jozEm1cUwgY5XTBRYzoIzsebyFuovmSjClgrSCbbOIaOw7JjdDKfBvZTNTt6WN34NmkS_GDKc71pybpNZGfabf2pZNvfm98MIvR32UnXedABVSQ3IR2ZwqMw5uFnM0wW4rxW52Y9KJwNyHlTiZs85H3gwM3kr4Bv3u4-vwyNU_xAGBFjdgI1EMDxikChPiQDvWVwBEjWgSyrEJ1-Ll22dVSYqyp0q4pg9NozrgDsyzJ1Ha7aznwMk7-pRCDXfTRdNeznVANairaK5HoyMygtELXFfK12FZvTuGs__FYtfojY7jcK0BiYiZuKIwb98PXqLIhRXRDpXHhCRfNek1qnEEWTY5pzY0DSntOELj310Kw2uJ3YX7g05K_LvzavD2vbnbVPaYotRFbSwUMiKzM4hrznuzDrjKjN6TsKT9VAU9_IVVPXAtOviVB7Ht869yL47BAZ1TrWmtNU1prmZ7STQenOQj6X2euMnZ1yxgspaq_1YY48Vl_jlrAeJXAaJSNSyLQ-xXFVacfFnNAROd5MbssOI36L1ORJWkwKU_MwGs1-ABAbYkHsVMklMTvpG7DrXwtWb1G5DeurGIM3IOhfTytAkWYOuRslZMxCQBghDZK9bctcVDnHoDmSZWAoXuuRRKJ7dZwRUY-MZITyS-wrYyAdFoXlUYYCz7Oh3F8yrAt9SrWOQFmNye-jGbelS4CQliKsSGMkihuSNeA3aBS1Si6RR94Trx26UNoK5nUJVCSKAuUhgruykrmZCtItO-eFsEzsKmePC5KP_7kSvjKR_p-_VLzyFE7aXkiQRdwtOq-vyb0lZKBE-zFCKYrOcqcU96oEk_yIXbKH5lDWe8RXtLz2DTCdDWue-5oNJmfuL3O5AKFrrahOZeVfSa63AJnGEOPs05HrR82MEl-Z5bScQJNN9T-ftldCFXD2Kb73yf7WpBo3AZB6qTyoeLv0j1w_9-yJrtshtxYJVUAQwP1diTnizQqd2NktafLhmBzGmlp-stymyHF4_Ic5KMLhPRsgB95XdSE-vXxpPD8d_djjq0lw7QBT4JLXcozKDTxgXBsfoad5_dLWq7Ges7LcQmG5d7323sB3vSxxJp8d2-16YWT4__WnfKycz-DnLwgLRohjsSHAkdA7LmarF50sUWnjKVqXJ45r8-6_YjccxNzp15eHSC8J5uBlbFu9jxRp7TCdYiW_HgpmVmoioDD1oCccBO8HgFl4DgkmO0KjPibFu_iucKwJp-vrlTyYz9z5-jxquUV1_0QoYvkJp0UJnJNivzrq54lvv2RsP_YlxIOoV01viWL7-gP8nvOlm7mDiNTz40SOOzy4Wxs04oUdJCKMDa1FoJFeGTlU__lXloE4U3NcsVUtViipcw-ZzfucRN3kznxyJ2fYg_CFRfV_0000]--></g></svg>
         </div>
         
         <div class="note">
-            <strong>Note:</strong> This diagram is generated from <code>system_coordinator_state_diagram_with_api.puml</code> using the PlantUML server.
-            If the diagram does not display correctly, ensure you have internet connectivity.
+            <strong>Note:</strong> This diagram is generated from <code>system_coordinator_state_diagram_with_api.puml</code> using local PlantUML.
+            No internet connectivity required.
         </div>
         
         <hr>
@@ -64,507 +98,723 @@
         <table>
             <thead>
                 <tr>
-                    <th>Current State</th>
                     <th>Event</th>
-                    <th>Next State</th>
+                    <th>Source Subsystem</th>
+                    <th>Destination Subsystem</th>
+                    <th>Condition</th>
                     <th>Action</th>
                     <th>API Function</th>
-                    <th>Entry Function</th>
-                    <th>Do Action</th>
                 </tr>
             </thead>
             <tbody>
+                
                 <tr>
-                    <td>SYS_INIT</td>
-                    <td>Auto transition</td>
-                    <td>SYS_IDLE</td>
-                    <td>Initialize subsystems</td>
-                    <td><code>system_coordinator_init(sys)</code></td>
-                    <td><code>enter_init()</code></td>
-                    <td><code>do_action()</code> (initialization)</td>
-                </tr>
-                <tr>
-                    <td>SYS_INIT</td>
-                    <td>SYS_EVT_OTA_START (pending update)</td>
-                    <td>SYS_OTA</td>
-                    <td>Start OTA process</td>
-                    <td><code>system_coordinator_dispatch_event(sys, SYS_EVT_OTA_START, NULL)</code></td>
-                    <td><code>enter_ota()</code></td>
-                    <td><code>do_action()</code> (OTA download)</td>
-                </tr>
-                <tr>
-                    <td>SYS_IDLE</td>
                     <td>SYS_EVT_REC_START</td>
-                    <td>SYS_RECORDING</td>
-                    <td>Start recording process</td>
-                    <td><code>system_coordinator_dispatch_event(sys, SYS_EVT_REC_START, NULL)</code></td>
-                    <td><code>enter_recording()</code></td>
-                    <td><code>do_action()</code> (monitor recording)</td>
+                    <td>System Coordinator</td>
+                    <td>System Coordinator</td>
+                    <td>true</td>
+                    <td>Transition</td>
+                    <td><code>comm_fsm_dispatch_event(SYS_EVT_REC_START)</code></td>
                 </tr>
                 <tr>
-                    <td>SYS_IDLE</td>
                     <td>SYS_EVT_POWER_OFF</td>
-                    <td>SYS_SHUTDOWN</td>
-                    <td>Power off system</td>
-                    <td><code>system_coordinator_dispatch_event(sys, SYS_EVT_POWER_OFF, NULL)</code></td>
-                    <td><code>enter_shutdown()</code> (implied)</td>
-                    <td>None</td>
+                    <td>System Coordinator</td>
+                    <td>System Coordinator</td>
+                    <td>true</td>
+                    <td>Transition</td>
+                    <td><code>comm_fsm_dispatch_event(SYS_EVT_POWER_OFF)</code></td>
                 </tr>
                 <tr>
-                    <td>SYS_IDLE</td>
                     <td>SYS_EVT_ERROR</td>
-                    <td>SYS_ERROR</td>
-                    <td>Handle error condition</td>
-                    <td><code>system_coordinator_dispatch_event(sys, SYS_EVT_ERROR, error_data)</code></td>
-                    <td><code>enter_error()</code></td>
-                    <td><code>do_action()</code> (error recovery)</td>
+                    <td>System Coordinator</td>
+                    <td>System Coordinator</td>
+                    <td>true</td>
+                    <td>Transition</td>
+                    <td><code>comm_fsm_dispatch_event(SYS_EVT_ERROR)</code></td>
                 </tr>
                 <tr>
-                    <td>SYS_IDLE</td>
                     <td>SYS_EVT_LOW_BATTERY</td>
-                    <td>SYS_SLEEP</td>
-                    <td>Enter low‑power sleep</td>
-                    <td><code>system_coordinator_dispatch_event(sys, SYS_EVT_LOW_BATTERY, NULL)</code></td>
-                    <td><code>enter_sleep()</code></td>
-                    <td><code>do_action()</code> (sleep mode)</td>
+                    <td>System Coordinator</td>
+                    <td>System Coordinator</td>
+                    <td>true</td>
+                    <td>Transition</td>
+                    <td><code>comm_fsm_dispatch_event(SYS_EVT_LOW_BATTERY)</code></td>
                 </tr>
                 <tr>
-                    <td>SYS_IDLE</td>
                     <td>SYS_EVT_OTA_START</td>
-                    <td>SYS_OTA</td>
-                    <td>Start OTA update</td>
-                    <td><code>system_coordinator_dispatch_event(sys, SYS_EVT_OTA_START, NULL)</code></td>
-                    <td><code>enter_ota()</code></td>
-                    <td><code>do_action()</code> (OTA download)</td>
+                    <td>System Coordinator</td>
+                    <td>System Coordinator</td>
+                    <td>true</td>
+                    <td>Transition</td>
+                    <td><code>comm_fsm_dispatch_event(SYS_EVT_OTA_START)</code></td>
                 </tr>
-                <tr>
-                    <td>SYS_RECORDING</td>
-                    <td>SYS_EVT_STREAMING_START</td>
-                    <td>SYS_RECORDING_AND_UPLOADING</td>
-                    <td>Start streaming while recording</td>
-                    <td><code>system_coordinator_dispatch_event(sys, SYS_EVT_STREAMING_START, NULL)</code></td>
-                    <td><code>enter_recording_and_uploading()</code></td>
-                    <td><code>do_action()</code> (record + stream)</td>
-                </tr>
-                <tr>
-                    <td>SYS_RECORDING</td>
-                    <td>SYS_EVT_REC_STOP</td>
-                    <td>SYS_UPLOADING</td>
-                    <td>Stop recording, start upload</td>
-                    <td><code>system_coordinator_dispatch_event(sys, SYS_EVT_REC_STOP, NULL)</code></td>
-                    <td><code>enter_uploading()</code></td>
-                    <td><code>do_action()</code> (upload monitoring)</td>
-                </tr>
-                <tr>
-                    <td>SYS_RECORDING</td>
-                    <td>SYS_EVT_ERROR</td>
-                    <td>SYS_ERROR</td>
-                    <td>Error during recording</td>
-                    <td><code>system_coordinator_dispatch_event(sys, SYS_EVT_ERROR, error_data)</code></td>
-                    <td><code>enter_error()</code></td>
-                    <td><code>do_action()</code> (error recovery)</td>
-                </tr>
-                <tr>
-                    <td>SYS_RECORDING_AND_UPLOADING</td>
-                    <td>SYS_EVT_STREAMING_STOP</td>
-                    <td>SYS_RECORDING</td>
-                    <td>Stop streaming, continue recording</td>
-                    <td><code>system_coordinator_dispatch_event(sys, SYS_EVT_STREAMING_STOP, NULL)</code></td>
-                    <td><code>enter_recording()</code></td>
-                    <td><code>do_action()</code> (monitor recording)</td>
-                </tr>
-                <tr>
-                    <td>SYS_RECORDING_AND_UPLOADING</td>
-                    <td>SYS_EVT_REC_STOP</td>
-                    <td>SYS_UPLOADING</td>
-                    <td>Stop recording, continue upload</td>
-                    <td><code>system_coordinator_dispatch_event(sys, SYS_EVT_REC_STOP, NULL)</code></td>
-                    <td><code>enter_uploading()</code></td>
-                    <td><code>do_action()</code> (upload monitoring)</td>
-                </tr>
-                <tr>
-                    <td>SYS_RECORDING_AND_UPLOADING</td>
-                    <td>SYS_EVT_ERROR</td>
-                    <td>SYS_ERROR</td>
-                    <td>Error during recording/streaming</td>
-                    <td><code>system_coordinator_dispatch_event(sys, SYS_EVT_ERROR, error_data)</code></td>
-                    <td><code>enter_error()</code></td>
-                    <td><code>do_action()</code> (error recovery)</td>
-                </tr>
-                <tr>
-                    <td>SYS_UPLOADING</td>
-                    <td>SYS_EVT_UPLOAD_COMPLETE</td>
-                    <td>SYS_IDLE</td>
-                    <td>Upload complete, return to idle</td>
-                    <td><code>system_coordinator_dispatch_event(sys, SYS_EVT_UPLOAD_COMPLETE, NULL)</code></td>
-                    <td><code>enter_idle()</code></td>
-                    <td><code>do_action()</code> (idle monitoring)</td>
-                </tr>
-                <tr>
-                    <td>SYS_UPLOADING</td>
-                    <td>SYS_EVT_ERROR</td>
-                    <td>SYS_ERROR</td>
-                    <td>Error during upload</td>
-                    <td><code>system_coordinator_dispatch_event(sys, SYS_EVT_ERROR, error_data)</code></td>
-                    <td><code>enter_error()</code></td>
-                    <td><code>do_action()</code> (error recovery)</td>
-                </tr>
-                <tr>
-                    <td>SYS_ERROR</td>
-                    <td>SYS_EVT_RESET</td>
-                    <td>SYS_INIT</td>
-                    <td>Reset system</td>
-                    <td><code>system_coordinator_dispatch_event(sys, SYS_EVT_RESET, NULL)</code></td>
-                    <td><code>enter_init()</code></td>
-                    <td><code>do_action()</code> (initialization)</td>
-                </tr>
-                <tr>
-                    <td>SYS_ERROR</td>
-                    <td>SYS_EVT_POWER_OFF</td>
-                    <td>SYS_SHUTDOWN</td>
-                    <td>Power off from error</td>
-                    <td><code>system_coordinator_dispatch_event(sys, SYS_EVT_POWER_OFF, NULL)</code></td>
-                    <td><code>enter_shutdown()</code> (implied)</td>
-                    <td>None</td>
-                </tr>
-                <tr>
-                    <td>SYS_SLEEP</td>
-                    <td>SYS_EVT_POWER_ON</td>
-                    <td>SYS_IDLE</td>
-                    <td>Wake from sleep</td>
-                    <td><code>system_coordinator_dispatch_event(sys, SYS_EVT_POWER_ON, NULL)</code></td>
-                    <td><code>enter_idle()</code></td>
-                    <td><code>do_action()</code> (idle monitoring)</td>
-                </tr>
-                <tr>
-                    <td>SYS_OTA</td>
-                    <td>SYS_EVT_OTA_COMPLETE</td>
-                    <td>SYS_IDLE</td>
-                    <td>OTA completed successfully</td>
-                    <td><code>system_coordinator_dispatch_event(sys, SYS_EVT_OTA_COMPLETE, NULL)</code></td>
-                    <td><code>enter_idle()</code></td>
-                    <td><code>do_action()</code> (idle monitoring)</td>
-                </tr>
-                <tr>
-                    <td>SYS_OTA</td>
-                    <td>SYS_EVT_OTA_ERROR</td>
-                    <td>SYS_ERROR</td>
-                    <td>OTA error</td>
-                    <td><code>system_coordinator_dispatch_event(sys, SYS_EVT_OTA_ERROR, NULL)</code></td>
-                    <td><code>enter_error()</code></td>
-                    <td><code>do_action()</code> (error recovery)</td>
-                </tr>
-            </tbody>
+        </tbody>
         </table>
+        
+        <!-- Hierarchical mapping table -->
+        
+    <h2>Hierarchical Mapping Table (Role‑Specific)</h2>
+    <p>This table shows each transition with role‑specific details.</p>
+    <table class="hierarchical">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Source → Target</th>
+                <th>Event</th>
+                <th>Description</th>
+                <th>Subsystems</th>
+                <th>Developer</th>
+                <th>Tester</th>
+                <th>Architect</th>
+                <th>Product</th>
+                <th>Support</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>T001</strong></td>
+                <td>INIT → IDLE</td>
+                <td><code></code></td>
+                <td>Auto transition after initialization</td>
+                <td></td>
+                <td>Entry: <br>Exit: </td>
+                <td>TC: <br>Tested: False</td>
+                <td>Type: external<br>Impact: low</td>
+                <td>Scenario: <br>Priority: </td>
+                <td>Symptom: <br>Recovery: 0 steps</td>
+            </tr>
+            <tr>
+                <td><strong>T002</strong></td>
+                <td>INIT → OTA</td>
+                <td><code></code></td>
+                <td>If pending firmware update detected</td>
+                <td>ota_fsm_diagram_with_api.html ota_fsm</td>
+                <td>Entry: <br>Exit: </td>
+                <td>TC: <br>Tested: False</td>
+                <td>Type: external<br>Impact: low</td>
+                <td>Scenario: <br>Priority: </td>
+                <td>Symptom: <br>Recovery: 0 steps</td>
+            </tr>
+            <tr>
+                <td><strong>T003</strong></td>
+                <td>IDLE → RECORDING</td>
+                <td><code>SYS_EVT_REC_START</code></td>
+                <td></td>
+                <td>recording_fsm_diagram_with_api.html recording_fsm<br>audio_fsm_diagram_with_api.html audio_fsm</td>
+                <td>Entry: <br>Exit: </td>
+                <td>TC: <br>Tested: False</td>
+                <td>Type: external<br>Impact: low</td>
+                <td>Scenario: <br>Priority: </td>
+                <td>Symptom: <br>Recovery: 0 steps</td>
+            </tr>
+            <tr>
+                <td><strong>T004</strong></td>
+                <td>IDLE → SHUTDOWN</td>
+                <td><code>SYS_EVT_POWER_OFF</code></td>
+                <td></td>
+                <td></td>
+                <td>Entry: <br>Exit: </td>
+                <td>TC: <br>Tested: False</td>
+                <td>Type: external<br>Impact: low</td>
+                <td>Scenario: <br>Priority: </td>
+                <td>Symptom: <br>Recovery: 0 steps</td>
+            </tr>
+            <tr>
+                <td><strong>T005</strong></td>
+                <td>IDLE → ERROR</td>
+                <td><code>SYS_EVT_ERROR</code></td>
+                <td></td>
+                <td></td>
+                <td>Entry: <br>Exit: </td>
+                <td>TC: <br>Tested: False</td>
+                <td>Type: external<br>Impact: low</td>
+                <td>Scenario: <br>Priority: </td>
+                <td>Symptom: <br>Recovery: 0 steps</td>
+            </tr>
+            <tr>
+                <td><strong>T006</strong></td>
+                <td>IDLE → SLEEP</td>
+                <td><code>SYS_EVT_LOW_BATTERY</code></td>
+                <td></td>
+                <td>power_fsm_diagram_with_api.html power_fsm</td>
+                <td>Entry: <br>Exit: </td>
+                <td>TC: <br>Tested: False</td>
+                <td>Type: external<br>Impact: low</td>
+                <td>Scenario: <br>Priority: </td>
+                <td>Symptom: <br>Recovery: 0 steps</td>
+            </tr>
+            <tr>
+                <td><strong>T007</strong></td>
+                <td>IDLE → OTA</td>
+                <td><code>SYS_EVT_OTA_START</code></td>
+                <td></td>
+                <td>ota_fsm_diagram_with_api.html ota_fsm</td>
+                <td>Entry: <br>Exit: </td>
+                <td>TC: <br>Tested: False</td>
+                <td>Type: external<br>Impact: low</td>
+                <td>Scenario: <br>Priority: </td>
+                <td>Symptom: <br>Recovery: 0 steps</td>
+            </tr>
+            <tr>
+                <td><strong>T008</strong></td>
+                <td>IDLE → RESET</td>
+                <td><code>SYS_EVT_RESET</code></td>
+                <td></td>
+                <td></td>
+                <td>Entry: <br>Exit: </td>
+                <td>TC: <br>Tested: False</td>
+                <td>Type: external<br>Impact: low</td>
+                <td>Scenario: <br>Priority: </td>
+                <td>Symptom: <br>Recovery: 0 steps</td>
+            </tr>
+            <tr>
+                <td><strong>T009</strong></td>
+                <td>IDLE → UPLOADING</td>
+                <td><code>SYS_EVT_FILE_UPLOAD_START</code></td>
+                <td></td>
+                <td>comm_fsm_diagram_with_api.html comm_fsm</td>
+                <td>Entry: <br>Exit: </td>
+                <td>TC: <br>Tested: False</td>
+                <td>Type: external<br>Impact: low</td>
+                <td>Scenario: <br>Priority: </td>
+                <td>Symptom: <br>Recovery: 0 steps</td>
+            </tr>
+            <tr>
+                <td><strong>T010</strong></td>
+                <td>RECORDING → REC_UPL</td>
+                <td><code>SYS_EVT_STREAMING_START</code></td>
+                <td></td>
+                <td>recording_fsm_diagram_with_api.html recording_fsm<br>audio_fsm_diagram_with_api.html audio_fsm<br>comm_fsm_diagram_with_api.html comm_fsm</td>
+                <td>Entry: <br>Exit: </td>
+                <td>TC: <br>Tested: False</td>
+                <td>Type: external<br>Impact: low</td>
+                <td>Scenario: <br>Priority: </td>
+                <td>Symptom: <br>Recovery: 0 steps</td>
+            </tr>
+            <tr>
+                <td><strong>T011</strong></td>
+                <td>RECORDING → REC_UPL</td>
+                <td><code>SYS_EVT_NETWORK_CONNECTED</code></td>
+                <td></td>
+                <td>recording_fsm_diagram_with_api.html recording_fsm<br>audio_fsm_diagram_with_api.html audio_fsm<br>comm_fsm_diagram_with_api.html comm_fsm</td>
+                <td>Entry: <br>Exit: </td>
+                <td>TC: <br>Tested: False</td>
+                <td>Type: external<br>Impact: low</td>
+                <td>Scenario: <br>Priority: </td>
+                <td>Symptom: <br>Recovery: 0 steps</td>
+            </tr>
+            <tr>
+                <td><strong>T012</strong></td>
+                <td>RECORDING → REC_UPL</td>
+                <td><code>SYS_EVT_UPLOAD_START</code></td>
+                <td></td>
+                <td>recording_fsm_diagram_with_api.html recording_fsm<br>audio_fsm_diagram_with_api.html audio_fsm<br>comm_fsm_diagram_with_api.html comm_fsm</td>
+                <td>Entry: <br>Exit: </td>
+                <td>TC: <br>Tested: False</td>
+                <td>Type: external<br>Impact: low</td>
+                <td>Scenario: <br>Priority: </td>
+                <td>Symptom: <br>Recovery: 0 steps</td>
+            </tr>
+            <tr>
+                <td><strong>T013</strong></td>
+                <td>RECORDING → REC_UPL</td>
+                <td><code>SYS_EVT_FILE_UPLOAD_START</code></td>
+                <td></td>
+                <td>recording_fsm_diagram_with_api.html recording_fsm<br>audio_fsm_diagram_with_api.html audio_fsm<br>comm_fsm_diagram_with_api.html comm_fsm</td>
+                <td>Entry: <br>Exit: </td>
+                <td>TC: <br>Tested: False</td>
+                <td>Type: external<br>Impact: low</td>
+                <td>Scenario: <br>Priority: </td>
+                <td>Symptom: <br>Recovery: 0 steps</td>
+            </tr>
+            <tr>
+                <td><strong>T014</strong></td>
+                <td>RECORDING → UPLOADING</td>
+                <td><code>SYS_EVT_REC_STOP</code></td>
+                <td></td>
+                <td>comm_fsm_diagram_with_api.html comm_fsm</td>
+                <td>Entry: <br>Exit: </td>
+                <td>TC: <br>Tested: False</td>
+                <td>Type: external<br>Impact: low</td>
+                <td>Scenario: <br>Priority: </td>
+                <td>Symptom: <br>Recovery: 0 steps</td>
+            </tr>
+            <tr>
+                <td><strong>T015</strong></td>
+                <td>RECORDING → ERROR</td>
+                <td><code>SYS_EVT_ERROR</code></td>
+                <td></td>
+                <td></td>
+                <td>Entry: <br>Exit: </td>
+                <td>TC: <br>Tested: False</td>
+                <td>Type: external<br>Impact: low</td>
+                <td>Scenario: <br>Priority: </td>
+                <td>Symptom: <br>Recovery: 0 steps</td>
+            </tr>
+            <tr>
+                <td><strong>T016</strong></td>
+                <td>RECORDING → RESET</td>
+                <td><code>SYS_EVT_RESET</code></td>
+                <td></td>
+                <td></td>
+                <td>Entry: <br>Exit: </td>
+                <td>TC: <br>Tested: False</td>
+                <td>Type: external<br>Impact: low</td>
+                <td>Scenario: <br>Priority: </td>
+                <td>Symptom: <br>Recovery: 0 steps</td>
+            </tr>
+            <tr>
+                <td><strong>T017</strong></td>
+                <td>REC_UPL → RECORDING</td>
+                <td><code>SYS_EVT_STREAMING_STOP</code></td>
+                <td></td>
+                <td>recording_fsm_diagram_with_api.html recording_fsm<br>audio_fsm_diagram_with_api.html audio_fsm</td>
+                <td>Entry: <br>Exit: </td>
+                <td>TC: <br>Tested: False</td>
+                <td>Type: external<br>Impact: low</td>
+                <td>Scenario: <br>Priority: </td>
+                <td>Symptom: <br>Recovery: 0 steps</td>
+            </tr>
+            <tr>
+                <td><strong>T018</strong></td>
+                <td>REC_UPL → RECORDING</td>
+                <td><code>SYS_EVT_UPLOAD_COMPLETE</code></td>
+                <td></td>
+                <td>recording_fsm_diagram_with_api.html recording_fsm<br>audio_fsm_diagram_with_api.html audio_fsm</td>
+                <td>Entry: <br>Exit: </td>
+                <td>TC: <br>Tested: False</td>
+                <td>Type: external<br>Impact: low</td>
+                <td>Scenario: <br>Priority: </td>
+                <td>Symptom: <br>Recovery: 0 steps</td>
+            </tr>
+            <tr>
+                <td><strong>T019</strong></td>
+                <td>REC_UPL → RECORDING</td>
+                <td><code>SYS_EVT_NETWORK_DISCONNECTED</code></td>
+                <td></td>
+                <td>recording_fsm_diagram_with_api.html recording_fsm<br>audio_fsm_diagram_with_api.html audio_fsm</td>
+                <td>Entry: <br>Exit: </td>
+                <td>TC: <br>Tested: False</td>
+                <td>Type: external<br>Impact: low</td>
+                <td>Scenario: <br>Priority: </td>
+                <td>Symptom: <br>Recovery: 0 steps</td>
+            </tr>
+            <tr>
+                <td><strong>T020</strong></td>
+                <td>REC_UPL → UPLOADING</td>
+                <td><code>SYS_EVT_REC_STOP</code></td>
+                <td></td>
+                <td>comm_fsm_diagram_with_api.html comm_fsm</td>
+                <td>Entry: <br>Exit: </td>
+                <td>TC: <br>Tested: False</td>
+                <td>Type: external<br>Impact: low</td>
+                <td>Scenario: <br>Priority: </td>
+                <td>Symptom: <br>Recovery: 0 steps</td>
+            </tr>
+            <tr>
+                <td><strong>T021</strong></td>
+                <td>REC_UPL → ERROR</td>
+                <td><code>SYS_EVT_ERROR</code></td>
+                <td></td>
+                <td></td>
+                <td>Entry: <br>Exit: </td>
+                <td>TC: <br>Tested: False</td>
+                <td>Type: external<br>Impact: low</td>
+                <td>Scenario: <br>Priority: </td>
+                <td>Symptom: <br>Recovery: 0 steps</td>
+            </tr>
+            <tr>
+                <td><strong>T022</strong></td>
+                <td>REC_UPL → RESET</td>
+                <td><code>SYS_EVT_RESET</code></td>
+                <td></td>
+                <td></td>
+                <td>Entry: <br>Exit: </td>
+                <td>TC: <br>Tested: False</td>
+                <td>Type: external<br>Impact: low</td>
+                <td>Scenario: <br>Priority: </td>
+                <td>Symptom: <br>Recovery: 0 steps</td>
+            </tr>
+            <tr>
+                <td><strong>T023</strong></td>
+                <td>UPLOADING → IDLE</td>
+                <td><code>SYS_EVT_UPLOAD_COMPLETE</code></td>
+                <td></td>
+                <td></td>
+                <td>Entry: <br>Exit: </td>
+                <td>TC: <br>Tested: False</td>
+                <td>Type: external<br>Impact: low</td>
+                <td>Scenario: <br>Priority: </td>
+                <td>Symptom: <br>Recovery: 0 steps</td>
+            </tr>
+            <tr>
+                <td><strong>T024</strong></td>
+                <td>UPLOADING → ERROR</td>
+                <td><code>SYS_EVT_ERROR</code></td>
+                <td></td>
+                <td></td>
+                <td>Entry: <br>Exit: </td>
+                <td>TC: <br>Tested: False</td>
+                <td>Type: external<br>Impact: low</td>
+                <td>Scenario: <br>Priority: </td>
+                <td>Symptom: <br>Recovery: 0 steps</td>
+            </tr>
+            <tr>
+                <td><strong>T025</strong></td>
+                <td>UPLOADING → RESET</td>
+                <td><code>SYS_EVT_RESET</code></td>
+                <td></td>
+                <td></td>
+                <td>Entry: <br>Exit: </td>
+                <td>TC: <br>Tested: False</td>
+                <td>Type: external<br>Impact: low</td>
+                <td>Scenario: <br>Priority: </td>
+                <td>Symptom: <br>Recovery: 0 steps</td>
+            </tr>
+            <tr>
+                <td><strong>T026</strong></td>
+                <td>ERROR → RESET</td>
+                <td><code>SYS_EVT_RESET</code></td>
+                <td></td>
+                <td></td>
+                <td>Entry: <br>Exit: </td>
+                <td>TC: <br>Tested: False</td>
+                <td>Type: external<br>Impact: low</td>
+                <td>Scenario: <br>Priority: </td>
+                <td>Symptom: <br>Recovery: 0 steps</td>
+            </tr>
+            <tr>
+                <td><strong>T027</strong></td>
+                <td>ERROR → SHUTDOWN</td>
+                <td><code>SYS_EVT_POWER_OFF</code></td>
+                <td></td>
+                <td></td>
+                <td>Entry: <br>Exit: </td>
+                <td>TC: <br>Tested: False</td>
+                <td>Type: external<br>Impact: low</td>
+                <td>Scenario: <br>Priority: </td>
+                <td>Symptom: <br>Recovery: 0 steps</td>
+            </tr>
+            <tr>
+                <td><strong>T028</strong></td>
+                <td>INIT → RESET</td>
+                <td><code>SYS_EVT_RESET</code></td>
+                <td></td>
+                <td></td>
+                <td>Entry: <br>Exit: </td>
+                <td>TC: <br>Tested: False</td>
+                <td>Type: external<br>Impact: low</td>
+                <td>Scenario: <br>Priority: </td>
+                <td>Symptom: <br>Recovery: 0 steps</td>
+            </tr>
+            <tr>
+                <td><strong>T029</strong></td>
+                <td>SLEEP → RESET</td>
+                <td><code>SYS_EVT_RESET</code></td>
+                <td></td>
+                <td></td>
+                <td>Entry: <br>Exit: </td>
+                <td>TC: <br>Tested: False</td>
+                <td>Type: external<br>Impact: low</td>
+                <td>Scenario: <br>Priority: </td>
+                <td>Symptom: <br>Recovery: 0 steps</td>
+            </tr>
+            <tr>
+                <td><strong>T030</strong></td>
+                <td>OTA → RESET</td>
+                <td><code>SYS_EVT_RESET</code></td>
+                <td></td>
+                <td></td>
+                <td>Entry: <br>Exit: </td>
+                <td>TC: <br>Tested: False</td>
+                <td>Type: external<br>Impact: low</td>
+                <td>Scenario: <br>Priority: </td>
+                <td>Symptom: <br>Recovery: 0 steps</td>
+            </tr>
+            <tr>
+                <td><strong>T031</strong></td>
+                <td>SHUTDOWN → RESET</td>
+                <td><code>SYS_EVT_RESET</code></td>
+                <td></td>
+                <td></td>
+                <td>Entry: <br>Exit: </td>
+                <td>TC: <br>Tested: False</td>
+                <td>Type: external<br>Impact: low</td>
+                <td>Scenario: <br>Priority: </td>
+                <td>Symptom: <br>Recovery: 0 steps</td>
+            </tr>
+            <tr>
+                <td><strong>T032</strong></td>
+                <td>RESET → INIT</td>
+                <td><code></code></td>
+                <td>Auto transition after reset</td>
+                <td></td>
+                <td>Entry: <br>Exit: </td>
+                <td>TC: <br>Tested: False</td>
+                <td>Type: external<br>Impact: low</td>
+                <td>Scenario: <br>Priority: </td>
+                <td>Symptom: <br>Recovery: 0 steps</td>
+            </tr>
+            <tr>
+                <td><strong>T033</strong></td>
+                <td>SLEEP → IDLE</td>
+                <td><code>SYS_EVT_POWER_ON</code></td>
+                <td></td>
+                <td></td>
+                <td>Entry: <br>Exit: </td>
+                <td>TC: <br>Tested: False</td>
+                <td>Type: external<br>Impact: low</td>
+                <td>Scenario: <br>Priority: </td>
+                <td>Symptom: <br>Recovery: 0 steps</td>
+            </tr>
+            <tr>
+                <td><strong>T034</strong></td>
+                <td>SLEEP → SHUTDOWN</td>
+                <td><code>SYS_EVT_POWER_OFF</code></td>
+                <td></td>
+                <td></td>
+                <td>Entry: <br>Exit: </td>
+                <td>TC: <br>Tested: False</td>
+                <td>Type: external<br>Impact: low</td>
+                <td>Scenario: <br>Priority: </td>
+                <td>Symptom: <br>Recovery: 0 steps</td>
+            </tr>
+            <tr>
+                <td><strong>T035</strong></td>
+                <td>SLEEP → RESET</td>
+                <td><code>SYS_EVT_RESET</code></td>
+                <td></td>
+                <td></td>
+                <td>Entry: <br>Exit: </td>
+                <td>TC: <br>Tested: False</td>
+                <td>Type: external<br>Impact: low</td>
+                <td>Scenario: <br>Priority: </td>
+                <td>Symptom: <br>Recovery: 0 steps</td>
+            </tr>
+            <tr>
+                <td><strong>T036</strong></td>
+                <td>OTA → IDLE</td>
+                <td><code>SYS_EVT_OTA_COMPLETE</code></td>
+                <td></td>
+                <td></td>
+                <td>Entry: <br>Exit: </td>
+                <td>TC: <br>Tested: False</td>
+                <td>Type: external<br>Impact: low</td>
+                <td>Scenario: <br>Priority: </td>
+                <td>Symptom: <br>Recovery: 0 steps</td>
+            </tr>
+            <tr>
+                <td><strong>T037</strong></td>
+                <td>OTA → IDLE</td>
+                <td><code>SYS_EVT_OTA_CANCEL</code></td>
+                <td></td>
+                <td></td>
+                <td>Entry: <br>Exit: </td>
+                <td>TC: <br>Tested: False</td>
+                <td>Type: external<br>Impact: low</td>
+                <td>Scenario: <br>Priority: </td>
+                <td>Symptom: <br>Recovery: 0 steps</td>
+            </tr>
+            <tr>
+                <td><strong>T038</strong></td>
+                <td>OTA → ERROR</td>
+                <td><code>SYS_EVT_OTA_ERROR</code></td>
+                <td></td>
+                <td></td>
+                <td>Entry: <br>Exit: </td>
+                <td>TC: <br>Tested: False</td>
+                <td>Type: external<br>Impact: low</td>
+                <td>Scenario: <br>Priority: </td>
+                <td>Symptom: <br>Recovery: 0 steps</td>
+            </tr>
+            <tr>
+                <td><strong>T039</strong></td>
+                <td>OTA → SHUTDOWN</td>
+                <td><code>SYS_EVT_POWER_OFF</code></td>
+                <td></td>
+                <td></td>
+                <td>Entry: <br>Exit: </td>
+                <td>TC: <br>Tested: False</td>
+                <td>Type: external<br>Impact: low</td>
+                <td>Scenario: <br>Priority: </td>
+                <td>Symptom: <br>Recovery: 0 steps</td>
+            </tr>
+            <tr>
+                <td><strong>T040</strong></td>
+                <td>OTA → RESET</td>
+                <td><code>SYS_EVT_RESET</code></td>
+                <td></td>
+                <td></td>
+                <td>Entry: <br>Exit: </td>
+                <td>TC: <br>Tested: False</td>
+                <td>Type: external<br>Impact: low</td>
+                <td>Scenario: <br>Priority: </td>
+                <td>Symptom: <br>Recovery: 0 steps</td>
+            </tr>
+            <tr>
+                <td><strong>T041</strong></td>
+                <td>OTA → OTA</td>
+                <td><code>SYS_EVT_OTA_CHECK</code></td>
+                <td></td>
+                <td>ota_fsm_diagram_with_api.html ota_fsm</td>
+                <td>Entry: <br>Exit: </td>
+                <td>TC: <br>Tested: False</td>
+                <td>Type: external<br>Impact: low</td>
+                <td>Scenario: <br>Priority: </td>
+                <td>Symptom: <br>Recovery: 0 steps</td>
+            </tr>
+            <tr>
+                <td><strong>T042</strong></td>
+                <td>OTA → OTA</td>
+                <td><code>SYS_EVT_OTA_STATUS</code></td>
+                <td></td>
+                <td>ota_fsm_diagram_with_api.html ota_fsm</td>
+                <td>Entry: <br>Exit: </td>
+                <td>TC: <br>Tested: False</td>
+                <td>Type: external<br>Impact: low</td>
+                <td>Scenario: <br>Priority: </td>
+                <td>Symptom: <br>Recovery: 0 steps</td>
+            </tr>
+            <tr>
+                <td><strong>T043</strong></td>
+                <td>OTA → OTA</td>
+                <td><code>SYS_EVT_OTA_PROGRESS</code></td>
+                <td></td>
+                <td>ota_fsm_diagram_with_api.html ota_fsm</td>
+                <td>Entry: <br>Exit: </td>
+                <td>TC: <br>Tested: False</td>
+                <td>Type: external<br>Impact: low</td>
+                <td>Scenario: <br>Priority: </td>
+                <td>Symptom: <br>Recovery: 0 steps</td>
+            </tr>
+            <tr>
+                <td><strong>T044</strong></td>
+                <td>RECORDING → RECORDING</td>
+                <td><code>SYS_EVT_REC_PAUSE</code></td>
+                <td></td>
+                <td>recording_fsm_diagram_with_api.html recording_fsm<br>audio_fsm_diagram_with_api.html audio_fsm</td>
+                <td>Entry: <br>Exit: </td>
+                <td>TC: <br>Tested: False</td>
+                <td>Type: external<br>Impact: low</td>
+                <td>Scenario: <br>Priority: </td>
+                <td>Symptom: <br>Recovery: 0 steps</td>
+            </tr>
+            <tr>
+                <td><strong>T045</strong></td>
+                <td>RECORDING → RECORDING</td>
+                <td><code>SYS_EVT_REC_RESUME</code></td>
+                <td></td>
+                <td>recording_fsm_diagram_with_api.html recording_fsm<br>audio_fsm_diagram_with_api.html audio_fsm</td>
+                <td>Entry: <br>Exit: </td>
+                <td>TC: <br>Tested: False</td>
+                <td>Type: external<br>Impact: low</td>
+                <td>Scenario: <br>Priority: </td>
+                <td>Symptom: <br>Recovery: 0 steps</td>
+            </tr>
+            <tr>
+                <td><strong>T046</strong></td>
+                <td>RECORDING → RECORDING</td>
+                <td><code>SYS_EVT_LOW_BATTERY</code></td>
+                <td></td>
+                <td>recording_fsm_diagram_with_api.html recording_fsm<br>audio_fsm_diagram_with_api.html audio_fsm</td>
+                <td>Entry: <br>Exit: </td>
+                <td>TC: <br>Tested: False</td>
+                <td>Type: external<br>Impact: low</td>
+                <td>Scenario: <br>Priority: </td>
+                <td>Symptom: <br>Recovery: 0 steps</td>
+            </tr>
+            <tr>
+                <td><strong>T047</strong></td>
+                <td>UPLOADING → UPLOADING</td>
+                <td><code>SYS_EVT_NETWORK_DISCONNECTED</code></td>
+                <td></td>
+                <td>comm_fsm_diagram_with_api.html comm_fsm</td>
+                <td>Entry: <br>Exit: </td>
+                <td>TC: <br>Tested: False</td>
+                <td>Type: external<br>Impact: low</td>
+                <td>Scenario: <br>Priority: </td>
+                <td>Symptom: <br>Recovery: 0 steps</td>
+            </tr>
+        </tbody>
+    </table>
+    <style>
+        table.hierarchical {{
+            font-size: 12px;
+            border-collapse: collapse;
+            width: 100%;
+            overflow-x: auto;
+            display: block;
+        }}
+        table.hierarchical th {{
+            background-color: #e0f0ff;
+            position: sticky;
+            top: 0;
+        }}
+        table.hierarchical td, table.hierarchical th {{
+            border: 1px solid #ccc;
+            padding: 6px;
+            vertical-align: top;
+        }}
+        table.hierarchical tr:nth-child(even) {{
+            background-color: #f9f9f9;
+        }}
+    </style>
         
         <hr>
         
-        <h2>State Details</h2>
-        <ul>
-            <li><strong>SYS_INIT</strong>: Initialization state. Automatically transitions to IDLE after subsystems are initialized. May transition to OTA if a pending firmware update is detected.</li>
-            <li><strong>SYS_IDLE</strong>: Main operational state. System is ready for user interaction. Monitors battery, network, and user commands.</li>
-            <li><strong>SYS_RECORDING</strong>: Recording audio data. Activates recording_fsm and audio_fsm.</li>
-            <li><strong>SYS_RECORDING_AND_UPLOADING</strong>: Simultaneous recording and streaming. Both recording_fsm, audio_fsm, and comm_fsm are active.</li>
-            <li><strong>SYS_UPLOADING</strong>: Uploading recorded data to cloud. Uses network connection (comm_fsm).</li>
-            <li><strong>SYS_OTA</strong>: Over‑the‑air firmware update. Activates ota_fsm.</li>
-            <li><strong>SYS_ERROR</strong>: Error handling state. Contains error_code and error_msg for diagnostics. Can recover via reset or shutdown.</li>
-            <li><strong>SYS_SLEEP</strong>: Low‑power sleep mode. Subsystems are in low‑power state.</li>
-            <li><strong>SYS_SHUTDOWN</strong>: System shutdown. Final state before power off.</li>
-            <li><strong>SYS_RESET</strong>: Reset state. Resets subsystems and automatically transitions back to INIT.</li>
-        </ul>
-        
         <h2>API Functions</h2>
         <ul>
-            <li><code>system_coordinator_init(struct system_coordinator *sys)</code>: Initialize the system coordinator.</li>
-            <li><code>system_coordinator_dispatch_event(struct system_coordinator *sys, enum system_event event, void *data)</code>: Dispatch an event to the state machine.</li>
-            <li><code>system_coordinator_get_state(struct system_coordinator *sys)</code>: Get current state.</li>
-            <li><code>system_coordinator_set_error(struct system_coordinator *sys, int code, const char *msg)</code>: Set error information in ERROR state.</li>
-            <li><code>system_coordinator_get_error_code(struct system_coordinator *sys)</code>: Retrieve error code.</li>
-            <li><code>system_coordinator_get_error_msg(struct system_coordinator *sys)</code>: Retrieve error message.</li>
+            <li><code>comm_fsm_reset()</code></li>
+<li><code>system_coordinator_get_state()</code></li>
+<li><code>system_coordinator_set_error()</code></li>
+<li><code>power_fsm_get_state_name()</code></li>
+<li><code>system_coordinator_get_error_msg()</code></li>
+<li><code>comm_fsm_get_error_msg()</code></li>
+<li><code>comm_fsm_dispatch_event()</code></li>
+<li><code>comm_fsm_set_error()</code></li>
+<li><code>do_action()</code></li>
+<li><code>enter_idle()</code></li>
+<li><code>power_fsm_init()</code></li>
+<li><code>comm_fsm_is_connected()</code></li>
+<li><code>enter_recording_and_uploading()</code></li>
+<li><code>enter_ota()</code></li>
+<li><code>power_fsm_get_state()</code></li>
+<li><code>power_fsm_dispatch_event()</code></li>
+<li><code>enter_recording()</code></li>
+<li><code>enter_sleep()</code></li>
+<li><code>system_coordinator_init()</code></li>
+<li><code>enter_uploading()</code></li>
+<li><code>enter_init()</code></li>
+<li><code>comm_fsm_init()</code></li>
+<li><code>system_coordinator_reset()</code></li>
+<li><code>comm_fsm_start_transfer()</code></li>
+<li><code>system_coordinator_dispatch_event()</code></li>
+<li><code>enter_reset()</code></li>
+
         </ul>
         
+        
+        <h2>Sequence Diagram</h2>
+        <p>Below is a sequence diagram illustrating the interaction between subsystems during a typical scenario.</p>
+        <div class="diagram">
+            <img src="system_coordinator_sequence.svg" alt="Sequence Diagram" style="max-width: 100%;">
+        </div>
+        <div class="note">
+            <strong>Note:</strong> This sequence diagram is generated from <code>system_coordinator_sequence.puml</code>.
+        </div>
+        
+        <hr>
+        
         <div class="links">
-            <a href="system_coordinator_with_all_subsystems.html">All Subsystems Diagram</a>
+            <a href="system_coordinator_state_diagram_with_api.html">System Coordinator FSM</a>
             <a href="recording_fsm_diagram_with_api.html">Recording FSM</a>
             <a href="audio_fsm_diagram_with_api.html">Audio FSM</a>
             <a href="comm_fsm_diagram_with_api.html">Communication FSM</a>
             <a href="power_fsm_diagram_with_api.html">Power FSM</a>
             <a href="ota_fsm_diagram_with_api.html">OTA FSM</a>
-            <a href="system_coordinator_sequence.html">Sequence Diagram</a>
-            <a href="../dashboard/system_coordinator_dashboard.html">Dashboard</a>
+            <a href="efsm_protocol_diagram_with_api.html">EFSM Protocol</a>
+            <a href="index.html">Index</a>
         </div>
     </div>
-
-    <script>
-        // PlantUML script from .puml file
-        const plantUmlScript = `@startuml
-title System Coordinator FSM - TWS Earphone System (with API Mapping)
-
-skinparam state {
-  BackgroundColor<<normal>> White
-  BorderColor<<normal>> Black
-  BackgroundColor<<error>> LightCoral
-  BorderColor<<error>> DarkRed
-  BackgroundColor<<active>> LightGreen
-  BorderColor<<active>> DarkGreen
-  FontSize 13
-}
-
-' Define states
-state "SYS_INIT" as INIT <<normal>> {
-  state "INIT_Entry" as INIT_ENTRY <<entry>>
-  state "INIT_Do" as INIT_DO <<do>>
-  state "INIT_Exit" as INIT_EXIT <<exit>>
-}
-
-state "SYS_IDLE" as IDLE <<active>> {
-  state "IDLE_Entry" as IDLE_ENTRY <<entry>>
-  state "IDLE_Do" as IDLE_DO <<do>>
-  state "IDLE_Exit" as IDLE_EXIT <<exit>>
-}
-
-state "SYS_RECORDING" as RECORDING <<active>> {
-  state "RECORDING_Entry" as REC_ENTRY <<entry>>
-  state "RECORDING_Do" as REC_DO <<do>>
-  state "RECORDING_Exit" as REC_EXIT <<exit>>
-}
-
-state "SYS_RECORDING_AND_UPLOADING" as REC_UPL <<active>> {
-  state "REC_UPL_Entry" as REC_UPL_ENTRY <<entry>>
-  state "REC_UPL_Do" as REC_UPL_DO <<do>>
-  state "REC_UPL_Exit" as REC_UPL_EXIT <<exit>>
-}
-
-state "SYS_UPLOADING" as UPLOADING <<active>> {
-  state "UPLOADING_Entry" as UPL_ENTRY <<entry>>
-  state "UPLOADING_Do" as UPL_DO <<do>>
-  state "UPLOADING_Exit" as UPL_EXIT <<exit>>
-}
-
-state "SYS_OTA" as OTA <<active>> {
-  state "OTA_Entry" as OTA_ENTRY <<entry>>
-  state "OTA_Do" as OTA_DO <<do>>
-  state "OTA_Exit" as OTA_EXIT <<exit>>
-}
-
-state "SYS_ERROR" as ERROR <<error>> {
-  state "ERROR_Entry" as ERR_ENTRY <<entry>>
-  state "ERROR_Do" as ERR_DO <<do>>
-  state "ERROR_Exit" as ERR_EXIT <<exit>>
-}
-
-state "SYS_SLEEP" as SLEEP <<normal>> {
-  state "SLEEP_Entry" as SLEEP_ENTRY <<entry>>
-  state "SLEEP_Do" as SLEEP_DO <<do>>
-  state "SLEEP_Exit" as SLEEP_EXIT <<exit>>
-}
-
-state "SYS_SHUTDOWN" as SHUTDOWN <<normal>> {
-  state "SHUTDOWN_Entry" as SHUT_ENTRY <<entry>>
-  state "SHUTDOWN_Do" as SHUT_DO <<do>>
-  state "SHUTDOWN_Exit" as SHUT_EXIT <<exit>>
-}
-
-state "SYS_RESET" as RESET <<normal>> {
-  state "RESET_Entry" as RESET_ENTRY <<entry>>
-  state "RESET_Do" as RESET_DO <<do>>
-  state "RESET_Exit" as RESET_EXIT <<exit>>
-}
-
-' Initial transition
-[*] --> INIT
-
-' State transitions (based on system_coordinator.c implementation)
-INIT --> IDLE : Auto transition after initialization
-INIT --> OTA : If pending firmware update detected
-
-IDLE --> RECORDING : SYS_EVT_REC_START
-IDLE --> SHUTDOWN : SYS_EVT_POWER_OFF
-IDLE --> ERROR : SYS_EVT_ERROR
-IDLE --> SLEEP : SYS_EVT_LOW_BATTERY
-IDLE --> OTA : SYS_EVT_OTA_START
-
-RECORDING --> REC_UPL : SYS_EVT_STREAMING_START
-RECORDING --> UPLOADING : SYS_EVT_REC_STOP
-RECORDING --> ERROR : SYS_EVT_ERROR
-
-REC_UPL --> RECORDING : SYS_EVT_STREAMING_STOP
-REC_UPL --> RECORDING : SYS_EVT_UPLOAD_COMPLETE
-REC_UPL --> RECORDING : SYS_EVT_NETWORK_DISCONNECTED
-REC_UPL --> UPLOADING : SYS_EVT_REC_STOP
-REC_UPL --> ERROR : SYS_EVT_ERROR
-
-UPLOADING --> IDLE : SYS_EVT_UPLOAD_COMPLETE
-UPLOADING --> ERROR : SYS_EVT_ERROR
-
-ERROR --> INIT : SYS_EVT_RESET
-ERROR --> SHUTDOWN : SYS_EVT_POWER_OFF
-
-' RESET event transitions
-INIT --> RESET : SYS_EVT_RESET
-IDLE --> RESET : SYS_EVT_RESET
-RECORDING --> RESET : SYS_EVT_RESET
-REC_UPL --> RESET : SYS_EVT_RESET
-UPLOADING --> RESET : SYS_EVT_RESET
-SLEEP --> RESET : SYS_EVT_RESET
-OTA --> RESET : SYS_EVT_RESET
-
-' RESET auto-transition to INIT
-RESET --> INIT : Auto transition after reset
-
-SLEEP --> IDLE : SYS_EVT_POWER_ON
-
-' OTA state transitions
-OTA --> IDLE : SYS_EVT_OTA_COMPLETE
-OTA --> IDLE : SYS_EVT_OTA_CANCEL
-OTA --> ERROR : SYS_EVT_OTA_ERROR
-OTA --> SHUTDOWN : SYS_EVT_POWER_OFF
-
-' OTA self-transitions (forwarded to OTA FSM)
-OTA --> OTA : SYS_EVT_OTA_CHECK (forwarded)
-OTA --> OTA : SYS_EVT_OTA_STATUS (forwarded)
-OTA --> OTA : SYS_EVT_OTA_PROGRESS (forwarded)
-
-' Self-transitions (handled within state)
-RECORDING --> RECORDING : SYS_EVT_REC_PAUSE (handled)
-RECORDING --> RECORDING : SYS_EVT_REC_RESUME (handled)
-RECORDING --> RECORDING : SYS_EVT_LOW_BATTERY (handled)
-UPLOADING --> UPLOADING : SYS_EVT_NETWORK_DISCONNECTED (handled)
-
-' State labels
-INIT_ENTRY : "Initialize subsystems"
-INIT_DO : "Initialization process"
-INIT_EXIT : "Transition to IDLE"
-
-IDLE_ENTRY : "System ready"
-IDLE_DO : "Monitor battery, network"
-IDLE_EXIT : "Leaving IDLE"
-
-REC_ENTRY : "Start recording"
-REC_DO : "Record audio, process data"
-REC_EXIT : "Stop recording"
-
-REC_UPL_ENTRY : "Start recording & streaming"
-REC_UPL_DO : "Record + upload simultaneously"
-REC_UPL_EXIT : "Stop recording or streaming"
-
-UPL_ENTRY : "Start upload"
-UPL_DO : "Upload to cloud"
-UPL_EXIT : "Upload complete"
-
-OTA_ENTRY : "Start OTA process"
-OTA_DO : "Download & install update"
-OTA_EXIT : "OTA complete or cancelled"
-
-ERR_ENTRY : "Handle error"
-ERR_DO : "Error recovery"
-ERR_EXIT : "Reset or shutdown"
-
-SLEEP_ENTRY : "Enter low-power"
-SLEEP_DO : "Sleep mode"
-SLEEP_EXIT : "Wake up"
-
-SHUT_ENTRY : "(none)"
-SHUT_DO : "Power off"
-SHUT_EXIT : "System off"
-
-RESET_ENTRY : "Reset subsystems"
-RESET_DO : "Reset process"
-RESET_EXIT : "Transition to INIT"
-
-note right of INIT
-  <b>State:</b> SYS_INIT
-  <b>Entry function:</b> enter_init()
-  <b>API:</b> system_coordinator_init()
-end note
-
-note right of IDLE
-  <b>State:</b> SYS_IDLE
-  <b>Entry function:</b> enter_idle()
-  <b>Do action:</b> do_action() periodic checks
-  <b>Subsystems:</b> [[power_fsm_diagram_with_api.html power_fsm]] (low battery management), [[comm_fsm_diagram_with_api.html comm_fsm]] (network monitoring)
-  <b>Main operational state</b>
-end note
-
-note right of RECORDING
-  <b>State:</b> SYS_RECORDING
-  <b>Entry function:</b> enter_recording()
-  <b>Do action:</b> monitor recording progress
-  <b>Subsystems:</b> [[recording_fsm_diagram_with_api.html recording_fsm]], [[audio_fsm_diagram_with_api.html audio_fsm]] active
-end note
-
-note right of REC_UPL
-  <b>State:</b> SYS_RECORDING_AND_UPLOADING
-  <b>Entry function:</b> enter_recording_and_uploading()
-  <b>Do action:</b> monitor recording & streaming
-  <b>Subsystems:</b> [[recording_fsm_diagram_with_api.html recording_fsm]], [[audio_fsm_diagram_with_api.html audio_fsm]], [[comm_fsm_diagram_with_api.html comm_fsm]] active
-end note
-
-note right of UPLOADING
-  <b>State:</b> SYS_UPLOADING
-  <b>Entry function:</b> enter_uploading()
-  <b>Do action:</b> upload to cloud
-  <b>Subsystems:</b> [[comm_fsm_diagram_with_api.html comm_fsm]] active
-end note
-
-note right of ERROR
-  <b>State:</b> SYS_ERROR
-  <b>Entry function:</b> enter_error()
-  <b>Error handling:</b> error_code, error_msg
-  <b>Recovery:</b> Reset or shutdown
-end note
-
-note right of OTA
-  <b>State:</b> SYS_OTA
-  <b>Entry function:</b> enter_ota()
-  <b>Do action:</b> download & install update
-  <b>Subsystems:</b> [[ota_fsm_diagram_with_api.html ota_fsm]] active
-  <b>Transitions:</b> From IDLE (OTA_START), From INIT (pending update)
-  <b>Exit events:</b> OTA_COMPLETE, OTA_CANCEL, OTA_ERROR, POWER_OFF
-end note
-
-note right of SLEEP
-  <b>State:</b> SYS_SLEEP
-  <b>Entry function:</b> enter_sleep()
-  <b>Do action:</b> low‑power sleep
-  <b>Subsystems:</b> [[power_fsm_diagram_with_api.html power_fsm]] (sleep mode)
-  <b>Wake‑up events:</b> POWER_ON, LOW_BATTERY
-end note
-
-note right of SHUTDOWN
-  <b>State:</b> SYS_SHUTDOWN
-  <b>Entry function:</b> (none)
-  <b>Do action:</b> power off sequence
-  <b>Final state:</b> No outgoing transitions
-  <b>API:</b> system_coordinator_dispatch_event(sys, SYS_EVT_POWER_OFF, NULL)
-end note
-
-note right of RESET
-  <b>State:</b> SYS_RESET
-  <b>Entry function:</b> enter_reset()
-  <b>Do action:</b> reset subsystems
-  <b>Auto transition:</b> to INIT after reset complete
-  <b>API:</b> system_coordinator_dispatch_event(sys, SYS_EVT_RESET, NULL)
-end note
-
-note bottom
-  <b>Note:</b> Some events are defined but not processed in this FSM:
-  SYS_EVT_UPLOAD_START, SYS_EVT_NETWORK_CONNECTED,
-  SYS_EVT_BLUETOOTH_CONNECTED, SYS_EVT_BLUETOOTH_DISCONNECTED,
-  SYS_EVT_CHARGING, SYS_EVT_TRANSFER_MODE_CHANGE,
-  SYS_EVT_FILE_UPLOAD_START, SYS_EVT_FILE_UPLOAD_COMPLETE,
-  SYS_EVT_OTA_CHECK, SYS_EVT_OTA_STATUS, SYS_EVT_OTA_PROGRESS.
-  These events are reserved for future extensions.
-end note
-
-@enduml`;
-
-        // Encode the PlantUML script
-        const encoded = window.plantumlEncoder.encode(plantUmlScript);
-        // Use the PlantUML server (public)
-        const imgUrl = 'https://www.plantuml.com/plantuml/svg/' + encoded;
-        // Set the image source
-        document.getElementById('diagram').src = imgUrl;
-    </script>
 </body>
 </html>

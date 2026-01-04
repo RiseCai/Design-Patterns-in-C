@@ -3,10 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Recording FSM with API Mapping - TWS Earphone System</title>
-    <script src="https://cdn.jsdelivr.net/npm/plantuml-encoder@1.4.0/dist/plantuml-encoder.min.js"></script>
+    <title>Recording FSM - TWS Earphone System</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f9f9f9; }
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f9f9f9;
+        }
         .container {
             max-width: 1200px;
             margin: 0 auto;
@@ -15,15 +18,42 @@
             border-radius: 8px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
-        h1 { color: #333; border-bottom: 2px solid #7209b7; padding-bottom: 10px; }
-        h2 { color: #555; }
-        table { border-collapse: collapse; width: 100%; margin-top: 20px; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-        th { background-color: #f2f2f2; }
-        code { background-color: #f5f5f5; padding: 2px 4px; border-radius: 3px; }
-        pre { background: #f0f0f0; padding: 10px; overflow: auto; }
-        img { max-width: 100%; border: 1px solid #ccc; }
-        .diagram { text-align: center; margin: 20px 0; overflow: auto; }
+        h1 {
+            color: #333;
+            border-bottom: 2px solid #0d6efd;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #555;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        code {
+            background-color: #f5f5f5;
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+        pre {
+            background: #f0f0f0;
+            padding: 10px;
+            overflow: auto;
+        }
+        .diagram {
+            text-align: center;
+            margin: 20px 0;
+            overflow: auto;
+        }
         .note {
             margin-top: 20px;
             padding: 15px;
@@ -31,31 +61,35 @@
             border-left: 4px solid #2196F3;
             font-size: 14px;
         }
-        .links { margin-top: 20px; }
+        .links {
+            margin-top: 20px;
+        }
         .links a {
             display: inline-block;
             margin-right: 15px;
             padding: 8px 15px;
-            background-color: #7209b7;
+            background-color: #0d6efd;
             color: white;
             text-decoration: none;
             border-radius: 4px;
         }
-        .links a:hover { background-color: #560a86; }
+        .links a:hover {
+            background-color: #0b5ed7;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Recording FSM with API Mapping - TWS Earphone System</h1>
-        <p>Diagram showing the recording state machine with corresponding C API functions and state actions.</p>
+        <h1>Recording FSM (with API Mapping)</h1>
+        <p>Recording FSM handles audio recording and processing.</p>
         
         <div class="diagram">
-            <img id="diagram" alt="Recording FSM State Diagram">
+            <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" contentStyleType="text/css" data-diagram-type="STATE" height="751px" preserveAspectRatio="none" style="width:1320px;height:751px;background:#FFFFFF;" version="1.1" viewBox="0 0 1320 751" width="1320px" zoomAndPan="magnify"><title>Recording FSM State Diagram with API Calls</title><defs/><g><g class="title" data-source-line="2"><text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="297.165" x="504.7718" y="24.5332">Recording FSM State Diagram with API Calls</text></g><g id="idle"><rect fill="#FFFFFF" height="50" rx="12.5" ry="12.5" style="stroke:#000000;stroke-width:0.5;" width="83.5781" x="452.32" y="154.6094"/><line style="stroke:#000000;stroke-width:0.5;" x1="452.32" x2="535.8981" y1="180.9609" y2="180.9609"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="63.5781" x="462.32" y="173.1045">REC_IDLE</text></g><g id="wait_sync"><rect fill="#90EE90" height="50" rx="12.5" ry="12.5" style="stroke:#006400;stroke-width:0.5;" width="130.519" x="138.82" y="311.6094"/><line style="stroke:#006400;stroke-width:0.5;" x1="138.82" x2="269.339" y1="337.9609" y2="337.9609"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="110.519" x="148.82" y="330.1045">REC_WAIT_SYNC</text></g><g id="recording"><rect fill="#90EE90" height="50" rx="12.5" ry="12.5" style="stroke:#006400;stroke-width:0.5;" width="134.1245" x="137.32" y="439.6094"/><line style="stroke:#006400;stroke-width:0.5;" x1="137.32" x2="271.4445" y1="465.9609" y2="465.9609"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="114.1245" x="147.32" y="458.1045">REC_RECORDING</text></g><g id="paused"><rect fill="#90EE90" height="50" rx="12.5" ry="12.5" style="stroke:#006400;stroke-width:0.5;" width="108.1372" x="287.32" y="567.6094"/><line style="stroke:#006400;stroke-width:0.5;" x1="287.32" x2="395.4572" y1="593.9609" y2="593.9609"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="88.1372" x="297.32" y="586.1045">REC_PAUSED</text></g><g id="stopping"><rect fill="#90EE90" height="50" rx="12.5" ry="12.5" style="stroke:#006400;stroke-width:0.5;" width="121.8545" x="582.32" y="567.6094"/><line style="stroke:#006400;stroke-width:0.5;" x1="582.32" x2="704.1745" y1="593.9609" y2="593.9609"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="101.8545" x="592.32" y="586.1045">REC_STOPPING</text></g><g id="error"><rect fill="#F08080" height="50" rx="12.5" ry="12.5" style="stroke:#8B0000;stroke-width:0.5;" width="101.6245" x="187.32" y="695.6094"/><line style="stroke:#8B0000;stroke-width:0.5;" x1="187.32" x2="288.9445" y1="721.9609" y2="721.9609"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="81.6245" x="197.32" y="714.1045">REC_ERROR</text></g><ellipse cx="494.32" cy="54.6094" fill="#222222" rx="10" ry="10" style="stroke:#222222;stroke-width:1;"/><g class="entity" data-entity="GMN2" data-source-line="36" data-uid="ent0003" id="entity_GMN2"><path d="M743.32,125.6094 L743.32,233.7188 L958.9201,233.7188 L958.9201,135.6094 L948.9201,125.6094 L743.32,125.6094" fill="#FEFFDD" style="stroke:#181818;stroke-width:0.5;"/><path d="M948.9201,125.6094 L948.9201,135.6094 L958.9201,135.6094 L948.9201,125.6094" fill="#FEFFDD" style="stroke:#181818;stroke-width:1;"/><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="124.9473" x="749.32" y="144.1045">Recording FSM API:</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="123.7666" x="749.32" y="160.4561">&#8226; recording_fsm_init()</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="194.6001" x="749.32" y="176.8076">&#8226; recording_fsm_dispatch_event()</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="160.6338" x="749.32" y="193.1592">&#8226; recording_fsm_get_state()</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="159.1675" x="749.32" y="209.5107">&#8226; recording_fsm_set_error()</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="191.6865" x="749.32" y="225.8623">&#8226; recording_fsm_get_error_msg()</text></g><g class="entity" data-entity="GMN5" data-source-line="45" data-uid="ent0006" id="entity_GMN5"><path d="M732.82,315.1094 L732.82,357.8125 L1313.7087,357.8125 L1313.7087,325.1094 L1303.7087,315.1094 L732.82,315.1094" fill="#FEFFDD" style="stroke:#181818;stroke-width:0.5;"/><path d="M1303.7087,315.1094 L1303.7087,325.1094 L1313.7087,325.1094 L1303.7087,315.1094" fill="#FEFFDD" style="stroke:#181818;stroke-width:1;"/><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="67.1709" x="738.82" y="333.6045">Activation:</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="70.8145" x="809.6027" y="333.6045">Activated by</text><a href="system_coordinator_state_diagram_with_api.puml" target="_top" title="system_coordinator_state_diagram_with_api.puml" xlink:actuate="onRequest" xlink:href="system_coordinator_state_diagram_with_api.puml" xlink:show="new" xlink:title="system_coordinator_state_diagram_with_api.puml" xlink:type="simple"><text fill="#0000FF" font-family="sans-serif" font-size="13" lengthAdjust="spacing" text-decoration="underline" textLength="112.6899" x="884.029" y="333.6045">SYS_RECORDING</text></a><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="21.6899" x="1000.3307" y="333.6045">and</text><a href="system_coordinator_state_diagram_with_api.puml" target="_top" title="system_coordinator_state_diagram_with_api.puml" xlink:actuate="onRequest" xlink:href="system_coordinator_state_diagram_with_api.puml" xlink:show="new" xlink:title="system_coordinator_state_diagram_with_api.puml" xlink:type="simple"><text fill="#0000FF" font-family="sans-serif" font-size="13" lengthAdjust="spacing" text-decoration="underline" textLength="231.1689" x="1025.6325" y="333.6045">SYS_RECORDING_AND_UPLOADING</text></a><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="38.2954" x="1260.4133" y="333.6045">states.</text><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="85.2427" x="738.82" y="349.9561">Back to main:</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="3.6118" x="824.0627" y="349.9561">&#160;</text><a href="system_coordinator_state_diagram_with_api.puml" target="_top" title="system_coordinator_state_diagram_with_api.puml" xlink:actuate="onRequest" xlink:href="system_coordinator_state_diagram_with_api.puml" xlink:show="new" xlink:title="system_coordinator_state_diagram_with_api.puml" xlink:type="simple"><text fill="#0000FF" font-family="sans-serif" font-size="13" lengthAdjust="spacing" text-decoration="underline" textLength="145.9326" x="827.6745" y="349.9561">System Coordinator FSM</text></a></g><!--link idle to wait_sync--><g class="link" data-entity-1="idle" data-entity-2="wait_sync" data-source-line="21" data-uid="lnk2" id="link_idle_wait_sync"><path d="M452.27,186.2794 C378.73,197.1594 231.65,223.4894 201.32,263.6094 C191.14,277.0794 191.1526,290.5296 194.7426,305.7496" fill="none" id="idle-to-wait_sync" style="stroke:#181818;stroke-width:1;"/><polygon fill="#181818" points="196.12,311.5894,197.947,301.9115,194.9721,306.7229,190.1607,303.748,196.12,311.5894" style="stroke:#181818;stroke-width:1;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="109.8018" x="202.32" y="278.1045">REC_EVT_START</text></g><!--link wait_sync to idle--><g class="link" data-entity-1="wait_sync" data-entity-2="idle" data-source-line="23" data-uid="lnk4" id="link_wait_sync_idle"><path d="M255.98,311.5894 C275.08,302.4794 296.82,291.8294 316.32,281.6094 C364.16,256.5394 412.7631,228.6724 448.5731,207.6924" fill="none" id="wait_sync-to-idle" style="stroke:#181818;stroke-width:1;"/><polygon fill="#181818" points="453.75,204.6594,443.9626,205.7576,449.4359,207.1869,448.0066,212.6602,453.75,204.6594" style="stroke:#181818;stroke-width:1;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="114.1372" x="347.32" y="278.1045">REC_EVT_ERROR</text></g><!--link wait_sync to recording--><g class="link" data-entity-1="wait_sync" data-entity-2="recording" data-source-line="22" data-uid="lnk3" id="link_wait_sync_recording"><path d="M204.32,361.8994 C204.32,384.2194 204.32,411.0994 204.32,433.3894" fill="none" id="wait_sync-to-recording" style="stroke:#181818;stroke-width:1;"/><polygon fill="#181818" points="204.32,439.3894,208.32,430.3894,204.32,434.3894,200.32,430.3894,204.32,439.3894" style="stroke:#181818;stroke-width:1;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="182.0508" x="205.32" y="406.1045">REC_EVT_SYNC_COMPLETE</text></g><!--link recording to paused--><g class="link" data-entity-1="recording" data-entity-2="paused" data-source-line="24" data-uid="lnk5" id="link_recording_paused"><path d="M191.48,489.9294 C185.5,504.8894 181.61,523.7894 191.32,537.6094 C197.23,546.0194 241.0322,561.0525 281.5822,573.7025" fill="none" id="recording-to-paused" style="stroke:#181818;stroke-width:1;"/><polygon fill="#181818" points="287.31,575.4894,279.9096,568.9906,282.5369,574.0003,277.5271,576.6276,287.31,575.4894" style="stroke:#181818;stroke-width:1;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="111.2617" x="192.32" y="534.1045">REC_EVT_PAUSE</text></g><!--link paused to recording--><g class="link" data-entity-1="paused" data-entity-2="recording" data-source-line="25" data-uid="lnk6" id="link_paused_recording"><path d="M334.75,567.5694 C329.6,552.3394 321.12,533.0494 308.32,519.6094 C296.75,507.4494 287.1462,500.3202 272.2362,492.4502" fill="none" id="paused-to-recording" style="stroke:#181818;stroke-width:1;"/><polygon fill="#181818" points="266.93,489.6494,273.0221,497.388,271.3518,491.9834,276.7565,490.3131,266.93,489.6494" style="stroke:#181818;stroke-width:1;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="122.8081" x="322.32" y="534.1045">REC_EVT_RESUME</text></g><!--link recording to stopping--><g class="link" data-entity-1="recording" data-entity-2="stopping" data-source-line="26" data-uid="lnk7" id="link_recording_stopping"><path d="M271.59,477.3894 C322.08,486.9094 392.67,501.6494 453.32,519.6094 C498.82,533.0794 543.3915,550.0103 580.7415,565.1903" fill="none" id="recording-to-stopping" style="stroke:#181818;stroke-width:1;"/><polygon fill="#181818" points="586.3,567.4494,579.4684,560.3551,581.668,565.5668,576.4562,567.7664,586.3,567.4494" style="stroke:#181818;stroke-width:1;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="102.5845" x="508.32" y="534.1045">REC_EVT_STOP</text></g><!--link stopping to idle--><g class="link" data-entity-1="stopping" data-entity-2="idle" data-source-line="27" data-uid="lnk8" id="link_stopping_idle"><path d="M638.78,567.5594 C632.77,537.2894 621.17,483.8994 606.32,439.6094 C576.5,350.6594 531.2703,255.2423 509.0403,210.0923" fill="none" id="stopping-to-idle" style="stroke:#181818;stroke-width:1;"/><polygon fill="#181818" points="506.39,204.7094,506.7769,214.5506,508.5986,209.1951,513.9541,211.0169,506.39,204.7094" style="stroke:#181818;stroke-width:1;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="91.0444" x="597.32" y="406.1045">[save complete]</text></g><!--link recording to error--><g class="link" data-entity-1="recording" data-entity-2="error" data-source-line="28" data-uid="lnk9" id="link_recording_error"><path d="M186.01,489.6894 C165.48,519.7594 137.07,572.7194 153.32,617.6094 C164.47,648.3894 185.0337,672.2841 205.0337,691.1341" fill="none" id="recording-to-error" style="stroke:#181818;stroke-width:1;"/><polygon fill="#181818" points="209.4,695.2494,205.594,686.1656,205.7614,691.82,200.107,691.9874,209.4,695.2494" style="stroke:#181818;stroke-width:1;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="114.1372" x="154.32" y="598.1045">REC_EVT_ERROR</text></g><!--link paused to error--><g class="link" data-entity-1="paused" data-entity-2="error" data-source-line="29" data-uid="lnk10" id="link_paused_error"><path d="M321.46,617.8994 C303.22,640.2194 280.1373,668.4539 261.9173,690.7439" fill="none" id="paused-to-error" style="stroke:#181818;stroke-width:1;"/><polygon fill="#181818" points="258.12,695.3894,266.9129,690.9526,261.2844,691.5181,260.7189,685.8896,258.12,695.3894" style="stroke:#181818;stroke-width:1;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="114.1372" x="297.32" y="662.1045">REC_EVT_ERROR</text></g><!--link wait_sync to error--><g class="link" data-entity-1="wait_sync" data-entity-2="error" data-source-line="30" data-uid="lnk11" id="link_wait_sync_error"><path d="M157.8,361.6094 C98.21,395.9294 6,463.1694 36.32,537.6094 C66.06,610.6194 137.7988,662.7597 187.6788,692.3297" fill="none" id="wait_sync-to-error" style="stroke:#181818;stroke-width:1;"/><polygon fill="#181818" points="192.84,695.3894,187.138,687.359,188.539,692.8396,183.0584,694.2407,192.84,695.3894" style="stroke:#181818;stroke-width:1;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="114.1372" x="37.32" y="534.1045">REC_EVT_ERROR</text></g><!--link error to idle--><g class="link" data-entity-1="error" data-entity-2="idle" data-source-line="31" data-uid="lnk12" id="link_error_idle"><path d="M289.51,716.7694 C364.22,709.5594 494.32,684.0094 494.32,593.6094 C494.32,335.6094 494.32,335.6094 494.32,335.6094 C494.32,289.3294 494.32,241.2694 494.32,210.7694" fill="none" id="error-to-idle" style="stroke:#181818;stroke-width:1;"/><polygon fill="#181818" points="494.32,204.7694,490.32,213.7694,494.32,209.7694,498.32,213.7694,494.32,204.7694" style="stroke:#181818;stroke-width:1;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="102.5845" x="495.32" y="470.1045">REC_EVT_STOP</text></g><!--link *start* to idle--><g class="link" data-entity-1="*start*" data-entity-2="idle" data-source-line="33" data-uid="lnk14" id="link_*start*_idle"><path d="M494.32,64.8494 C494.32,83.6294 494.32,120.7494 494.32,148.1794" fill="none" id="*start*-to-idle" style="stroke:#181818;stroke-width:1;"/><polygon fill="#181818" points="494.32,154.1794,498.32,145.1794,494.32,149.1794,490.32,145.1794,494.32,154.1794" style="stroke:#181818;stroke-width:1;"/></g><!--link idle to GMN2--><g class="link" data-entity-1="idle" data-entity-2="GMN2" data-source-line="36" data-uid="lnk4" id="link_idle_GMN2"><path d="M536.51,179.6094 C605.37,179.6094 674.24,179.6094 743.11,179.6094" fill="none" id="idle-GMN2" style="stroke:#181818;stroke-width:1;stroke-dasharray:7.0,7.0;"/></g><!--link GMN2 to GMN5--><g class="link" data-entity-1="GMN2" data-entity-2="GMN5" data-source-line="45" data-uid="lnk7" id="link_GMN2_GMN5"><path d="M910.52,233.9494 C941.42,261.7994 977.45,294.2694 1000.32,314.8794" fill="none" id="GMN2-GMN5" style="stroke:#181818;stroke-width:1;stroke-dasharray:7.0,7.0;"/></g><!--SRC=[fPJVQjim5CRlzHI7Ncs3TepTbH1mRRS4ajZOwKe9HYYsweZObf6Kb6mCzYnzj3t99CMnNUCCnYvyOPsVFftlqn_5L44XeYaN6Qjok8yN42kYA7YCv8AKyChK5fnm1Yuf2ecGtB6g9gOYBVS30ToHT9SBlgyobnTSJ2OL5oKffbDusZ953Q7rgHXMxmezSMm-5O8B3SnPlbKk5wGOQfm9ZuXTHBCn4P8gTg1dbGT1QJLKQH4ZSoRkUQLYzft2bw_efpPiRLv5lejdtjo_0YA1PJgrpaYVUN9cAnm_BrqBlXAci3nMANIBzMdz1P4tMpvOMhJxC4w7pcFiUnQjoLxIx08Nhu8mF8jAnUlwigOVHK5aGHifjD4YP5rUNqzxBcx1plccBQwSQ8MwYk6w_dkSZWAxmIAS-oj_mDi5EjIsWZeHWpG-EyXcW9hXIuj6Vlouy0TIRH1z4q68sl5UIsj93XHINjO5LJGPA9sI6ZRUwsaSU6z-d3cDZeHZMqNhJqbRHAZYUXU5ETt0NqvZ09FDzFrzrfVtTl9vCzMrtx_UkhpmYomngvZwy76qb35P4vLkCJtGwXAKKst9dAOBTQdhrjDVvjiwBcMk6LfbO6mrvZPSALwUN3dcz1B5U6NjGFEl8zySORsMHwbeYLDkrOdIahOnxSE-PDYyP9ZKxARUbmN4pt5t-v84Y5xu_qImi_JmOpWFd4RIpfGtf-xDymIAGqbOq_-_hsPnS3lSx6-ITA7z0G00]--></g></svg>
         </div>
         
         <div class="note">
-            <strong>Note:</strong> This diagram is generated from <code>recording_fsm_diagram_with_api.puml</code> using the PlantUML server.
-            If the diagram does not display correctly, ensure you have internet connectivity.
+            <strong>Note:</strong> This diagram is generated from <code>recording_fsm_diagram_with_api.puml</code> using local PlantUML.
+            No internet connectivity required.
         </div>
         
         <hr>
@@ -64,230 +98,262 @@
         <table>
             <thead>
                 <tr>
-                    <th>Current State</th>
                     <th>Event</th>
-                    <th>Next State</th>
+                    <th>Source Subsystem</th>
+                    <th>Destination Subsystem</th>
+                    <th>Condition</th>
                     <th>Action</th>
                     <th>API Function</th>
                 </tr>
             </thead>
             <tbody>
+                
                 <tr>
-                    <td>REC_IDLE</td>
                     <td>REC_EVT_START</td>
-                    <td>REC_WAIT_SYNC</td>
-                    <td>Start recording process, initialize sync</td>
-                    <td><code>recording_fsm_dispatch_event(fsm, REC_EVT_START, NULL)</code></td>
+                    <td>Unknown</td>
+                    <td>Subsystem</td>
+                    <td>true</td>
+                    <td>Transition</td>
+                    <td><code>recording_fsm_dispatch_event(REC_EVT_START)</code></td>
                 </tr>
                 <tr>
-                    <td>REC_WAIT_SYNC</td>
                     <td>REC_EVT_SYNC_COMPLETE</td>
-                    <td>REC_RECORDING</td>
-                    <td>Sync completed, start audio capture</td>
-                    <td><code>recording_fsm_dispatch_event(fsm, REC_EVT_SYNC_COMPLETE, NULL)</code></td>
+                    <td>Unknown</td>
+                    <td>Subsystem</td>
+                    <td>true</td>
+                    <td>Transition</td>
+                    <td><code>recording_fsm_dispatch_event(REC_EVT_SYNC_COMPLETE)</code></td>
                 </tr>
                 <tr>
-                    <td>REC_WAIT_SYNC</td>
                     <td>REC_EVT_ERROR</td>
-                    <td>REC_ERROR</td>
-                    <td>Error during sync, enter error state</td>
-                    <td><code>recording_fsm_dispatch_event(fsm, REC_EVT_ERROR, error_data)</code></td>
+                    <td>Unknown</td>
+                    <td>Subsystem</td>
+                    <td>true</td>
+                    <td>Transition</td>
+                    <td><code>recording_fsm_dispatch_event(REC_EVT_ERROR)</code></td>
                 </tr>
                 <tr>
-                    <td>REC_RECORDING</td>
                     <td>REC_EVT_PAUSE</td>
-                    <td>REC_PAUSED</td>
-                    <td>Pause recording, hold audio buffer</td>
-                    <td><code>recording_fsm_dispatch_event(fsm, REC_EVT_PAUSE, NULL)</code></td>
+                    <td>Unknown</td>
+                    <td>Subsystem</td>
+                    <td>true</td>
+                    <td>Transition</td>
+                    <td><code>recording_fsm_dispatch_event(REC_EVT_PAUSE)</code></td>
                 </tr>
                 <tr>
-                    <td>REC_PAUSED</td>
                     <td>REC_EVT_RESUME</td>
-                    <td>REC_RECORDING</td>
-                    <td>Resume recording from paused position</td>
-                    <td><code>recording_fsm_dispatch_event(fsm, REC_EVT_RESUME, NULL)</code></td>
+                    <td>Unknown</td>
+                    <td>Subsystem</td>
+                    <td>true</td>
+                    <td>Transition</td>
+                    <td><code>recording_fsm_dispatch_event(REC_EVT_RESUME)</code></td>
                 </tr>
-                <tr>
-                    <td>REC_RECORDING</td>
-                    <td>REC_EVT_STOP</td>
-                    <td>REC_STOPPING</td>
-                    <td>Stop recording, start saving process</td>
-                    <td><code>recording_fsm_dispatch_event(fsm, REC_EVT_STOP, NULL)</code></td>
-                </tr>
-                <tr>
-                    <td>REC_STOPPING</td>
-                    <td>[save complete]</td>
-                    <td>REC_IDLE</td>
-                    <td>Save completed, return to idle</td>
-                    <td><code>recording_fsm_dispatch_event(fsm, REC_EVT_SAVE_COMPLETE, NULL)</code> (internal)</td>
-                </tr>
-                <tr>
-                    <td>REC_RECORDING</td>
-                    <td>REC_EVT_ERROR</td>
-                    <td>REC_ERROR</td>
-                    <td>Error during recording</td>
-                    <td><code>recording_fsm_dispatch_event(fsm, REC_EVT_ERROR, error_data)</code></td>
-                </tr>
-                <tr>
-                    <td>REC_PAUSED</td>
-                    <td>REC_EVT_ERROR</td>
-                    <td>REC_ERROR</td>
-                    <td>Error while paused</td>
-                    <td><code>recording_fsm_dispatch_event(fsm, REC_EVT_ERROR, error_data)</code></td>
-                </tr>
-                <tr>
-                    <td>REC_WAIT_SYNC</td>
-                    <td>REC_EVT_ERROR</td>
-                    <td>REC_ERROR</td>
-                    <td>Error during sync</td>
-                    <td><code>recording_fsm_dispatch_event(fsm, REC_EVT_ERROR, error_data)</code></td>
-                </tr>
-                <tr>
-                    <td>REC_ERROR</td>
-                    <td>REC_EVT_RESET</td>
-                    <td>REC_IDLE</td>
-                    <td>Reset error, return to idle</td>
-                    <td><code>recording_fsm_dispatch_event(fsm, REC_EVT_RESET, NULL)</code></td>
-                </tr>
-            </tbody>
+        </tbody>
         </table>
         
-        <hr>
+        <!-- Hierarchical mapping table -->
         
-        <h2>State Details</h2>
-        <ul>
-            <li><strong>REC_IDLE</strong>: Initial state. Recording FSM is idle, ready to start recording.</li>
-            <li><strong>REC_WAIT_SYNC</strong>: Waiting for synchronization with audio subsystem before actual recording starts.</li>
-            <li><strong>REC_RECORDING</strong>: Actively recording audio data. Audio buffers are being filled.</li>
-            <li><strong>REC_PAUSED</strong>: Recording paused temporarily. Buffers are held but not written.</li>
-            <li><strong>REC_STOPPING</strong>: Recording stopped, saving data to storage (e.g., file or memory).</li>
-            <li><strong>REC_ERROR</strong>: Error state. Contains error code and message for diagnostics.</li>
-        </ul>
+    <h2>Hierarchical Mapping Table (Role‑Specific)</h2>
+    <p>This table shows each transition with role‑specific details.</p>
+    <table class="hierarchical">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Source → Target</th>
+                <th>Event</th>
+                <th>Description</th>
+                <th>Subsystems</th>
+                <th>Developer</th>
+                <th>Tester</th>
+                <th>Architect</th>
+                <th>Product</th>
+                <th>Support</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>T001</strong></td>
+                <td>idle → wait_sync</td>
+                <td><code>REC_EVT_START</code></td>
+                <td></td>
+                <td></td>
+                <td>Entry: <br>Exit: </td>
+                <td>TC: <br>Tested: False</td>
+                <td>Type: external<br>Impact: low</td>
+                <td>Scenario: <br>Priority: </td>
+                <td>Symptom: <br>Recovery: 0 steps</td>
+            </tr>
+            <tr>
+                <td><strong>T002</strong></td>
+                <td>wait_sync → recording</td>
+                <td><code>REC_EVT_SYNC_COMPLETE</code></td>
+                <td></td>
+                <td></td>
+                <td>Entry: <br>Exit: </td>
+                <td>TC: <br>Tested: False</td>
+                <td>Type: external<br>Impact: low</td>
+                <td>Scenario: <br>Priority: </td>
+                <td>Symptom: <br>Recovery: 0 steps</td>
+            </tr>
+            <tr>
+                <td><strong>T003</strong></td>
+                <td>wait_sync → idle</td>
+                <td><code>REC_EVT_ERROR</code></td>
+                <td></td>
+                <td></td>
+                <td>Entry: <br>Exit: </td>
+                <td>TC: <br>Tested: False</td>
+                <td>Type: external<br>Impact: low</td>
+                <td>Scenario: <br>Priority: </td>
+                <td>Symptom: <br>Recovery: 0 steps</td>
+            </tr>
+            <tr>
+                <td><strong>T004</strong></td>
+                <td>recording → paused</td>
+                <td><code>REC_EVT_PAUSE</code></td>
+                <td></td>
+                <td></td>
+                <td>Entry: <br>Exit: </td>
+                <td>TC: <br>Tested: False</td>
+                <td>Type: external<br>Impact: low</td>
+                <td>Scenario: <br>Priority: </td>
+                <td>Symptom: <br>Recovery: 0 steps</td>
+            </tr>
+            <tr>
+                <td><strong>T005</strong></td>
+                <td>paused → recording</td>
+                <td><code>REC_EVT_RESUME</code></td>
+                <td></td>
+                <td></td>
+                <td>Entry: <br>Exit: </td>
+                <td>TC: <br>Tested: False</td>
+                <td>Type: external<br>Impact: low</td>
+                <td>Scenario: <br>Priority: </td>
+                <td>Symptom: <br>Recovery: 0 steps</td>
+            </tr>
+            <tr>
+                <td><strong>T006</strong></td>
+                <td>recording → stopping</td>
+                <td><code>REC_EVT_STOP</code></td>
+                <td></td>
+                <td></td>
+                <td>Entry: <br>Exit: </td>
+                <td>TC: <br>Tested: False</td>
+                <td>Type: external<br>Impact: low</td>
+                <td>Scenario: <br>Priority: </td>
+                <td>Symptom: <br>Recovery: 0 steps</td>
+            </tr>
+            <tr>
+                <td><strong>T007</strong></td>
+                <td>stopping → idle</td>
+                <td><code></code></td>
+                <td>[save complete]</td>
+                <td></td>
+                <td>Entry: <br>Exit: </td>
+                <td>TC: <br>Tested: False</td>
+                <td>Type: external<br>Impact: low</td>
+                <td>Scenario: <br>Priority: </td>
+                <td>Symptom: <br>Recovery: 0 steps</td>
+            </tr>
+            <tr>
+                <td><strong>T008</strong></td>
+                <td>recording → error</td>
+                <td><code>REC_EVT_ERROR</code></td>
+                <td></td>
+                <td></td>
+                <td>Entry: <br>Exit: </td>
+                <td>TC: <br>Tested: False</td>
+                <td>Type: external<br>Impact: low</td>
+                <td>Scenario: <br>Priority: </td>
+                <td>Symptom: <br>Recovery: 0 steps</td>
+            </tr>
+            <tr>
+                <td><strong>T009</strong></td>
+                <td>paused → error</td>
+                <td><code>REC_EVT_ERROR</code></td>
+                <td></td>
+                <td></td>
+                <td>Entry: <br>Exit: </td>
+                <td>TC: <br>Tested: False</td>
+                <td>Type: external<br>Impact: low</td>
+                <td>Scenario: <br>Priority: </td>
+                <td>Symptom: <br>Recovery: 0 steps</td>
+            </tr>
+            <tr>
+                <td><strong>T010</strong></td>
+                <td>wait_sync → error</td>
+                <td><code>REC_EVT_ERROR</code></td>
+                <td></td>
+                <td></td>
+                <td>Entry: <br>Exit: </td>
+                <td>TC: <br>Tested: False</td>
+                <td>Type: external<br>Impact: low</td>
+                <td>Scenario: <br>Priority: </td>
+                <td>Symptom: <br>Recovery: 0 steps</td>
+            </tr>
+            <tr>
+                <td><strong>T011</strong></td>
+                <td>error → idle</td>
+                <td><code>REC_EVT_STOP</code></td>
+                <td></td>
+                <td></td>
+                <td>Entry: <br>Exit: </td>
+                <td>TC: <br>Tested: False</td>
+                <td>Type: external<br>Impact: low</td>
+                <td>Scenario: <br>Priority: </td>
+                <td>Symptom: <br>Recovery: 0 steps</td>
+            </tr>
+        </tbody>
+    </table>
+    <style>
+        table.hierarchical {{
+            font-size: 12px;
+            border-collapse: collapse;
+            width: 100%;
+            overflow-x: auto;
+            display: block;
+        }}
+        table.hierarchical th {{
+            background-color: #e0f0ff;
+            position: sticky;
+            top: 0;
+        }}
+        table.hierarchical td, table.hierarchical th {{
+            border: 1px solid #ccc;
+            padding: 6px;
+            vertical-align: top;
+        }}
+        table.hierarchical tr:nth-child(even) {{
+            background-color: #f9f9f9;
+        }}
+    </style>
+        
+        <hr>
         
         <h2>API Functions</h2>
         <ul>
-            <li><code>recording_fsm_init(struct recording_fsm *fsm)</code>: Initialize the recording FSM.</li>
-            <li><code>recording_fsm_dispatch_event(struct recording_fsm *fsm, enum recording_event event, void *data)</code>: Dispatch an event to the state machine.</li>
-            <li><code>recording_fsm_get_state(struct recording_fsm *fsm)</code>: Get current state.</li>
-            <li><code>recording_fsm_set_error(struct recording_fsm *fsm, int code, const char *msg)</code>: Set error information in ERROR state.</li>
-            <li><code>recording_fsm_get_error_code(struct recording_fsm *fsm)</code>: Retrieve error code.</li>
-            <li><code>recording_fsm_get_error_msg(struct recording_fsm *fsm)</code>: Retrieve error message.</li>
+            <li><code>recording_fsm_get_error_msg()</code></li>
+<li><code>recording_fsm_init()</code></li>
+<li><code>recording_fsm_dispatch_event()</code></li>
+<li><code>recording_fsm_set_error()</code></li>
+<li><code>recording_fsm_get_state()</code></li>
+
         </ul>
+        
+        
         
         <hr>
         
-        <h2>API Call Sequence (User Case)</h2>
-        <p>Below is a sequence diagram illustrating a typical user interaction with the Recording FSM: starting recording, pausing, resuming, and stopping.</p>
-        
-        <div class="diagram">
-            <img id="sequenceDiagram" alt="Recording FSM API Call Sequence">
-        </div>
-        
-        <div class="note">
-            <strong>Note:</strong> This sequence diagram is generated from embedded PlantUML script.
-        </div>
-        
         <div class="links">
             <a href="system_coordinator_state_diagram_with_api.html">System Coordinator FSM</a>
+            <a href="recording_fsm_diagram_with_api.html">Recording FSM</a>
             <a href="audio_fsm_diagram_with_api.html">Audio FSM</a>
             <a href="comm_fsm_diagram_with_api.html">Communication FSM</a>
             <a href="power_fsm_diagram_with_api.html">Power FSM</a>
             <a href="ota_fsm_diagram_with_api.html">OTA FSM</a>
-            <a href="../dashboard/system_coordinator_dashboard.html">Dashboard</a>
+            <a href="efsm_protocol_diagram_with_api.html">EFSM Protocol</a>
+            <a href="index.html">Index</a>
         </div>
     </div>
-
-    <script>
-        // PlantUML script from .puml file
-        const plantUmlScript = `@startuml
-
-title Recording FSM State Diagram with API Calls
-
-skinparam state {
-  BackgroundColor<<normal>> White
-  BorderColor<<normal>> Black
-  BackgroundColor<<error>> LightCoral
-  BorderColor<<error>> DarkRed
-  BackgroundColor<<active>> LightGreen
-  BorderColor<<active>> DarkGreen
-  FontSize 13
-}
-
-state "REC_IDLE" as idle <<normal>>
-state "REC_WAIT_SYNC" as wait_sync <<active>>
-state "REC_RECORDING" as recording <<active>>
-state "REC_PAUSED" as paused <<active>>
-state "REC_STOPPING" as stopping <<active>>
-state "REC_ERROR" as error <<error>>
-
-idle --> wait_sync : REC_EVT_START
-wait_sync --> recording : REC_EVT_SYNC_COMPLETE
-wait_sync --> idle : REC_EVT_ERROR
-recording --> paused : REC_EVT_PAUSE
-paused --> recording : REC_EVT_RESUME
-recording --> stopping : REC_EVT_STOP
-stopping --> idle : [save complete]
-recording --> error : REC_EVT_ERROR
-paused --> error : REC_EVT_ERROR
-wait_sync --> error : REC_EVT_ERROR
-error --> idle : REC_EVT_RESET
-
-[*] --> idle
-
-note right of idle
-  <b>Recording FSM API:</b>
-  • recording_fsm_init()
-  • recording_fsm_dispatch_event()
-  • recording_fsm_get_state()
-  • recording_fsm_set_error()
-  • recording_fsm_get_error_msg()
-end note
-
-note bottom
-  <b>Activation:</b> Activated by [[system_coordinator_state_diagram_with_api.puml SYS_RECORDING]] and [[system_coordinator_state_diagram_with_api.puml SYS_RECORDING_AND_UPLOADING]] states.
-  <b>Back to main:</b> [[system_coordinator_state_diagram_with_api.puml System Coordinator FSM]]
-end note
-
-@enduml`;
-
-        // Encode the PlantUML script
-        const encoded = window.plantumlEncoder.encode(plantUmlScript);
-        // Use the PlantUML server (public)
-        const imgUrl = 'https://www.plantuml.com/plantuml/svg/' + encoded;
-        // Set the image source
-        document.getElementById('diagram').src = imgUrl;
-    </script>
-
-    <script>
-        // PlantUML script for sequence diagram
-        const sequenceUmlScript = `@startuml
-title Recording FSM API Call Sequence (User Case)
-
-actor User
-participant "Recording FSM" as FSM
-participant "Audio Subsystem" as Audio
-participant "Storage" as Storage
-
-User -> FSM: recording_fsm_dispatch_event(REC_EVT_START)
-FSM -> Audio: Request sync
-Audio -> FSM: Sync complete (REC_EVT_SYNC_COMPLETE)
-FSM -> FSM: Transition to REC_RECORDING
-User -> FSM: recording_fsm_dispatch_event(REC_EVT_PAUSE)
-FSM -> FSM: Transition to REC_PAUSED
-User -> FSM: recording_fsm_dispatch_event(REC_EVT_RESUME)
-FSM -> FSM: Transition to REC_RECORDING
-User -> FSM: recording_fsm_dispatch_event(REC_EVT_STOP)
-FSM -> Storage: Save recording data
-Storage -> FSM: Save complete (internal)
-FSM -> FSM: Transition to REC_IDLE
-@enduml`;
-
-        // Encode the PlantUML script
-        const encodedSeq = window.plantumlEncoder.encode(sequenceUmlScript);
-        // Use the PlantUML server (public)
-        const seqImgUrl = 'https://www.plantuml.com/plantuml/svg/' + encodedSeq;
-        // Set the image source
-        document.getElementById('sequenceDiagram').src = seqImgUrl;
-    </script>
 </body>
 </html>

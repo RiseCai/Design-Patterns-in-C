@@ -29,7 +29,7 @@ stopping --> idle : [save complete]
 recording --> error : REC_EVT_ERROR
 paused --> error : REC_EVT_ERROR
 wait_sync --> error : REC_EVT_ERROR
-error --> idle : REC_EVT_RESET
+error --> idle : REC_EVT_STOP
 
 [*] --> idle
 

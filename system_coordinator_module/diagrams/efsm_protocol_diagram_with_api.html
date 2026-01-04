@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EFSM Protocol with API Mapping - TWS Earphone System</title>
+    <script src="https://cdn.jsdelivr.net/npm/plantuml-encoder@1.4.0/dist/plantuml-encoder.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f9f9f9; }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 { color: #333; border-bottom: 2px solid #0d6efd; padding-bottom: 10px; }
+        h2 { color: #555; }
+        table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        code { background-color: #f5f5f5; padding: 2px 4px; border-radius: 3px; }
+        pre { background: #f0f0f0; padding: 10px; overflow: auto; }
+        img { max-width: 100%; border: 1px solid #ccc; }
+        .diagram { text-align: center; margin: 20px 0; overflow: auto; }
+        .note {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f0f8ff;
+            border-left: 4px solid #2196F3;
+            font-size: 14px;
+        }
+        .links { margin-top: 20px; }
+        .links a {
+            display: inline-block;
+            margin-right: 15px;
+            padding: 8px 15px;
+            background-color: #0d6efd;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+        }
+        .links a:hover { background-color: #0b5ed7; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>EFSM Protocol with API Mapping - TWS Earphone System</h1>
+        <p>Extended Finite State Machine (EFSM) protocol defines the communication between subsystems (System Coordinator, FSMs) using events, conditions, and actions.</p>
+        
+        <div class="diagram">
+            <img id="diagram" alt="EFSM Protocol Diagram">
+        </div>
+        
+        <div class="note">
+            <strong>Note:</strong> This diagram is generated from <code>efsm_protocol_diagram_with_api.puml</code> using the PlantUML server.
+            If the diagram does not display correctly, ensure you have internet connectivity.
+        </div>
+        
+        <hr>
+        
+        <h2>Protocol Overview</h2>
+        <p>The EFSM protocol is not a visual state machine but a set of rules for subsystem interaction. It includes:</p>
+        <ul>
+            <li><strong>Events</strong>: System‑wide events (e.g., SYS_EVT_RECORD_START, SYS_EVT_UPLOAD_COMPLETE).</li>
+            <li><strong>Conditions</strong>: Guards that determine whether a transition can be taken.</li>
+            <li><strong>Actions</strong>: Functions executed during transitions (e.g., start recording, send data).</li>
+            <li><strong>Extended Variables</strong>: Context variables (e.g., battery level, connection status).</li>
+        </ul>
+        
+        <h2>Mapping Table</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Event</th>
+                    <th>Source Subsystem</th>
+                    <th>Destination Subsystem</th>
+                    <th>Condition</th>
+                    <th>Action</th>
+                    <th>API Function</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>SYS_EVT_RECORD_START</td>
+                    <td>System Coordinator</td>
+                    <td>Recording FSM</td>
+                    <td>battery > 20%</td>
+                    <td>Start recording</td>
+                    <td><code>recording_fsm_dispatch_event(RECORDING_EVT_START)</code></td>
+                </tr>
+                <tr>
+                    <td>SYS_EVT_UPLOAD_COMPLETE</td>
+                    <td>Communication FSM</td>
+                    <td>System Coordinator</td>
+                    <td>upload_success == true</td>
+                    <td>Transition to SYS_IDLE</td>
+                    <td><code>system_coordinator_dispatch_event(SYS_EVT_UPLOAD_COMPLETE)</code></td>
+                </tr>
+                <tr>
+                    <td>SYS_EVT_OTA_START</td>
+                    <td>System Coordinator</td>
+                    <td>OTA FSM</td>
+                    <td>connected == true</td>
+                    <td>Start OTA process</td>
+                    <td><code>ota_fsm_dispatch_event(OTA_EVT_START)</code></td>
+                </tr>
+                <tr>
+                    <td>SYS_EVT_ERROR</td>
+                    <td>Any</td>
+                    <td>System Coordinator</td>
+                    <td>error_code != 0</td>
+                    <td>Enter error state</td>
+                    <td><code>system_coordinator_dispatch_event(SYS_EVT_ERROR)</code></td>
+                </tr>
+                <tr>
+                    <td>SYS_EVT_SLEEP</td>
+                    <td>Power FSM</td>
+                    <td>System Coordinator</td>
+                    <td>battery < 10%</td>
+                    <td>Enter sleep mode</td>
+                    <td><code>system_coordinator_dispatch_event(SYS_EVT_SLEEP)</code></td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <hr>
+        
+        <h2>API Functions</h2>
+        <ul>
+            <li><code>efsm_protocol_init()</code>: Initialize the EFSM protocol.</li>
+            <li><code>efsm_protocol_register_event_handler(enum sys_event event, event_handler_t handler)</code>: Register a handler for a system event.</li>
+            <li><code>efsm_protocol_dispatch_event(enum sys_event event, void *data)</code>: Dispatch a system event to all registered handlers.</li>
+            <li><code>efsm_protocol_set_condition(const char *condition_name, bool (*cond_func)(void *))</code>: Set a condition function.</li>
+            <li><code>efsm_protocol_add_action(const char *action_name, void (*action_func)(void *))</code>: Add an action function.</li>
+            <li><code>efsm_protocol_get_variable(const char *var_name)</code>: Get an extended variable value.</li>
+            <li><code>efsm_protocol_set_variable(const char *var_name, int value)</code>: Set an extended variable.</li>
+        </ul>
+        
+        <hr>
+        
+        <h2>Sequence Diagram</h2>
+        <p>Below is a sequence diagram illustrating the EFSM protocol interaction between subsystems during a recording session.</p>
+        
+        <div class="diagram">
+            <img id="sequenceDiagram" alt="EFSM Protocol Sequence Diagram">
+        </div>
+        
+        <div class="note">
+            <strong>Note:</strong> This sequence diagram is generated from embedded PlantUML script.
+        </div>
+        
+        <div class="links">
+            <a href="system_coordinator_state_diagram_with_api.html">System Coordinator FSM</a>
+            <a href="recording_fsm_diagram_with_api.html">Recording FSM</a>
+            <a href="audio_fsm_diagram_with_api.html">Audio FSM</a>
+            <a href="comm_fsm_diagram_with_api.html">Communication FSM</a>
+            <a href="power_fsm_diagram_with_api.html">Power FSM</a>
+            <a href="ota_fsm_diagram_with_api.html">OTA FSM</a>
+            <a href="../src/efsm_protocol.c">C Source Code</a>
+        </div>
+    </div>
+
+    <script>
+        // PlantUML script from .puml file
+        const plantUmlScript = `@startuml
+
+title EFSM Protocol Diagram
+
+skinparam component {
+  BackgroundColor<<subsystem>> White
+  BorderColor<<subsystem>> Black
+  BackgroundColor<<coordinator>> LightBlue
+  BorderColor<<coordinator>> DarkBlue
+  FontSize 12
+}
+
+component "System Coordinator" as SC <<coordinator>>
+component "Communication FSM" as COMM <<subsystem>>
+component "Power FSM" as POWER <<subsystem>>
+component "Audio FSM" as AUDIO <<subsystem>>
+component "Recording FSM" as REC <<subsystem>>
+component "OTA FSM" as OTA <<subsystem>>
+
+SC --> COMM : SYS_EVT_UPLOAD_COMPLETE
+SC --> POWER : SYS_EVT_SLEEP
+SC --> AUDIO : SYS_EVT_RECORD_START
+SC --> REC : SYS_EVT_RECORD_START
+SC --> OTA : SYS_EVT_OTA_START
+
+COMM --> SC : SYS_EVT_UPLOAD_COMPLETE
+POWER --> SC : SYS_EVT_SLEEP
+AUDIO --> SC : SYS_EVT_ERROR
+REC --> SC : SYS_EVT_ERROR
+OTA --> SC : SYS_EVT_ERROR
+
+note top of SC
+  <b>EFSM Protocol API:</b>
+  • efsm_protocol_init()
+  • efsm_protocol_dispatch_event()
+  • efsm_protocol_register_event_handler()
+  • efsm_protocol_set_condition()
+  • efsm_protocol_add_action()
+  • efsm_protocol_get_variable()
+  • efsm_protocol_set_variable()
+end note
+
+note bottom
+  <b>Extended Variables:</b>
+  • battery_level
+  • connection_status
+  • recording_duration
+  • upload_progress
+end note
+
+@enduml`;
+
+        // Encode the PlantUML script
+        const encoded = plantumlEncoder.encode(plantUmlScript);
+        // Use the PlantUML server (public)
+        const plantUmlServer = 'https://www.plantuml.com/plantuml/svg/';
+        const img = document.getElementById('diagram');
+        img.src = plantUmlServer + encoded;
+        img.alt = 'EFSM Protocol Diagram';
+    </script>
+
+    <script>
+        // PlantUML script for sequence diagram
+        const sequenceUmlScript = `@startuml
+title EFSM Protocol Sequence (Recording Scenario)
+
+actor User
+participant "System Coordinator" as SC
+participant "Recording FSM" as REC
+participant "Audio FSM" as AUDIO
+participant "Power FSM" as POWER
+
+User -> SC: system_coordinator_dispatch_event(SYS_EVT_RECORD_START)
+SC -> SC: Check condition (battery > 20%)
+SC -> POWER: Get battery level
+POWER --> SC: battery_level = 85
+SC -> SC: Condition true
+SC -> REC: recording_fsm_dispatch_event(RECORDING_EVT_START)
+REC -> REC: Transition to RECORDING
+REC -> AUDIO: audio_fsm_dispatch_event(AUDIO_EVT_START_RECORDING)
+AUDIO -> AUDIO: Transition to RECORDING
+AUDIO --> REC: ACK
+REC --> SC: SYS_EVT_RECORDING_STARTED
+SC -> SC: Transition to SYS_RECORDING
+@enduml`;
+
+        // Encode the PlantUML script
+        const encodedSeq = plantumlEncoder.encode(sequenceUmlScript);
+        // Use the PlantUML server (public)
+        const seqImgUrl = 'https://www.plantuml.com/plantuml/svg/' + encodedSeq;
+        // Set the image source
+        document.getElementById('sequenceDiagram').src = seqImgUrl;
+    </script>
+</body>
+</html>

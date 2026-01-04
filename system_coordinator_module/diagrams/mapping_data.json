@@ -1,0 +1,2131 @@
+{
+  "puml_file": "system_coordinator_state_diagram_with_api.puml",
+  "states": [
+    {
+      "name": "SYS_INIT",
+      "alias": "INIT"
+    },
+    {
+      "name": "INIT_Entry",
+      "alias": "INIT_ENTRY"
+    },
+    {
+      "name": "INIT_Do",
+      "alias": "INIT_DO"
+    },
+    {
+      "name": "INIT_Exit",
+      "alias": "INIT_EXIT"
+    },
+    {
+      "name": "SYS_IDLE",
+      "alias": "IDLE"
+    },
+    {
+      "name": "IDLE_Entry",
+      "alias": "IDLE_ENTRY"
+    },
+    {
+      "name": "IDLE_Do",
+      "alias": "IDLE_DO"
+    },
+    {
+      "name": "IDLE_Exit",
+      "alias": "IDLE_EXIT"
+    },
+    {
+      "name": "SYS_RECORDING",
+      "alias": "RECORDING"
+    },
+    {
+      "name": "RECORDING_Entry",
+      "alias": "REC_ENTRY"
+    },
+    {
+      "name": "RECORDING_Do",
+      "alias": "REC_DO"
+    },
+    {
+      "name": "RECORDING_Exit",
+      "alias": "REC_EXIT"
+    },
+    {
+      "name": "SYS_RECORDING_AND_UPLOADING",
+      "alias": "REC_UPL"
+    },
+    {
+      "name": "REC_UPL_Entry",
+      "alias": "REC_UPL_ENTRY"
+    },
+    {
+      "name": "REC_UPL_Do",
+      "alias": "REC_UPL_DO"
+    },
+    {
+      "name": "REC_UPL_Exit",
+      "alias": "REC_UPL_EXIT"
+    },
+    {
+      "name": "SYS_UPLOADING",
+      "alias": "UPLOADING"
+    },
+    {
+      "name": "UPLOADING_Entry",
+      "alias": "UPL_ENTRY"
+    },
+    {
+      "name": "UPLOADING_Do",
+      "alias": "UPL_DO"
+    },
+    {
+      "name": "UPLOADING_Exit",
+      "alias": "UPL_EXIT"
+    },
+    {
+      "name": "SYS_OTA",
+      "alias": "OTA"
+    },
+    {
+      "name": "OTA_Entry",
+      "alias": "OTA_ENTRY"
+    },
+    {
+      "name": "OTA_Do",
+      "alias": "OTA_DO"
+    },
+    {
+      "name": "OTA_Exit",
+      "alias": "OTA_EXIT"
+    },
+    {
+      "name": "SYS_ERROR",
+      "alias": "ERROR"
+    },
+    {
+      "name": "ERROR_Entry",
+      "alias": "ERR_ENTRY"
+    },
+    {
+      "name": "ERROR_Do",
+      "alias": "ERR_DO"
+    },
+    {
+      "name": "ERROR_Exit",
+      "alias": "ERR_EXIT"
+    },
+    {
+      "name": "SYS_SLEEP",
+      "alias": "SLEEP"
+    },
+    {
+      "name": "SLEEP_Entry",
+      "alias": "SLEEP_ENTRY"
+    },
+    {
+      "name": "SLEEP_Do",
+      "alias": "SLEEP_DO"
+    },
+    {
+      "name": "SLEEP_Exit",
+      "alias": "SLEEP_EXIT"
+    },
+    {
+      "name": "SYS_SHUTDOWN",
+      "alias": "SHUTDOWN"
+    },
+    {
+      "name": "SHUTDOWN_Entry",
+      "alias": "SHUT_ENTRY"
+    },
+    {
+      "name": "SHUTDOWN_Do",
+      "alias": "SHUT_DO"
+    },
+    {
+      "name": "SHUTDOWN_Exit",
+      "alias": "SHUT_EXIT"
+    },
+    {
+      "name": "SYS_RESET",
+      "alias": "RESET"
+    },
+    {
+      "name": "RESET_Entry",
+      "alias": "RESET_ENTRY"
+    },
+    {
+      "name": "RESET_Do",
+      "alias": "RESET_DO"
+    },
+    {
+      "name": "RESET_Exit",
+      "alias": "RESET_EXIT"
+    }
+  ],
+  "transitions": [
+    {
+      "id": "T001",
+      "source_state": "INIT",
+      "target_state": "IDLE",
+      "event": "",
+      "description": "Auto transition after initialization",
+      "condition": "",
+      "api_function": "",
+      "subsystems": [
+        "power_fsm_diagram_with_api.html power_fsm",
+        "comm_fsm_diagram_with_api.html comm_fsm"
+      ],
+      "role_specific": {
+        "developer": {
+          "entry_action": "",
+          "exit_action": "",
+          "parameters": "",
+          "return_value": ""
+        },
+        "tester": {
+          "test_case_id": "",
+          "expected_outcome": "",
+          "tested": false,
+          "error_codes": []
+        },
+        "architect": {
+          "event_type": "external",
+          "handling": "forwarded",
+          "performance_impact": "low",
+          "dependencies": []
+        },
+        "product": {
+          "user_scenario": "",
+          "feature": "",
+          "priority": ""
+        },
+        "support": {
+          "symptom": "",
+          "recovery_steps": [],
+          "log_keywords": []
+        }
+      }
+    },
+    {
+      "id": "T002",
+      "source_state": "INIT",
+      "target_state": "OTA",
+      "event": "",
+      "description": "If pending firmware update detected",
+      "condition": "",
+      "api_function": "",
+      "subsystems": [
+        "ota_fsm_diagram_with_api.html ota_fsm"
+      ],
+      "role_specific": {
+        "developer": {
+          "entry_action": "",
+          "exit_action": "",
+          "parameters": "",
+          "return_value": ""
+        },
+        "tester": {
+          "test_case_id": "",
+          "expected_outcome": "",
+          "tested": false,
+          "error_codes": []
+        },
+        "architect": {
+          "event_type": "external",
+          "handling": "forwarded",
+          "performance_impact": "low",
+          "dependencies": []
+        },
+        "product": {
+          "user_scenario": "",
+          "feature": "",
+          "priority": ""
+        },
+        "support": {
+          "symptom": "",
+          "recovery_steps": [],
+          "log_keywords": []
+        }
+      }
+    },
+    {
+      "id": "T003",
+      "source_state": "IDLE",
+      "target_state": "RECORDING",
+      "event": "SYS_EVT_REC_START",
+      "description": "",
+      "condition": "",
+      "api_function": "",
+      "subsystems": [
+        "recording_fsm_diagram_with_api.html recording_fsm",
+        "audio_fsm_diagram_with_api.html audio_fsm"
+      ],
+      "role_specific": {
+        "developer": {
+          "entry_action": "",
+          "exit_action": "",
+          "parameters": "",
+          "return_value": ""
+        },
+        "tester": {
+          "test_case_id": "",
+          "expected_outcome": "",
+          "tested": false,
+          "error_codes": []
+        },
+        "architect": {
+          "event_type": "external",
+          "handling": "forwarded",
+          "performance_impact": "low",
+          "dependencies": []
+        },
+        "product": {
+          "user_scenario": "",
+          "feature": "",
+          "priority": ""
+        },
+        "support": {
+          "symptom": "",
+          "recovery_steps": [],
+          "log_keywords": []
+        }
+      }
+    },
+    {
+      "id": "T004",
+      "source_state": "IDLE",
+      "target_state": "SHUTDOWN",
+      "event": "SYS_EVT_POWER_OFF",
+      "description": "",
+      "condition": "",
+      "api_function": "",
+      "subsystems": [],
+      "role_specific": {
+        "developer": {
+          "entry_action": "",
+          "exit_action": "",
+          "parameters": "",
+          "return_value": ""
+        },
+        "tester": {
+          "test_case_id": "",
+          "expected_outcome": "",
+          "tested": false,
+          "error_codes": []
+        },
+        "architect": {
+          "event_type": "external",
+          "handling": "forwarded",
+          "performance_impact": "low",
+          "dependencies": []
+        },
+        "product": {
+          "user_scenario": "",
+          "feature": "",
+          "priority": ""
+        },
+        "support": {
+          "symptom": "",
+          "recovery_steps": [],
+          "log_keywords": []
+        }
+      }
+    },
+    {
+      "id": "T005",
+      "source_state": "IDLE",
+      "target_state": "ERROR",
+      "event": "SYS_EVT_ERROR",
+      "description": "",
+      "condition": "",
+      "api_function": "",
+      "subsystems": [],
+      "role_specific": {
+        "developer": {
+          "entry_action": "",
+          "exit_action": "",
+          "parameters": "",
+          "return_value": ""
+        },
+        "tester": {
+          "test_case_id": "",
+          "expected_outcome": "",
+          "tested": false,
+          "error_codes": []
+        },
+        "architect": {
+          "event_type": "external",
+          "handling": "forwarded",
+          "performance_impact": "low",
+          "dependencies": []
+        },
+        "product": {
+          "user_scenario": "",
+          "feature": "",
+          "priority": ""
+        },
+        "support": {
+          "symptom": "",
+          "recovery_steps": [],
+          "log_keywords": []
+        }
+      }
+    },
+    {
+      "id": "T006",
+      "source_state": "IDLE",
+      "target_state": "SLEEP",
+      "event": "SYS_EVT_LOW_BATTERY",
+      "description": "",
+      "condition": "",
+      "api_function": "",
+      "subsystems": [
+        "power_fsm_diagram_with_api.html power_fsm"
+      ],
+      "role_specific": {
+        "developer": {
+          "entry_action": "",
+          "exit_action": "",
+          "parameters": "",
+          "return_value": ""
+        },
+        "tester": {
+          "test_case_id": "",
+          "expected_outcome": "",
+          "tested": false,
+          "error_codes": []
+        },
+        "architect": {
+          "event_type": "external",
+          "handling": "forwarded",
+          "performance_impact": "low",
+          "dependencies": []
+        },
+        "product": {
+          "user_scenario": "",
+          "feature": "",
+          "priority": ""
+        },
+        "support": {
+          "symptom": "",
+          "recovery_steps": [],
+          "log_keywords": []
+        }
+      }
+    },
+    {
+      "id": "T007",
+      "source_state": "IDLE",
+      "target_state": "OTA",
+      "event": "SYS_EVT_OTA_START",
+      "description": "",
+      "condition": "",
+      "api_function": "",
+      "subsystems": [
+        "ota_fsm_diagram_with_api.html ota_fsm"
+      ],
+      "role_specific": {
+        "developer": {
+          "entry_action": "",
+          "exit_action": "",
+          "parameters": "",
+          "return_value": ""
+        },
+        "tester": {
+          "test_case_id": "",
+          "expected_outcome": "",
+          "tested": false,
+          "error_codes": []
+        },
+        "architect": {
+          "event_type": "external",
+          "handling": "forwarded",
+          "performance_impact": "low",
+          "dependencies": []
+        },
+        "product": {
+          "user_scenario": "",
+          "feature": "",
+          "priority": ""
+        },
+        "support": {
+          "symptom": "",
+          "recovery_steps": [],
+          "log_keywords": []
+        }
+      }
+    },
+    {
+      "id": "T008",
+      "source_state": "IDLE",
+      "target_state": "RESET",
+      "event": "SYS_EVT_RESET",
+      "description": "",
+      "condition": "",
+      "api_function": "",
+      "subsystems": [],
+      "role_specific": {
+        "developer": {
+          "entry_action": "",
+          "exit_action": "",
+          "parameters": "",
+          "return_value": ""
+        },
+        "tester": {
+          "test_case_id": "",
+          "expected_outcome": "",
+          "tested": false,
+          "error_codes": []
+        },
+        "architect": {
+          "event_type": "external",
+          "handling": "forwarded",
+          "performance_impact": "low",
+          "dependencies": []
+        },
+        "product": {
+          "user_scenario": "",
+          "feature": "",
+          "priority": ""
+        },
+        "support": {
+          "symptom": "",
+          "recovery_steps": [],
+          "log_keywords": []
+        }
+      }
+    },
+    {
+      "id": "T009",
+      "source_state": "IDLE",
+      "target_state": "UPLOADING",
+      "event": "SYS_EVT_FILE_UPLOAD_START",
+      "description": "",
+      "condition": "",
+      "api_function": "",
+      "subsystems": [
+        "comm_fsm_diagram_with_api.html comm_fsm"
+      ],
+      "role_specific": {
+        "developer": {
+          "entry_action": "",
+          "exit_action": "",
+          "parameters": "",
+          "return_value": ""
+        },
+        "tester": {
+          "test_case_id": "",
+          "expected_outcome": "",
+          "tested": false,
+          "error_codes": []
+        },
+        "architect": {
+          "event_type": "external",
+          "handling": "forwarded",
+          "performance_impact": "low",
+          "dependencies": []
+        },
+        "product": {
+          "user_scenario": "",
+          "feature": "",
+          "priority": ""
+        },
+        "support": {
+          "symptom": "",
+          "recovery_steps": [],
+          "log_keywords": []
+        }
+      }
+    },
+    {
+      "id": "T010",
+      "source_state": "RECORDING",
+      "target_state": "REC_UPL",
+      "event": "SYS_EVT_STREAMING_START",
+      "description": "",
+      "condition": "",
+      "api_function": "",
+      "subsystems": [
+        "recording_fsm_diagram_with_api.html recording_fsm",
+        "audio_fsm_diagram_with_api.html audio_fsm",
+        "comm_fsm_diagram_with_api.html comm_fsm"
+      ],
+      "role_specific": {
+        "developer": {
+          "entry_action": "",
+          "exit_action": "",
+          "parameters": "",
+          "return_value": ""
+        },
+        "tester": {
+          "test_case_id": "",
+          "expected_outcome": "",
+          "tested": false,
+          "error_codes": []
+        },
+        "architect": {
+          "event_type": "external",
+          "handling": "forwarded",
+          "performance_impact": "low",
+          "dependencies": []
+        },
+        "product": {
+          "user_scenario": "",
+          "feature": "",
+          "priority": ""
+        },
+        "support": {
+          "symptom": "",
+          "recovery_steps": [],
+          "log_keywords": []
+        }
+      }
+    },
+    {
+      "id": "T011",
+      "source_state": "RECORDING",
+      "target_state": "REC_UPL",
+      "event": "SYS_EVT_NETWORK_CONNECTED",
+      "description": "",
+      "condition": "",
+      "api_function": "",
+      "subsystems": [
+        "recording_fsm_diagram_with_api.html recording_fsm",
+        "audio_fsm_diagram_with_api.html audio_fsm",
+        "comm_fsm_diagram_with_api.html comm_fsm"
+      ],
+      "role_specific": {
+        "developer": {
+          "entry_action": "",
+          "exit_action": "",
+          "parameters": "",
+          "return_value": ""
+        },
+        "tester": {
+          "test_case_id": "",
+          "expected_outcome": "",
+          "tested": false,
+          "error_codes": []
+        },
+        "architect": {
+          "event_type": "external",
+          "handling": "forwarded",
+          "performance_impact": "low",
+          "dependencies": []
+        },
+        "product": {
+          "user_scenario": "",
+          "feature": "",
+          "priority": ""
+        },
+        "support": {
+          "symptom": "",
+          "recovery_steps": [],
+          "log_keywords": []
+        }
+      }
+    },
+    {
+      "id": "T012",
+      "source_state": "RECORDING",
+      "target_state": "REC_UPL",
+      "event": "SYS_EVT_UPLOAD_START",
+      "description": "",
+      "condition": "",
+      "api_function": "",
+      "subsystems": [
+        "recording_fsm_diagram_with_api.html recording_fsm",
+        "audio_fsm_diagram_with_api.html audio_fsm",
+        "comm_fsm_diagram_with_api.html comm_fsm"
+      ],
+      "role_specific": {
+        "developer": {
+          "entry_action": "",
+          "exit_action": "",
+          "parameters": "",
+          "return_value": ""
+        },
+        "tester": {
+          "test_case_id": "",
+          "expected_outcome": "",
+          "tested": false,
+          "error_codes": []
+        },
+        "architect": {
+          "event_type": "external",
+          "handling": "forwarded",
+          "performance_impact": "low",
+          "dependencies": []
+        },
+        "product": {
+          "user_scenario": "",
+          "feature": "",
+          "priority": ""
+        },
+        "support": {
+          "symptom": "",
+          "recovery_steps": [],
+          "log_keywords": []
+        }
+      }
+    },
+    {
+      "id": "T013",
+      "source_state": "RECORDING",
+      "target_state": "REC_UPL",
+      "event": "SYS_EVT_FILE_UPLOAD_START",
+      "description": "",
+      "condition": "",
+      "api_function": "",
+      "subsystems": [
+        "recording_fsm_diagram_with_api.html recording_fsm",
+        "audio_fsm_diagram_with_api.html audio_fsm",
+        "comm_fsm_diagram_with_api.html comm_fsm"
+      ],
+      "role_specific": {
+        "developer": {
+          "entry_action": "",
+          "exit_action": "",
+          "parameters": "",
+          "return_value": ""
+        },
+        "tester": {
+          "test_case_id": "",
+          "expected_outcome": "",
+          "tested": false,
+          "error_codes": []
+        },
+        "architect": {
+          "event_type": "external",
+          "handling": "forwarded",
+          "performance_impact": "low",
+          "dependencies": []
+        },
+        "product": {
+          "user_scenario": "",
+          "feature": "",
+          "priority": ""
+        },
+        "support": {
+          "symptom": "",
+          "recovery_steps": [],
+          "log_keywords": []
+        }
+      }
+    },
+    {
+      "id": "T014",
+      "source_state": "RECORDING",
+      "target_state": "UPLOADING",
+      "event": "SYS_EVT_REC_STOP",
+      "description": "",
+      "condition": "",
+      "api_function": "",
+      "subsystems": [
+        "comm_fsm_diagram_with_api.html comm_fsm"
+      ],
+      "role_specific": {
+        "developer": {
+          "entry_action": "",
+          "exit_action": "",
+          "parameters": "",
+          "return_value": ""
+        },
+        "tester": {
+          "test_case_id": "",
+          "expected_outcome": "",
+          "tested": false,
+          "error_codes": []
+        },
+        "architect": {
+          "event_type": "external",
+          "handling": "forwarded",
+          "performance_impact": "low",
+          "dependencies": []
+        },
+        "product": {
+          "user_scenario": "",
+          "feature": "",
+          "priority": ""
+        },
+        "support": {
+          "symptom": "",
+          "recovery_steps": [],
+          "log_keywords": []
+        }
+      }
+    },
+    {
+      "id": "T015",
+      "source_state": "RECORDING",
+      "target_state": "ERROR",
+      "event": "SYS_EVT_ERROR",
+      "description": "",
+      "condition": "",
+      "api_function": "",
+      "subsystems": [],
+      "role_specific": {
+        "developer": {
+          "entry_action": "",
+          "exit_action": "",
+          "parameters": "",
+          "return_value": ""
+        },
+        "tester": {
+          "test_case_id": "",
+          "expected_outcome": "",
+          "tested": false,
+          "error_codes": []
+        },
+        "architect": {
+          "event_type": "external",
+          "handling": "forwarded",
+          "performance_impact": "low",
+          "dependencies": []
+        },
+        "product": {
+          "user_scenario": "",
+          "feature": "",
+          "priority": ""
+        },
+        "support": {
+          "symptom": "",
+          "recovery_steps": [],
+          "log_keywords": []
+        }
+      }
+    },
+    {
+      "id": "T016",
+      "source_state": "RECORDING",
+      "target_state": "RESET",
+      "event": "SYS_EVT_RESET",
+      "description": "",
+      "condition": "",
+      "api_function": "",
+      "subsystems": [],
+      "role_specific": {
+        "developer": {
+          "entry_action": "",
+          "exit_action": "",
+          "parameters": "",
+          "return_value": ""
+        },
+        "tester": {
+          "test_case_id": "",
+          "expected_outcome": "",
+          "tested": false,
+          "error_codes": []
+        },
+        "architect": {
+          "event_type": "external",
+          "handling": "forwarded",
+          "performance_impact": "low",
+          "dependencies": []
+        },
+        "product": {
+          "user_scenario": "",
+          "feature": "",
+          "priority": ""
+        },
+        "support": {
+          "symptom": "",
+          "recovery_steps": [],
+          "log_keywords": []
+        }
+      }
+    },
+    {
+      "id": "T017",
+      "source_state": "REC_UPL",
+      "target_state": "RECORDING",
+      "event": "SYS_EVT_STREAMING_STOP",
+      "description": "",
+      "condition": "",
+      "api_function": "",
+      "subsystems": [
+        "recording_fsm_diagram_with_api.html recording_fsm",
+        "audio_fsm_diagram_with_api.html audio_fsm"
+      ],
+      "role_specific": {
+        "developer": {
+          "entry_action": "",
+          "exit_action": "",
+          "parameters": "",
+          "return_value": ""
+        },
+        "tester": {
+          "test_case_id": "",
+          "expected_outcome": "",
+          "tested": false,
+          "error_codes": []
+        },
+        "architect": {
+          "event_type": "external",
+          "handling": "forwarded",
+          "performance_impact": "low",
+          "dependencies": []
+        },
+        "product": {
+          "user_scenario": "",
+          "feature": "",
+          "priority": ""
+        },
+        "support": {
+          "symptom": "",
+          "recovery_steps": [],
+          "log_keywords": []
+        }
+      }
+    },
+    {
+      "id": "T018",
+      "source_state": "REC_UPL",
+      "target_state": "RECORDING",
+      "event": "SYS_EVT_UPLOAD_COMPLETE",
+      "description": "",
+      "condition": "",
+      "api_function": "",
+      "subsystems": [
+        "recording_fsm_diagram_with_api.html recording_fsm",
+        "audio_fsm_diagram_with_api.html audio_fsm"
+      ],
+      "role_specific": {
+        "developer": {
+          "entry_action": "",
+          "exit_action": "",
+          "parameters": "",
+          "return_value": ""
+        },
+        "tester": {
+          "test_case_id": "",
+          "expected_outcome": "",
+          "tested": false,
+          "error_codes": []
+        },
+        "architect": {
+          "event_type": "external",
+          "handling": "forwarded",
+          "performance_impact": "low",
+          "dependencies": []
+        },
+        "product": {
+          "user_scenario": "",
+          "feature": "",
+          "priority": ""
+        },
+        "support": {
+          "symptom": "",
+          "recovery_steps": [],
+          "log_keywords": []
+        }
+      }
+    },
+    {
+      "id": "T019",
+      "source_state": "REC_UPL",
+      "target_state": "RECORDING",
+      "event": "SYS_EVT_NETWORK_DISCONNECTED",
+      "description": "",
+      "condition": "",
+      "api_function": "",
+      "subsystems": [
+        "recording_fsm_diagram_with_api.html recording_fsm",
+        "audio_fsm_diagram_with_api.html audio_fsm"
+      ],
+      "role_specific": {
+        "developer": {
+          "entry_action": "",
+          "exit_action": "",
+          "parameters": "",
+          "return_value": ""
+        },
+        "tester": {
+          "test_case_id": "",
+          "expected_outcome": "",
+          "tested": false,
+          "error_codes": []
+        },
+        "architect": {
+          "event_type": "external",
+          "handling": "forwarded",
+          "performance_impact": "low",
+          "dependencies": []
+        },
+        "product": {
+          "user_scenario": "",
+          "feature": "",
+          "priority": ""
+        },
+        "support": {
+          "symptom": "",
+          "recovery_steps": [],
+          "log_keywords": []
+        }
+      }
+    },
+    {
+      "id": "T020",
+      "source_state": "REC_UPL",
+      "target_state": "UPLOADING",
+      "event": "SYS_EVT_REC_STOP",
+      "description": "",
+      "condition": "",
+      "api_function": "",
+      "subsystems": [
+        "comm_fsm_diagram_with_api.html comm_fsm"
+      ],
+      "role_specific": {
+        "developer": {
+          "entry_action": "",
+          "exit_action": "",
+          "parameters": "",
+          "return_value": ""
+        },
+        "tester": {
+          "test_case_id": "",
+          "expected_outcome": "",
+          "tested": false,
+          "error_codes": []
+        },
+        "architect": {
+          "event_type": "external",
+          "handling": "forwarded",
+          "performance_impact": "low",
+          "dependencies": []
+        },
+        "product": {
+          "user_scenario": "",
+          "feature": "",
+          "priority": ""
+        },
+        "support": {
+          "symptom": "",
+          "recovery_steps": [],
+          "log_keywords": []
+        }
+      }
+    },
+    {
+      "id": "T021",
+      "source_state": "REC_UPL",
+      "target_state": "ERROR",
+      "event": "SYS_EVT_ERROR",
+      "description": "",
+      "condition": "",
+      "api_function": "",
+      "subsystems": [],
+      "role_specific": {
+        "developer": {
+          "entry_action": "",
+          "exit_action": "",
+          "parameters": "",
+          "return_value": ""
+        },
+        "tester": {
+          "test_case_id": "",
+          "expected_outcome": "",
+          "tested": false,
+          "error_codes": []
+        },
+        "architect": {
+          "event_type": "external",
+          "handling": "forwarded",
+          "performance_impact": "low",
+          "dependencies": []
+        },
+        "product": {
+          "user_scenario": "",
+          "feature": "",
+          "priority": ""
+        },
+        "support": {
+          "symptom": "",
+          "recovery_steps": [],
+          "log_keywords": []
+        }
+      }
+    },
+    {
+      "id": "T022",
+      "source_state": "REC_UPL",
+      "target_state": "RESET",
+      "event": "SYS_EVT_RESET",
+      "description": "",
+      "condition": "",
+      "api_function": "",
+      "subsystems": [],
+      "role_specific": {
+        "developer": {
+          "entry_action": "",
+          "exit_action": "",
+          "parameters": "",
+          "return_value": ""
+        },
+        "tester": {
+          "test_case_id": "",
+          "expected_outcome": "",
+          "tested": false,
+          "error_codes": []
+        },
+        "architect": {
+          "event_type": "external",
+          "handling": "forwarded",
+          "performance_impact": "low",
+          "dependencies": []
+        },
+        "product": {
+          "user_scenario": "",
+          "feature": "",
+          "priority": ""
+        },
+        "support": {
+          "symptom": "",
+          "recovery_steps": [],
+          "log_keywords": []
+        }
+      }
+    },
+    {
+      "id": "T023",
+      "source_state": "UPLOADING",
+      "target_state": "IDLE",
+      "event": "SYS_EVT_UPLOAD_COMPLETE",
+      "description": "",
+      "condition": "",
+      "api_function": "",
+      "subsystems": [
+        "power_fsm_diagram_with_api.html power_fsm",
+        "comm_fsm_diagram_with_api.html comm_fsm"
+      ],
+      "role_specific": {
+        "developer": {
+          "entry_action": "",
+          "exit_action": "",
+          "parameters": "",
+          "return_value": ""
+        },
+        "tester": {
+          "test_case_id": "",
+          "expected_outcome": "",
+          "tested": false,
+          "error_codes": []
+        },
+        "architect": {
+          "event_type": "external",
+          "handling": "forwarded",
+          "performance_impact": "low",
+          "dependencies": []
+        },
+        "product": {
+          "user_scenario": "",
+          "feature": "",
+          "priority": ""
+        },
+        "support": {
+          "symptom": "",
+          "recovery_steps": [],
+          "log_keywords": []
+        }
+      }
+    },
+    {
+      "id": "T024",
+      "source_state": "UPLOADING",
+      "target_state": "ERROR",
+      "event": "SYS_EVT_ERROR",
+      "description": "",
+      "condition": "",
+      "api_function": "",
+      "subsystems": [],
+      "role_specific": {
+        "developer": {
+          "entry_action": "",
+          "exit_action": "",
+          "parameters": "",
+          "return_value": ""
+        },
+        "tester": {
+          "test_case_id": "",
+          "expected_outcome": "",
+          "tested": false,
+          "error_codes": []
+        },
+        "architect": {
+          "event_type": "external",
+          "handling": "forwarded",
+          "performance_impact": "low",
+          "dependencies": []
+        },
+        "product": {
+          "user_scenario": "",
+          "feature": "",
+          "priority": ""
+        },
+        "support": {
+          "symptom": "",
+          "recovery_steps": [],
+          "log_keywords": []
+        }
+      }
+    },
+    {
+      "id": "T025",
+      "source_state": "UPLOADING",
+      "target_state": "RESET",
+      "event": "SYS_EVT_RESET",
+      "description": "",
+      "condition": "",
+      "api_function": "",
+      "subsystems": [],
+      "role_specific": {
+        "developer": {
+          "entry_action": "",
+          "exit_action": "",
+          "parameters": "",
+          "return_value": ""
+        },
+        "tester": {
+          "test_case_id": "",
+          "expected_outcome": "",
+          "tested": false,
+          "error_codes": []
+        },
+        "architect": {
+          "event_type": "external",
+          "handling": "forwarded",
+          "performance_impact": "low",
+          "dependencies": []
+        },
+        "product": {
+          "user_scenario": "",
+          "feature": "",
+          "priority": ""
+        },
+        "support": {
+          "symptom": "",
+          "recovery_steps": [],
+          "log_keywords": []
+        }
+      }
+    },
+    {
+      "id": "T026",
+      "source_state": "ERROR",
+      "target_state": "RESET",
+      "event": "SYS_EVT_RESET",
+      "description": "",
+      "condition": "",
+      "api_function": "",
+      "subsystems": [],
+      "role_specific": {
+        "developer": {
+          "entry_action": "",
+          "exit_action": "",
+          "parameters": "",
+          "return_value": ""
+        },
+        "tester": {
+          "test_case_id": "",
+          "expected_outcome": "",
+          "tested": false,
+          "error_codes": []
+        },
+        "architect": {
+          "event_type": "external",
+          "handling": "forwarded",
+          "performance_impact": "low",
+          "dependencies": []
+        },
+        "product": {
+          "user_scenario": "",
+          "feature": "",
+          "priority": ""
+        },
+        "support": {
+          "symptom": "",
+          "recovery_steps": [],
+          "log_keywords": []
+        }
+      }
+    },
+    {
+      "id": "T027",
+      "source_state": "ERROR",
+      "target_state": "SHUTDOWN",
+      "event": "SYS_EVT_POWER_OFF",
+      "description": "",
+      "condition": "",
+      "api_function": "",
+      "subsystems": [],
+      "role_specific": {
+        "developer": {
+          "entry_action": "",
+          "exit_action": "",
+          "parameters": "",
+          "return_value": ""
+        },
+        "tester": {
+          "test_case_id": "",
+          "expected_outcome": "",
+          "tested": false,
+          "error_codes": []
+        },
+        "architect": {
+          "event_type": "external",
+          "handling": "forwarded",
+          "performance_impact": "low",
+          "dependencies": []
+        },
+        "product": {
+          "user_scenario": "",
+          "feature": "",
+          "priority": ""
+        },
+        "support": {
+          "symptom": "",
+          "recovery_steps": [],
+          "log_keywords": []
+        }
+      }
+    },
+    {
+      "id": "T028",
+      "source_state": "INIT",
+      "target_state": "RESET",
+      "event": "SYS_EVT_RESET",
+      "description": "",
+      "condition": "",
+      "api_function": "",
+      "subsystems": [],
+      "role_specific": {
+        "developer": {
+          "entry_action": "",
+          "exit_action": "",
+          "parameters": "",
+          "return_value": ""
+        },
+        "tester": {
+          "test_case_id": "",
+          "expected_outcome": "",
+          "tested": false,
+          "error_codes": []
+        },
+        "architect": {
+          "event_type": "external",
+          "handling": "forwarded",
+          "performance_impact": "low",
+          "dependencies": []
+        },
+        "product": {
+          "user_scenario": "",
+          "feature": "",
+          "priority": ""
+        },
+        "support": {
+          "symptom": "",
+          "recovery_steps": [],
+          "log_keywords": []
+        }
+      }
+    },
+    {
+      "id": "T029",
+      "source_state": "SLEEP",
+      "target_state": "RESET",
+      "event": "SYS_EVT_RESET",
+      "description": "",
+      "condition": "",
+      "api_function": "",
+      "subsystems": [],
+      "role_specific": {
+        "developer": {
+          "entry_action": "",
+          "exit_action": "",
+          "parameters": "",
+          "return_value": ""
+        },
+        "tester": {
+          "test_case_id": "",
+          "expected_outcome": "",
+          "tested": false,
+          "error_codes": []
+        },
+        "architect": {
+          "event_type": "external",
+          "handling": "forwarded",
+          "performance_impact": "low",
+          "dependencies": []
+        },
+        "product": {
+          "user_scenario": "",
+          "feature": "",
+          "priority": ""
+        },
+        "support": {
+          "symptom": "",
+          "recovery_steps": [],
+          "log_keywords": []
+        }
+      }
+    },
+    {
+      "id": "T030",
+      "source_state": "OTA",
+      "target_state": "RESET",
+      "event": "SYS_EVT_RESET",
+      "description": "",
+      "condition": "",
+      "api_function": "",
+      "subsystems": [],
+      "role_specific": {
+        "developer": {
+          "entry_action": "",
+          "exit_action": "",
+          "parameters": "",
+          "return_value": ""
+        },
+        "tester": {
+          "test_case_id": "",
+          "expected_outcome": "",
+          "tested": false,
+          "error_codes": []
+        },
+        "architect": {
+          "event_type": "external",
+          "handling": "forwarded",
+          "performance_impact": "low",
+          "dependencies": []
+        },
+        "product": {
+          "user_scenario": "",
+          "feature": "",
+          "priority": ""
+        },
+        "support": {
+          "symptom": "",
+          "recovery_steps": [],
+          "log_keywords": []
+        }
+      }
+    },
+    {
+      "id": "T031",
+      "source_state": "SHUTDOWN",
+      "target_state": "RESET",
+      "event": "SYS_EVT_RESET",
+      "description": "",
+      "condition": "",
+      "api_function": "",
+      "subsystems": [],
+      "role_specific": {
+        "developer": {
+          "entry_action": "",
+          "exit_action": "",
+          "parameters": "",
+          "return_value": ""
+        },
+        "tester": {
+          "test_case_id": "",
+          "expected_outcome": "",
+          "tested": false,
+          "error_codes": []
+        },
+        "architect": {
+          "event_type": "external",
+          "handling": "forwarded",
+          "performance_impact": "low",
+          "dependencies": []
+        },
+        "product": {
+          "user_scenario": "",
+          "feature": "",
+          "priority": ""
+        },
+        "support": {
+          "symptom": "",
+          "recovery_steps": [],
+          "log_keywords": []
+        }
+      }
+    },
+    {
+      "id": "T032",
+      "source_state": "RESET",
+      "target_state": "INIT",
+      "event": "",
+      "description": "Auto transition after reset",
+      "condition": "",
+      "api_function": "",
+      "subsystems": [],
+      "role_specific": {
+        "developer": {
+          "entry_action": "",
+          "exit_action": "",
+          "parameters": "",
+          "return_value": ""
+        },
+        "tester": {
+          "test_case_id": "",
+          "expected_outcome": "",
+          "tested": false,
+          "error_codes": []
+        },
+        "architect": {
+          "event_type": "external",
+          "handling": "forwarded",
+          "performance_impact": "low",
+          "dependencies": []
+        },
+        "product": {
+          "user_scenario": "",
+          "feature": "",
+          "priority": ""
+        },
+        "support": {
+          "symptom": "",
+          "recovery_steps": [],
+          "log_keywords": []
+        }
+      }
+    },
+    {
+      "id": "T033",
+      "source_state": "SLEEP",
+      "target_state": "IDLE",
+      "event": "SYS_EVT_POWER_ON",
+      "description": "",
+      "condition": "",
+      "api_function": "",
+      "subsystems": [
+        "power_fsm_diagram_with_api.html power_fsm",
+        "comm_fsm_diagram_with_api.html comm_fsm"
+      ],
+      "role_specific": {
+        "developer": {
+          "entry_action": "",
+          "exit_action": "",
+          "parameters": "",
+          "return_value": ""
+        },
+        "tester": {
+          "test_case_id": "",
+          "expected_outcome": "",
+          "tested": false,
+          "error_codes": []
+        },
+        "architect": {
+          "event_type": "external",
+          "handling": "forwarded",
+          "performance_impact": "low",
+          "dependencies": []
+        },
+        "product": {
+          "user_scenario": "",
+          "feature": "",
+          "priority": ""
+        },
+        "support": {
+          "symptom": "",
+          "recovery_steps": [],
+          "log_keywords": []
+        }
+      }
+    },
+    {
+      "id": "T034",
+      "source_state": "SLEEP",
+      "target_state": "SHUTDOWN",
+      "event": "SYS_EVT_POWER_OFF",
+      "description": "",
+      "condition": "",
+      "api_function": "",
+      "subsystems": [],
+      "role_specific": {
+        "developer": {
+          "entry_action": "",
+          "exit_action": "",
+          "parameters": "",
+          "return_value": ""
+        },
+        "tester": {
+          "test_case_id": "",
+          "expected_outcome": "",
+          "tested": false,
+          "error_codes": []
+        },
+        "architect": {
+          "event_type": "external",
+          "handling": "forwarded",
+          "performance_impact": "low",
+          "dependencies": []
+        },
+        "product": {
+          "user_scenario": "",
+          "feature": "",
+          "priority": ""
+        },
+        "support": {
+          "symptom": "",
+          "recovery_steps": [],
+          "log_keywords": []
+        }
+      }
+    },
+    {
+      "id": "T035",
+      "source_state": "SLEEP",
+      "target_state": "RESET",
+      "event": "SYS_EVT_RESET",
+      "description": "",
+      "condition": "",
+      "api_function": "",
+      "subsystems": [],
+      "role_specific": {
+        "developer": {
+          "entry_action": "",
+          "exit_action": "",
+          "parameters": "",
+          "return_value": ""
+        },
+        "tester": {
+          "test_case_id": "",
+          "expected_outcome": "",
+          "tested": false,
+          "error_codes": []
+        },
+        "architect": {
+          "event_type": "external",
+          "handling": "forwarded",
+          "performance_impact": "low",
+          "dependencies": []
+        },
+        "product": {
+          "user_scenario": "",
+          "feature": "",
+          "priority": ""
+        },
+        "support": {
+          "symptom": "",
+          "recovery_steps": [],
+          "log_keywords": []
+        }
+      }
+    },
+    {
+      "id": "T036",
+      "source_state": "OTA",
+      "target_state": "IDLE",
+      "event": "SYS_EVT_OTA_COMPLETE",
+      "description": "",
+      "condition": "",
+      "api_function": "",
+      "subsystems": [
+        "power_fsm_diagram_with_api.html power_fsm",
+        "comm_fsm_diagram_with_api.html comm_fsm"
+      ],
+      "role_specific": {
+        "developer": {
+          "entry_action": "",
+          "exit_action": "",
+          "parameters": "",
+          "return_value": ""
+        },
+        "tester": {
+          "test_case_id": "",
+          "expected_outcome": "",
+          "tested": false,
+          "error_codes": []
+        },
+        "architect": {
+          "event_type": "external",
+          "handling": "forwarded",
+          "performance_impact": "low",
+          "dependencies": []
+        },
+        "product": {
+          "user_scenario": "",
+          "feature": "",
+          "priority": ""
+        },
+        "support": {
+          "symptom": "",
+          "recovery_steps": [],
+          "log_keywords": []
+        }
+      }
+    },
+    {
+      "id": "T037",
+      "source_state": "OTA",
+      "target_state": "IDLE",
+      "event": "SYS_EVT_OTA_CANCEL",
+      "description": "",
+      "condition": "",
+      "api_function": "",
+      "subsystems": [
+        "power_fsm_diagram_with_api.html power_fsm",
+        "comm_fsm_diagram_with_api.html comm_fsm"
+      ],
+      "role_specific": {
+        "developer": {
+          "entry_action": "",
+          "exit_action": "",
+          "parameters": "",
+          "return_value": ""
+        },
+        "tester": {
+          "test_case_id": "",
+          "expected_outcome": "",
+          "tested": false,
+          "error_codes": []
+        },
+        "architect": {
+          "event_type": "external",
+          "handling": "forwarded",
+          "performance_impact": "low",
+          "dependencies": []
+        },
+        "product": {
+          "user_scenario": "",
+          "feature": "",
+          "priority": ""
+        },
+        "support": {
+          "symptom": "",
+          "recovery_steps": [],
+          "log_keywords": []
+        }
+      }
+    },
+    {
+      "id": "T038",
+      "source_state": "OTA",
+      "target_state": "ERROR",
+      "event": "SYS_EVT_OTA_ERROR",
+      "description": "",
+      "condition": "",
+      "api_function": "",
+      "subsystems": [],
+      "role_specific": {
+        "developer": {
+          "entry_action": "",
+          "exit_action": "",
+          "parameters": "",
+          "return_value": ""
+        },
+        "tester": {
+          "test_case_id": "",
+          "expected_outcome": "",
+          "tested": false,
+          "error_codes": []
+        },
+        "architect": {
+          "event_type": "external",
+          "handling": "forwarded",
+          "performance_impact": "low",
+          "dependencies": []
+        },
+        "product": {
+          "user_scenario": "",
+          "feature": "",
+          "priority": ""
+        },
+        "support": {
+          "symptom": "",
+          "recovery_steps": [],
+          "log_keywords": []
+        }
+      }
+    },
+    {
+      "id": "T039",
+      "source_state": "OTA",
+      "target_state": "SHUTDOWN",
+      "event": "SYS_EVT_POWER_OFF",
+      "description": "",
+      "condition": "",
+      "api_function": "",
+      "subsystems": [],
+      "role_specific": {
+        "developer": {
+          "entry_action": "",
+          "exit_action": "",
+          "parameters": "",
+          "return_value": ""
+        },
+        "tester": {
+          "test_case_id": "",
+          "expected_outcome": "",
+          "tested": false,
+          "error_codes": []
+        },
+        "architect": {
+          "event_type": "external",
+          "handling": "forwarded",
+          "performance_impact": "low",
+          "dependencies": []
+        },
+        "product": {
+          "user_scenario": "",
+          "feature": "",
+          "priority": ""
+        },
+        "support": {
+          "symptom": "",
+          "recovery_steps": [],
+          "log_keywords": []
+        }
+      }
+    },
+    {
+      "id": "T040",
+      "source_state": "OTA",
+      "target_state": "RESET",
+      "event": "SYS_EVT_RESET",
+      "description": "",
+      "condition": "",
+      "api_function": "",
+      "subsystems": [],
+      "role_specific": {
+        "developer": {
+          "entry_action": "",
+          "exit_action": "",
+          "parameters": "",
+          "return_value": ""
+        },
+        "tester": {
+          "test_case_id": "",
+          "expected_outcome": "",
+          "tested": false,
+          "error_codes": []
+        },
+        "architect": {
+          "event_type": "external",
+          "handling": "forwarded",
+          "performance_impact": "low",
+          "dependencies": []
+        },
+        "product": {
+          "user_scenario": "",
+          "feature": "",
+          "priority": ""
+        },
+        "support": {
+          "symptom": "",
+          "recovery_steps": [],
+          "log_keywords": []
+        }
+      }
+    },
+    {
+      "id": "T041",
+      "source_state": "OTA",
+      "target_state": "OTA",
+      "event": "SYS_EVT_OTA_CHECK",
+      "description": "",
+      "condition": "forwarded",
+      "api_function": "",
+      "subsystems": [
+        "ota_fsm_diagram_with_api.html ota_fsm"
+      ],
+      "role_specific": {
+        "developer": {
+          "entry_action": "",
+          "exit_action": "",
+          "parameters": "",
+          "return_value": ""
+        },
+        "tester": {
+          "test_case_id": "",
+          "expected_outcome": "",
+          "tested": false,
+          "error_codes": []
+        },
+        "architect": {
+          "event_type": "external",
+          "handling": "forwarded",
+          "performance_impact": "low",
+          "dependencies": []
+        },
+        "product": {
+          "user_scenario": "",
+          "feature": "",
+          "priority": ""
+        },
+        "support": {
+          "symptom": "",
+          "recovery_steps": [],
+          "log_keywords": []
+        }
+      }
+    },
+    {
+      "id": "T042",
+      "source_state": "OTA",
+      "target_state": "OTA",
+      "event": "SYS_EVT_OTA_STATUS",
+      "description": "",
+      "condition": "forwarded",
+      "api_function": "",
+      "subsystems": [
+        "ota_fsm_diagram_with_api.html ota_fsm"
+      ],
+      "role_specific": {
+        "developer": {
+          "entry_action": "",
+          "exit_action": "",
+          "parameters": "",
+          "return_value": ""
+        },
+        "tester": {
+          "test_case_id": "",
+          "expected_outcome": "",
+          "tested": false,
+          "error_codes": []
+        },
+        "architect": {
+          "event_type": "external",
+          "handling": "forwarded",
+          "performance_impact": "low",
+          "dependencies": []
+        },
+        "product": {
+          "user_scenario": "",
+          "feature": "",
+          "priority": ""
+        },
+        "support": {
+          "symptom": "",
+          "recovery_steps": [],
+          "log_keywords": []
+        }
+      }
+    },
+    {
+      "id": "T043",
+      "source_state": "OTA",
+      "target_state": "OTA",
+      "event": "SYS_EVT_OTA_PROGRESS",
+      "description": "",
+      "condition": "forwarded",
+      "api_function": "",
+      "subsystems": [
+        "ota_fsm_diagram_with_api.html ota_fsm"
+      ],
+      "role_specific": {
+        "developer": {
+          "entry_action": "",
+          "exit_action": "",
+          "parameters": "",
+          "return_value": ""
+        },
+        "tester": {
+          "test_case_id": "",
+          "expected_outcome": "",
+          "tested": false,
+          "error_codes": []
+        },
+        "architect": {
+          "event_type": "external",
+          "handling": "forwarded",
+          "performance_impact": "low",
+          "dependencies": []
+        },
+        "product": {
+          "user_scenario": "",
+          "feature": "",
+          "priority": ""
+        },
+        "support": {
+          "symptom": "",
+          "recovery_steps": [],
+          "log_keywords": []
+        }
+      }
+    },
+    {
+      "id": "T044",
+      "source_state": "RECORDING",
+      "target_state": "RECORDING",
+      "event": "SYS_EVT_REC_PAUSE",
+      "description": "",
+      "condition": "handled",
+      "api_function": "",
+      "subsystems": [
+        "recording_fsm_diagram_with_api.html recording_fsm",
+        "audio_fsm_diagram_with_api.html audio_fsm"
+      ],
+      "role_specific": {
+        "developer": {
+          "entry_action": "",
+          "exit_action": "",
+          "parameters": "",
+          "return_value": ""
+        },
+        "tester": {
+          "test_case_id": "",
+          "expected_outcome": "",
+          "tested": false,
+          "error_codes": []
+        },
+        "architect": {
+          "event_type": "external",
+          "handling": "forwarded",
+          "performance_impact": "low",
+          "dependencies": []
+        },
+        "product": {
+          "user_scenario": "",
+          "feature": "",
+          "priority": ""
+        },
+        "support": {
+          "symptom": "",
+          "recovery_steps": [],
+          "log_keywords": []
+        }
+      }
+    },
+    {
+      "id": "T045",
+      "source_state": "RECORDING",
+      "target_state": "RECORDING",
+      "event": "SYS_EVT_REC_RESUME",
+      "description": "",
+      "condition": "handled",
+      "api_function": "",
+      "subsystems": [
+        "recording_fsm_diagram_with_api.html recording_fsm",
+        "audio_fsm_diagram_with_api.html audio_fsm"
+      ],
+      "role_specific": {
+        "developer": {
+          "entry_action": "",
+          "exit_action": "",
+          "parameters": "",
+          "return_value": ""
+        },
+        "tester": {
+          "test_case_id": "",
+          "expected_outcome": "",
+          "tested": false,
+          "error_codes": []
+        },
+        "architect": {
+          "event_type": "external",
+          "handling": "forwarded",
+          "performance_impact": "low",
+          "dependencies": []
+        },
+        "product": {
+          "user_scenario": "",
+          "feature": "",
+          "priority": ""
+        },
+        "support": {
+          "symptom": "",
+          "recovery_steps": [],
+          "log_keywords": []
+        }
+      }
+    },
+    {
+      "id": "T046",
+      "source_state": "RECORDING",
+      "target_state": "RECORDING",
+      "event": "SYS_EVT_LOW_BATTERY",
+      "description": "",
+      "condition": "handled",
+      "api_function": "",
+      "subsystems": [
+        "recording_fsm_diagram_with_api.html recording_fsm",
+        "audio_fsm_diagram_with_api.html audio_fsm"
+      ],
+      "role_specific": {
+        "developer": {
+          "entry_action": "",
+          "exit_action": "",
+          "parameters": "",
+          "return_value": ""
+        },
+        "tester": {
+          "test_case_id": "",
+          "expected_outcome": "",
+          "tested": false,
+          "error_codes": []
+        },
+        "architect": {
+          "event_type": "external",
+          "handling": "forwarded",
+          "performance_impact": "low",
+          "dependencies": []
+        },
+        "product": {
+          "user_scenario": "",
+          "feature": "",
+          "priority": ""
+        },
+        "support": {
+          "symptom": "",
+          "recovery_steps": [],
+          "log_keywords": []
+        }
+      }
+    },
+    {
+      "id": "T047",
+      "source_state": "UPLOADING",
+      "target_state": "UPLOADING",
+      "event": "SYS_EVT_NETWORK_DISCONNECTED",
+      "description": "",
+      "condition": "handled",
+      "api_function": "",
+      "subsystems": [
+        "comm_fsm_diagram_with_api.html comm_fsm"
+      ],
+      "role_specific": {
+        "developer": {
+          "entry_action": "",
+          "exit_action": "",
+          "parameters": "",
+          "return_value": ""
+        },
+        "tester": {
+          "test_case_id": "",
+          "expected_outcome": "",
+          "tested": false,
+          "error_codes": []
+        },
+        "architect": {
+          "event_type": "external",
+          "handling": "forwarded",
+          "performance_impact": "low",
+          "dependencies": []
+        },
+        "product": {
+          "user_scenario": "",
+          "feature": "",
+          "priority": ""
+        },
+        "support": {
+          "symptom": "",
+          "recovery_steps": [],
+          "log_keywords": []
+        }
+      }
+    }
+  ],
+  "notes": {
+    "INIT": "<b>State:</b> SYS_INIT\n<b>Entry function:</b> enter_init()\n<b>API:</b> system_coordinator_init()",
+    "IDLE": "<b>State:</b> SYS_IDLE\n<b>Entry function:</b> enter_idle()\n<b>Do action:</b> do_action() periodic checks\n<b>Subsystems:</b> [[power_fsm_diagram_with_api.html power_fsm]] (low battery management), [[comm_fsm_diagram_with_api.html comm_fsm]] (network monitoring)\n<b>Main operational state</b>",
+    "RECORDING": "<b>State:</b> SYS_RECORDING\n<b>Entry function:</b> enter_recording()\n<b>Do action:</b> monitor recording progress\n<b>Subsystems:</b> [[recording_fsm_diagram_with_api.html recording_fsm]], [[audio_fsm_diagram_with_api.html audio_fsm]] active",
+    "REC_UPL": "<b>State:</b> SYS_RECORDING_AND_UPLOADING\n<b>Entry function:</b> enter_recording_and_uploading()\n<b>Do action:</b> monitor recording & streaming\n<b>Subsystems:</b> [[recording_fsm_diagram_with_api.html recording_fsm]], [[audio_fsm_diagram_with_api.html audio_fsm]], [[comm_fsm_diagram_with_api.html comm_fsm]] active",
+    "UPLOADING": "<b>State:</b> SYS_UPLOADING\n<b>Entry function:</b> enter_uploading()\n<b>Do action:</b> upload to cloud\n<b>Subsystems:</b> [[comm_fsm_diagram_with_api.html comm_fsm]] active",
+    "ERROR": "<b>State:</b> SYS_ERROR\n<b>Entry function:</b> enter_error()\n<b>Error handling:</b> error_code, error_msg\n<b>Recovery:</b> Reset or shutdown",
+    "OTA": "<b>State:</b> SYS_OTA\n<b>Entry function:</b> enter_ota()\n<b>Do action:</b> download & install update\n<b>Subsystems:</b> [[ota_fsm_diagram_with_api.html ota_fsm]] active\n<b>Transitions:</b> From IDLE (OTA_START), From INIT (pending update)\n<b>Exit events:</b> OTA_COMPLETE, OTA_CANCEL, OTA_ERROR, POWER_OFF",
+    "SLEEP": "<b>State:</b> SYS_SLEEP\n<b>Entry function:</b> enter_sleep()\n<b>Do action:</b> low‑power sleep\n<b>Subsystems:</b> [[power_fsm_diagram_with_api.html power_fsm]] (sleep mode)\n<b>Wake‑up events:</b> POWER_ON, LOW_BATTERY",
+    "SHUTDOWN": "<b>State:</b> SYS_SHUTDOWN\n<b>Entry function:</b> (none)\n<b>Do action:</b> power off sequence\n<b>Final state:</b> No outgoing transitions\n<b>API:</b> system_coordinator_dispatch_event(sys, SYS_EVT_POWER_OFF, NULL)",
+    "RESET": "<b>State:</b> SYS_RESET\n<b>Entry function:</b> enter_reset()\n<b>Do action:</b> reset subsystems\n<b>Auto transition:</b> to INIT after reset complete\n<b>API:</b> system_coordinator_dispatch_event(sys, SYS_EVT_RESET, NULL)"
+  }
+}
