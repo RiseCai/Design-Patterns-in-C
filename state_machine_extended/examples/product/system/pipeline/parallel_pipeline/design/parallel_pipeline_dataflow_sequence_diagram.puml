@@ -1,0 +1,264 @@
+@startuml Parallel Pipeline Data Flow Hybrid Model Sequence Diagram
+
+/'
+    Parallel Pipeline Data Flow Hybrid Model Sequence Diagram
+    ========================================================
+
+    This diagram demonstrates the hybrid workflow-data stream execution model,
+    showing how tasks coordinate through both explicit dependencies and implicit
+    data flow dependencies.
+
+    Key Concepts:
+    - TASK_TYPE_LEGACY: Only task dependencies, immediate execution
+    - TASK_TYPE_HYBRID: Task + data dependencies, flexible coordination
+    - TASK_TYPE_DATAFLOW: Only data dependencies, event-driven execution
+
+    Execution Patterns:
+    - Producer-Consumer: Data producers write to streams
+    - Pipeline Processing: Data flows through processing stages
+    - Hybrid Coordination: Mix of dependency types for complex workflows
+
+    Generated: 2026-01-05
+    Version: 1.0
+'/
+
+title Parallel Pipeline Data Flow Hybrid Model Sequence Diagram
+
+actor User as "Application"
+participant WF as "ParallelWorkflow"
+participant Checker as "DependencyChecker"
+participant Task1 as "SensorTask\n(TASK_TYPE_HYBRID)"
+participant Task2 as "ProcessorTask\n(TASK_TYPE_HYBRID)"
+participant Task3 as "AlertHandler\n(TASK_TYPE_HYBRID)"
+participant Task4 as "DecisionTask\n(TASK_TYPE_DATAFLOW)"
+participant DS as "DataStreamService"
+participant Stream1 as "sensor_data\n(FIFO, capacity=10)"
+participant Stream2 as "processed_data\n(LATEST, capacity=5)"
+participant Stream3 as "alert_data\n(FIFO, capacity=20)"
+
+== Workflow Initialization ==
+User -> WF: parallel_workflow_init_ex(enable_data_streams=1)
+activate WF
+WF -> DS: data_stream_service_create()
+activate DS
+DS --> WF: data_stream_service
+WF --> User: workflow ready
+
+== Task Configuration ==
+User -> Task1: parallel_task_init(TASK_TYPE_HYBRID)
+Task1 -> Task1: set_type(HYBRID)
+User -> Task1: parallel_task_add_output_stream(sensor_data)
+Task1 -> DS: register_output_stream(sensor_data)
+DS --> Task1: stream registered
+
+User -> Task2: parallel_task_init(TASK_TYPE_HYBRID)
+Task2 -> Task2: set_type(HYBRID)
+User -> Task2: parallel_task_add_input_stream(sensor_data)
+Task2 -> DS: register_input_stream(sensor_data)
+User -> Task2: parallel_task_add_output_stream(processed_data)
+Task2 -> DS: register_output_stream(processed_data)
+User -> Task2: parallel_task_add_dependency(Task1.task_id)
+Task2 -> Task2: add_task_dependency(Task1)
+
+User -> Task3: parallel_task_init(TASK_TYPE_HYBRID)
+Task3 -> Task3: set_type(HYBRID)
+User -> Task3: parallel_task_add_input_stream(alert_data)
+Task3 -> DS: register_input_stream(alert_data)
+
+User -> Task4: parallel_task_init(TASK_TYPE_DATAFLOW)
+Task4 -> Task4: set_type(DATAFLOW)
+User -> Task4: parallel_task_add_input_stream(processed_data)
+Task4 -> DS: register_input_stream(processed_data)
+User -> Task4: parallel_task_add_dependency(Task2.task_id)
+Task4 -> Task4: add_task_dependency(Task2)
+
+== Workflow Start ==
+User -> WF: parallel_workflow_start()
+WF -> WF: set_state(PWORKFLOW_RUNNING)
+
+== Dependency Resolution Phase ==
+note over WF, Task4
+    **Dependency Resolution Logic:**
+
+    **Task1 (HYBRID)**: No task dependencies ✓
+    → Ready to start immediately
+
+    **Task2 (HYBRID)**: Depends on Task1 ✗
+    → Waiting for Task1 completion
+
+    **Task3 (HYBRID)**: No task dependencies ✓
+    → Ready to start immediately
+
+    **Task4 (DATAFLOW)**: Depends on Task2 ✗
+    → Waiting for Task2 completion + data availability
+end note
+
+WF -> Checker: check_all_task_dependencies()
+Checker -> Task1: check_dependencies()
+Task1 -> Task1: check_task_dependencies()
+Task1 --> Checker: no_dependencies ✓
+Checker -> Task3: check_dependencies()
+Task3 -> Task3: check_task_dependencies()
+Task3 --> Checker: no_dependencies ✓
+Checker -> Task2: check_dependencies()
+Task2 -> Task2: check_task_dependencies()
+Task2 --> Checker: has_unmet_dependencies ✗
+Checker -> Task4: check_dependencies()
+Task4 -> Task4: check_task_dependencies()
+Task4 --> Checker: has_unmet_dependencies ✗
+Checker --> WF: ready_tasks = [Task1, Task3]
+
+== Concurrent Execution Phase 1 ==
+WF -> WF: acquire_concurrency_semaphore()
+WF -> Task1: parallel_task_start()
+activate Task1
+Task1 -> Task1: create_execution_thread()
+Task1 --> WF: task_started
+
+WF -> WF: acquire_concurrency_semaphore()
+WF -> Task3: parallel_task_start()
+activate Task3
+Task3 -> Task3: create_execution_thread()
+Task3 --> WF: task_started
+
+== Task Execution (Phase 1) ==
+Task1 -> Task1: execute_sensor_task()
+Task1 -> Stream1: data_stream_write(sensor_reading)
+activate Stream1
+Stream1 -> Stream1: enqueue_data(sensor_reading)
+Stream1 --> Task1: data_written
+Task1 -> Task1: set_state(PTASK_COMPLETED)
+Task1 -> WF: mark_task_completed(Task1)
+deactivate Task1
+
+== Hybrid Dependency Check ==
+WF -> Checker: check_task_dependencies()
+Checker -> Task2: check_dependencies()
+Task2 -> Task2: check_task_dependencies()
+Task2 --> Checker: task_dependencies_met ✓
+
+note right: Task2 has HYBRID dependencies:
+- Task dependency: Task1 ✓ completed
+- Data dependency: sensor_data stream
+
+Checker -> Stream1: data_stream_has_data()
+Stream1 --> Checker: data_available ✓
+Checker --> WF: Task2_ready ✓
+
+== Concurrent Execution Phase 2 ==
+WF -> WF: release_concurrency_semaphore()
+WF -> Task2: parallel_task_start()
+activate Task2
+Task2 -> Task2: create_execution_thread()
+Task2 --> WF: task_started
+
+== Data Flow Processing ==
+Task2 -> Task2: execute_processor_task()
+Task2 -> Stream1: data_stream_read(sensor_data)
+Stream1 -> Stream1: dequeue_data()
+Stream1 --> Task2: sensor_data
+deactivate Stream1
+
+Task2 -> Task2: process_sensor_data()
+note right: Processing generates alerts\nwhen temperature > 28°C
+
+Task2 -> Stream3: data_stream_write(alert_data)
+activate Stream3
+Stream3 -> Stream3: enqueue_data(alert)
+Stream3 --> Task2: alert_written
+
+Task2 -> Stream2: data_stream_write(processed_data)
+activate Stream2
+Stream2 -> Stream2: enqueue_data(result)
+Stream2 --> Task2: data_written
+deactivate Stream2
+
+Task2 -> Task2: set_state(PTASK_COMPLETED)
+Task2 -> WF: mark_task_completed(Task2)
+deactivate Task2
+
+== Task3 Data-Driven Execution ==
+note over Task3
+    Task3 (HYBRID) is already running.
+    It checks for alert_data periodically.
+end note
+
+Task3 -> Stream3: data_stream_read(alert_data, timeout=500ms)
+Stream3 -> Stream3: check_available_data()
+Stream3 --> Task3: alert_data_available
+Task3 -> Task3: process_alert()
+Task3 -> Task3: continue_monitoring()
+
+== DataFlow Task Activation ==
+WF -> Checker: check_task_dependencies()
+Checker -> Task4: check_dependencies()
+Task4 -> Task4: check_task_dependencies()
+Task4 --> Checker: task_dependencies_met ✓
+
+note right: Task4 has DATAFLOW dependencies:
+- Task dependency: Task2 ✓ completed
+- Data dependency: processed_data stream
+
+Checker -> Stream2: data_stream_has_data()
+Stream2 --> Checker: data_available ✓
+Checker --> WF: Task4_ready ✓
+
+== Concurrent Execution Phase 3 ==
+WF -> WF: acquire_concurrency_semaphore()
+WF -> Task4: parallel_task_start()
+activate Task4
+Task4 -> Task4: create_execution_thread()
+Task4 --> WF: task_started
+
+== Final Data Processing ==
+Task4 -> Task4: execute_decision_task()
+Task4 -> Stream2: data_stream_read(processed_data)
+Stream2 -> Stream2: dequeue_data()
+Stream2 --> Task4: processed_data
+deactivate Stream2
+
+Task4 -> Task4: analyze_processed_data()
+Task4 -> Task4: make_decision()
+Task4 -> Task4: set_state(PTASK_COMPLETED)
+Task4 -> WF: mark_task_completed(Task4)
+deactivate Task4
+
+== Completion Phase ==
+WF -> WF: check_all_tasks_completed()
+WF -> WF: set_state(PWORKFLOW_COMPLETED)
+WF --> User: workflow_completed
+
+Task3 -> Task3: complete_monitoring()
+Task3 -> Task3: set_state(PTASK_COMPLETED)
+Task3 -> WF: mark_task_completed(Task3)
+deactivate Task3
+
+deactivate Stream3
+deactivate DS
+deactivate WF
+
+note over User, Task4
+    **Hybrid Execution Summary:**
+
+    **Phase 1 (Concurrent):**
+    - Task1 & Task3 start immediately (no dependencies)
+    - Task1 produces sensor_data
+    - Task3 monitors alert_data (empty initially)
+
+    **Phase 2 (Dependency Triggered):**
+    - Task1 completion + sensor_data availability
+    - Task2 starts processing
+    - Task2 produces processed_data + alert_data
+
+    **Phase 3 (Data Driven):**
+    - Task2 completion + processed_data availability
+    - Task4 starts decision making
+    - Task3 processes available alerts
+
+    **Key Benefits:**
+    - Mixed dependency models for flexibility
+    - Data-driven execution for responsiveness
+    - Concurrent processing for performance
+end note
+
+@enduml

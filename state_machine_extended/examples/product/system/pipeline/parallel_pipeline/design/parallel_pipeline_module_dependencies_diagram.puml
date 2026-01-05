@@ -1,0 +1,191 @@
+@startuml Parallel Pipeline Module Dependencies Diagram
+
+/'
+    Parallel Pipeline Module Dependencies Diagram
+    ===========================================
+
+    This diagram shows the dependency relationships between modules in the
+    decoupled parallel pipeline architecture. It illustrates:
+
+    - Layered architecture (Application → Core → Extension → Integration)
+    - Dependency directions and coupling levels
+    - Optional vs required dependencies
+    - External system integrations
+
+    Dependency Types:
+    - Solid arrows: Required dependencies (compile-time)
+    - Dashed arrows: Optional dependencies (runtime)
+    - Colored packages: Different architectural layers
+
+    Generated: 2026-01-05
+    Version: 1.0
+'/
+
+title Parallel Pipeline Module Dependencies Diagram
+
+' Application Layer (Blue)
+package "Application Layer" as AppLayer #LightBlue {
+    package "parallel_pipeline.h" as MainHeader {
+        [parallel_pipeline.h]
+        note right: Unified API entry point\nBackward compatible\nIncludes all sub-modules
+    }
+}
+
+' Core Layer (Green)
+package "Core Layer" as CoreLayer #LightGreen {
+    package "parallel_task.h" as TaskHeader {
+        [parallel_task.h]
+        note right: Task lifecycle management\nState transitions\nThreading
+    }
+
+    package "parallel_workflow.h" as WorkflowHeader {
+        [parallel_workflow.h]
+        note right: Workflow orchestration\nDependency resolution\nConcurrency control
+    }
+}
+
+' Extension Layer (Yellow)
+package "Extension Layer" as ExtLayer #LightYellow {
+    package "parallel_dataflow.h" as DataFlowHeader {
+        [parallel_dataflow.h]
+        note right: Data stream integration\nHybrid task support\nStream registration
+    }
+
+    package "data_stream_service.h" as StreamServiceHeader {
+        [data_stream_service.h]
+        note right: Stream lifecycle\nData buffering\nSynchronization
+    }
+
+    package "workflow_monitor.h" as MonitorHeader {
+        [workflow_monitor.h]
+        note right: Metrics collection\nPerformance monitoring\nHealth checks
+    }
+}
+
+' Integration Layer (Pink)
+package "Integration Layer" as IntLayer #LightPink {
+    package "parallel_adapters.h" as AdaptersHeader {
+        [parallel_adapters.h]
+        note right: External system adapters\nProtocol abstractions\nPluggable interfaces
+    }
+}
+
+' External Dependencies (Gray)
+package "External Dependencies" as ExtDeps #LightGray {
+    package "System Headers" as SysHeaders {
+        [mycommon.h]
+        [mytrace.h]
+        [fsm_os_adapter.h]
+        [task_pipeline.h]
+        [parallel_fsm.h]
+    }
+
+    package "Data Stream" as DataStream {
+        [data_stream.h]
+        note right: Low-level data streaming\nBuffer management\nThread safety
+    }
+
+    package "External Systems" as ExtSystems {
+        [MQ Libraries]
+        [Database Drivers]
+        [REST Libraries]
+        [File Systems]
+        note right: Third-party libraries\nNetwork protocols\nStorage systems
+    }
+}
+
+' Main header includes all modules
+MainHeader --> TaskHeader : includes
+MainHeader --> WorkflowHeader : includes
+MainHeader --> DataFlowHeader : includes
+MainHeader --> StreamServiceHeader : includes
+MainHeader --> MonitorHeader : includes
+MainHeader --> AdaptersHeader : includes
+
+' Core layer dependencies
+WorkflowHeader --> TaskHeader : requires
+
+' Extension layer dependencies
+DataFlowHeader --> TaskHeader : extends
+DataFlowHeader --> StreamServiceHeader : uses
+DataFlowHeader --> DataStream : depends
+
+' Workflow optional extensions
+WorkflowHeader -.-> DataFlowHeader : optional
+WorkflowHeader -.-> MonitorHeader : optional
+WorkflowHeader -.-> AdaptersHeader : optional
+
+' Adapter framework dependencies
+AdaptersHeader -.-> ExtSystems : integrates
+
+' External dependencies
+TaskHeader --> SysHeaders : depends
+WorkflowHeader --> SysHeaders : depends
+StreamServiceHeader --> DataStream : depends
+
+' Coupling levels visualization
+note as CouplingNote
+    **Dependency Coupling Levels:**
+
+    **Tight Coupling (Required):**
+    - Core modules depend on system headers
+    - Workflow depends on task management
+    - Data flow extends task functionality
+
+    **Loose Coupling (Optional):**
+    - Workflow can use monitoring/dataflow/adapters optionally
+    - Adapters integrate with external systems via interfaces
+    - Extensions can be compiled out for minimal builds
+
+    **Zero Coupling (Independent):**
+    - Adapter implementations are pluggable
+    - Monitoring can be disabled at runtime
+    - Data streams can be used independently
+end note
+
+' Architecture benefits
+note as BenefitsNote
+    **Architecture Benefits:**
+
+    **Maintainability:**
+    - Single Responsibility per module
+    - Clear dependency boundaries
+    - Isolated testing possible
+
+    **Extensibility:**
+    - New adapters without touching core
+    - Additional monitoring without workflow changes
+    - New data stream types independently
+
+    **Flexibility:**
+    - Optional features can be disabled
+    - Different adapter combinations
+    - Runtime configuration
+
+    **Compatibility:**
+    - Existing code unchanged
+    - Gradual migration path
+    - Backward compatibility maintained
+end note
+
+' Usage scenarios
+note as UsageScenarios
+    **Usage Scenarios:**
+
+    **Minimal Build:**
+    parallel_pipeline.h → parallel_task.h + parallel_workflow.h
+
+    **Full Featured:**
+    parallel_pipeline.h → all modules
+
+    **Data Processing:**
+    parallel_pipeline.h → parallel_dataflow.h + data_stream_service.h
+
+    **System Integration:**
+    parallel_pipeline.h → parallel_adapters.h + external libraries
+
+    **Monitoring:**
+    parallel_pipeline.h → workflow_monitor.h
+end note
+
+@enduml

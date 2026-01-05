@@ -1,0 +1,266 @@
+@startuml Parallel Pipeline Architecture Class Diagram
+
+/'
+    Parallel Pipeline Architecture Class Diagram
+    ============================================
+
+    This diagram shows the modular architecture of the parallel pipeline framework
+    after decoupling the monolithic parallel_pipeline.h header file.
+
+    Design Principles:
+    - Single Responsibility: Each module has a clear, focused purpose
+    - Dependency Injection: Clear dependency directions, no circular dependencies
+    - Interface Segregation: Separate interfaces for different concerns
+    - Open/Closed: Easy to extend without modifying existing code
+
+    Generated: 2026-01-05
+    Version: 1.0
+'/
+
+title Parallel Pipeline Decoupled Architecture Class Diagram
+
+' Main entry point module
+package "parallel_pipeline.h" as Main #LightBlue {
+    class parallel_pipeline {
+        +parallel_workflow_init_ex()
+        +parallel_task_add_input_stream()
+        +parallel_task_add_output_stream()
+        +parallel_mq_send_task_status()
+        +parallel_rest_post_task_result()
+        +parallel_workflow_start()
+        +parallel_workflow_get_progress()
+    }
+    note right: Main entry point - includes all sub-modules\nMaintains backward compatibility
+}
+
+' Core modules
+package "parallel_task.h" as TaskCore #LightGreen {
+    class parallel_task {
+        +parallel_task_init()
+        +parallel_task_add_dependency()
+        +parallel_task_start()
+        +parallel_task_cancel()
+        +parallel_task_get_state()
+        +parallel_task_cleanup()
+        --
+        -struct task_efsm base_task
+        -os_thread_t* thread
+        -void (*task_function)()
+        -enum parallel_task_type type
+        -int depends_on[MAX_DEPENDENCIES]
+        -enum parallel_task_state state
+        -int (*check_dependencies)()
+    }
+
+    enum parallel_task_type {
+        TASK_TYPE_LEGACY
+        TASK_TYPE_HYBRID
+        TASK_TYPE_DATAFLOW
+    }
+
+    enum parallel_task_state {
+        PTASK_IDLE
+        PTASK_READY
+        PTASK_RUNNING
+        PTASK_COMPLETED
+        PTASK_FAILED
+        PTASK_WAITING_DEPENDENCIES
+    }
+}
+
+package "parallel_workflow.h" as WorkflowCore #LightGreen {
+    class parallel_workflow {
+        +parallel_workflow_init()
+        +parallel_workflow_add_task()
+        +parallel_workflow_start()
+        +parallel_workflow_pause()
+        +parallel_workflow_resume()
+        +parallel_workflow_stop()
+        +parallel_workflow_get_progress()
+        +parallel_workflow_cleanup()
+        --
+        -struct parallel_task** tasks
+        -int task_count
+        -int max_concurrent
+        -enum parallel_workflow_state state
+        -os_semaphore_t* concurrency_sem
+        -os_mutex_t* mutex
+    }
+
+    enum parallel_workflow_state {
+        PWORKFLOW_IDLE
+        PWORKFLOW_RUNNING
+        PWORKFLOW_PAUSED
+        PWORKFLOW_COMPLETED
+        PWORKFLOW_ERROR
+    }
+}
+
+' Data flow extension modules
+package "parallel_dataflow.h" as DataFlow #LightYellow {
+    class parallel_dataflow {
+        +parallel_task_add_input_stream()
+        +parallel_task_add_output_stream()
+        +parallel_task_check_dependencies_ex()
+        --
+        -data_stream_t* input_streams[]
+        -data_stream_t* output_streams[]
+        -const char* stream_names[]
+    }
+    note right: Hybrid task data stream integration\nExtends parallel_task with data flow capabilities
+}
+
+package "data_stream_service.h" as DataStream #LightYellow {
+    class data_stream_service {
+        +data_stream_service_create()
+        +data_stream_service_create_stream()
+        +data_stream_service_destroy_stream()
+        +data_stream_service_destroy()
+        --
+        -data_stream_t* streams
+        -int stream_count
+    }
+
+    class data_stream {
+        +data_stream_write()
+        +data_stream_read()
+        +data_stream_has_data()
+        +data_stream_get_stats()
+        --
+        -void* buffer
+        -size_t element_size
+        -int capacity
+        -enum data_stream_mode mode
+    }
+}
+
+' Monitoring and observation modules
+package "workflow_monitor.h" as Monitor #LightCyan {
+    class workflow_monitor {
+        +workflow_monitor_create()
+        +workflow_monitor_collect_stats()
+        +workflow_monitor_print_report()
+        +workflow_monitor_register_callback()
+        +workflow_monitor_destroy()
+        --
+        -struct workflow_stats stats
+        -monitor_callback_t* callbacks
+        -int callback_count
+    }
+
+    struct parallel_adapter_metrics {
+        long long total_requests
+        long long successful_requests
+        long long failed_requests
+        long long avg_response_time
+        int current_queue_depth
+    }
+}
+
+' External system adapters
+package "parallel_adapters.h" as Adapters #LightPink {
+    class parallel_mq_adapter {
+        +configure()
+        +connect()
+        +publish()
+        +consume()
+        +destroy()
+        --
+        -struct parallel_mq_config config
+    }
+
+    class parallel_rest_adapter {
+        +configure()
+        +execute()
+        +execute_async()
+        +ping()
+        +destroy()
+        --
+        -struct parallel_rest_config config
+    }
+
+    class parallel_db_adapter {
+        +configure()
+        +connect()
+        +execute()
+        +begin_transaction()
+        +commit_transaction()
+        +destroy()
+        --
+        -struct parallel_db_config config
+    }
+
+    class parallel_fs_adapter {
+        +configure()
+        +read_file()
+        +write_file()
+        +delete_file()
+        +get_file_info()
+        +destroy()
+        --
+        -struct parallel_fs_config config
+    }
+
+    enum parallel_adapter_type {
+        ADAPTER_TYPE_MQ
+        ADAPTER_TYPE_REST
+        ADAPTER_TYPE_DATABASE
+        ADAPTER_TYPE_FILESYSTEM
+        ADAPTER_TYPE_CUSTOM
+    }
+}
+
+' Dependency relationships
+Main --> TaskCore : includes
+Main --> WorkflowCore : includes
+Main --> DataFlow : includes
+Main --> DataStream : includes
+Main --> Monitor : includes
+Main --> Adapters : includes
+
+WorkflowCore --> TaskCore : depends
+DataFlow --> TaskCore : extends
+DataFlow --> DataStream : uses
+WorkflowCore --> DataFlow : optional
+WorkflowCore --> Monitor : optional
+WorkflowCore --> Adapters : optional
+
+' Aggregation relationships
+parallel_workflow o-- parallel_task : contains
+parallel_workflow o-- data_stream_service : optional
+parallel_workflow o-- workflow_monitor : optional
+parallel_task o-- data_stream : optional
+
+' Interface relationships
+parallel_mq_adapter ..|> parallel_adapter : implements
+parallel_rest_adapter ..|> parallel_adapter : implements
+parallel_db_adapter ..|> parallel_adapter : implements
+parallel_fs_adapter ..|> parallel_adapter : implements
+
+' External dependencies
+TaskCore --> "mycommon.h" : depends
+TaskCore --> "task_pipeline.h" : depends
+WorkflowCore --> "parallel_fsm.h" : depends
+DataFlow --> "data_stream.h" : depends
+
+note as ArchitectureNote
+    **Architecture Layers:**
+
+    **Application Layer (Main)**
+    - parallel_pipeline.h: Unified API entry point
+    - Backward compatible with existing code
+
+    **Core Layer (TaskCore, WorkflowCore)**
+    - Fundamental task and workflow management
+    - Independent of data flow extensions
+
+    **Extension Layer (DataFlow, DataStream, Monitor)**
+    - Optional data flow and monitoring capabilities
+    - Can be used independently or together
+
+    **Integration Layer (Adapters)**
+    - External system connectivity
+    - Pluggable adapter architecture
+end note
+
+@enduml

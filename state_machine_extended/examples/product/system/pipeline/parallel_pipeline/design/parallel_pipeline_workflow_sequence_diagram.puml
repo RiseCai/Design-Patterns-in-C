@@ -1,0 +1,247 @@
+@startuml Parallel Pipeline Workflow Execution Sequence Diagram
+
+/'
+    Parallel Pipeline Workflow Execution Sequence Diagram
+    ===================================================
+
+    This diagram illustrates the complete execution flow of a parallel pipeline workflow,
+    including task scheduling, dependency resolution, and concurrent execution.
+
+    Execution Phases:
+    1. Initialization: Create workflow and tasks
+    2. Dependency Setup: Configure task relationships
+    3. Execution: Start workflow and manage concurrent tasks
+    4. Monitoring: Track progress and handle completion
+    5. Cleanup: Release resources
+
+    Key Behaviors:
+    - Concurrent task execution with configurable limits
+    - Dependency-based task scheduling
+    - Dynamic task state transitions
+    - Progress tracking and reporting
+
+    Generated: 2026-01-05
+    Version: 1.0
+'/
+
+title Parallel Pipeline Workflow Execution Sequence Diagram
+
+actor User as "Application/User"
+participant WF as "ParallelWorkflow"
+participant TaskMgr as "TaskManager\n(Scheduler)"
+participant Sensor1 as "SensorTask_1\n(Producer)"
+participant Sensor2 as "SensorTask_2\n(Producer)"
+participant Processor1 as "ProcessorTask_1\n(Hybrid)"
+participant Processor2 as "ProcessorTask_2\n(Hybrid)"
+participant Decision as "DecisionTask\n(DataFlow)"
+participant DS as "DataStream\nService"
+participant Monitor as "WorkflowMonitor"
+
+== Initialization Phase ==
+User -> WF: parallel_workflow_init_ex(capacity=10, max_concurrent=3)
+activate WF
+WF -> DS: data_stream_service_create()
+activate DS
+DS --> WF: data_stream_service
+WF -> Monitor: workflow_monitor_create()
+activate Monitor
+Monitor --> WF: workflow_monitor
+WF --> User: workflow initialized
+
+User -> Sensor1: parallel_task_init("sensor1", sensor_task_func)
+activate Sensor1
+Sensor1 --> User: task initialized
+
+User -> Sensor2: parallel_task_init("sensor2", sensor_task_func)
+activate Sensor2
+Sensor2 --> User: task initialized
+
+User -> Processor1: parallel_task_init("processor1", processor_task_func)
+activate Processor1
+Processor1 --> User: task initialized
+
+User -> Processor2: parallel_task_init("processor2", processor_task_func)
+activate Processor2
+Processor2 --> User: task initialized
+
+User -> Decision: parallel_task_init("decision", decision_task_func)
+activate Decision
+Decision --> User: task initialized
+
+== Configuration Phase ==
+User -> Sensor1: parallel_task_add_output_stream("sensor_data")
+Sensor1 -> DS: register output stream
+DS --> Sensor1: stream registered
+
+User -> Processor1: parallel_task_add_input_stream("sensor_data")
+Processor1 -> DS: register input stream
+Processor1 -> Processor1: parallel_task_add_output_stream("processed_data")
+Processor1 -> DS: register output stream
+
+User -> Processor2: parallel_task_add_input_stream("sensor_data")
+Processor2 -> DS: register input stream
+Processor2 -> Processor2: parallel_task_add_output_stream("processed_data")
+Processor2 -> DS: register output stream
+
+User -> Decision: parallel_task_add_input_stream("processed_data")
+Decision -> DS: register input stream
+
+User -> Processor1: parallel_task_add_dependency(Sensor1.task_id)
+Processor1 --> User: dependency added
+
+User -> Processor2: parallel_task_add_dependency(Sensor2.task_id)
+Processor2 --> User: dependency added
+
+User -> Decision: parallel_task_add_dependency(Processor1.task_id)
+Decision --> User: dependency added
+
+User -> Decision: parallel_task_add_dependency(Processor2.task_id)
+Decision --> User: dependency added
+
+User -> WF: parallel_workflow_add_task(Sensor1)
+WF -> TaskMgr: add_task_to_queue(Sensor1)
+User -> WF: parallel_workflow_add_task(Sensor2)
+WF -> TaskMgr: add_task_to_queue(Sensor2)
+User -> WF: parallel_workflow_add_task(Processor1)
+WF -> TaskMgr: add_task_to_queue(Processor1)
+User -> WF: parallel_workflow_add_task(Processor2)
+WF -> TaskMgr: add_task_to_queue(Processor2)
+User -> WF: parallel_workflow_add_task(Decision)
+WF -> TaskMgr: add_task_to_queue(Decision)
+
+== Execution Phase ==
+User -> WF: parallel_workflow_start()
+WF -> WF: set_state(PWORKFLOW_RUNNING)
+WF -> TaskMgr: start_workflow_execution()
+
+TaskMgr -> TaskMgr: check_ready_tasks()
+note right: Sensor1 & Sensor2 have no dependencies\nso they are READY
+
+TaskMgr -> WF: acquire_concurrency_semaphore()
+WF --> TaskMgr: semaphore acquired
+
+TaskMgr -> Sensor1: parallel_task_start()
+Sensor1 -> Sensor1: create_task_thread(sensor_task_func)
+Sensor1 --> TaskMgr: task_started
+
+TaskMgr -> Sensor2: parallel_task_start()
+Sensor2 -> Sensor2: create_task_thread(sensor_task_func)
+Sensor2 --> TaskMgr: task_started
+
+TaskMgr -> TaskMgr: check_concurrency_limit()
+note right: Max concurrent = 3, used = 2\nCan start more tasks
+
+TaskMgr -> TaskMgr: check_ready_tasks()
+note right: Processor1 & Processor2 waiting for dependencies
+
+== Concurrent Execution ==
+Sensor1 -> Sensor1: execute sensor_task_func()
+Sensor1 -> DS: data_stream_write(sensor_data, sensor_reading)
+DS --> Sensor1: data_written
+Sensor1 -> Sensor1: set_state(PTASK_COMPLETED)
+Sensor1 -> WF: parallel_workflow_mark_task_completed(Sensor1)
+WF -> TaskMgr: task_completed(Sensor1)
+
+Sensor2 -> Sensor2: execute sensor_task_func()
+Sensor2 -> DS: data_stream_write(sensor_data, sensor_reading)
+DS --> Sensor2: data_written
+Sensor2 -> Sensor2: set_state(PTASK_COMPLETED)
+Sensor2 -> WF: parallel_workflow_mark_task_completed(Sensor2)
+WF -> TaskMgr: task_completed(Sensor2)
+
+TaskMgr -> TaskMgr: check_ready_tasks()
+note right: Sensor1 & Sensor2 completed\nProcessor1 & Processor2 now READY
+
+TaskMgr -> WF: acquire_concurrency_semaphore()
+WF --> TaskMgr: semaphore acquired
+
+TaskMgr -> Processor1: parallel_task_start()
+Processor1 -> Processor1: create_task_thread(processor_task_func)
+Processor1 --> TaskMgr: task_started
+
+TaskMgr -> Processor2: parallel_task_start()
+Processor2 -> Processor2: create_task_thread(processor_task_func)
+Processor2 --> TaskMgr: task_started
+
+TaskMgr -> TaskMgr: check_concurrency_limit()
+note right: Max concurrent = 3, used = 3\nCannot start more tasks
+
+== Data Processing ==
+Processor1 -> Processor1: execute processor_task_func()
+Processor1 -> DS: data_stream_read(sensor_data)
+DS --> Processor1: sensor_data
+Processor1 -> Processor1: process_data(sensor_data)
+Processor1 -> DS: data_stream_write(processed_data, result)
+DS --> Processor1: data_written
+Processor1 -> Processor1: set_state(PTASK_COMPLETED)
+Processor1 -> WF: parallel_workflow_mark_task_completed(Processor1)
+
+Processor2 -> Processor2: execute processor_task_func()
+Processor2 -> DS: data_stream_read(sensor_data)
+DS --> Processor2: sensor_data
+Processor2 -> Processor2: process_data(sensor_data)
+Processor2 -> DS: data_stream_write(processed_data, result)
+DS --> Processor2: data_written
+Processor2 -> Processor2: set_state(PTASK_COMPLETED)
+Processor2 -> WF: parallel_workflow_mark_task_completed(Processor2)
+
+TaskMgr -> TaskMgr: check_ready_tasks()
+note right: Processor1 & Processor2 completed\nDecision task now READY
+
+TaskMgr -> WF: acquire_concurrency_semaphore()
+WF --> TaskMgr: semaphore acquired
+
+TaskMgr -> Decision: parallel_task_start()
+Decision -> Decision: create_task_thread(decision_task_func)
+Decision --> TaskMgr: task_started
+
+== Decision Making ==
+Decision -> Decision: execute decision_task_func()
+Decision -> DS: data_stream_read(processed_data)
+DS --> Decision: processed_data
+Decision -> Decision: analyze_data(processed_data)
+Decision -> Decision: make_decision()
+Decision -> Decision: set_state(PTASK_COMPLETED)
+Decision -> WF: parallel_workflow_mark_task_completed(Decision)
+
+== Monitoring Phase ==
+WF -> Monitor: collect_stats()
+Monitor --> WF: workflow_statistics
+
+WF -> WF: calculate_progress()
+WF --> User: progress_update(100%)
+
+WF -> WF: check_all_tasks_completed()
+WF -> WF: set_state(PWORKFLOW_COMPLETED)
+WF --> User: workflow_completed
+
+== Cleanup Phase ==
+User -> WF: parallel_workflow_cleanup()
+WF -> TaskMgr: cleanup_threads()
+TaskMgr --> WF: threads_cleaned
+WF -> DS: data_stream_service_destroy()
+DS --> WF: streams_destroyed
+WF -> Monitor: workflow_monitor_destroy()
+Monitor --> WF: monitor_destroyed
+WF --> User: cleanup_complete
+
+deactivate Monitor
+deactivate DS
+deactivate WF
+deactivate Sensor1
+deactivate Sensor2
+deactivate Processor1
+deactivate Processor2
+deactivate Decision
+
+note over User, Decision
+    **Execution Summary:**
+    - 2 sensor tasks executed concurrently
+    - 2 processor tasks executed concurrently after sensors
+    - 1 decision task executed after processors
+    - Total: 5 tasks completed successfully
+    - Peak concurrency: 3 tasks
+    - Data flow: sensor_data → processed_data
+end note
+
+@enduml

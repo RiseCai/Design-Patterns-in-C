@@ -1,0 +1,467 @@
+@startuml Parallel Pipeline Adapters Framework Design Diagram
+
+/'
+    Parallel Pipeline Adapters Framework Design Diagram
+    ===================================================
+
+    This diagram details the external system adapters framework designed
+    for the parallel pipeline. It shows:
+
+    - Adapter interface hierarchy and implementations
+    - Configuration and lifecycle management
+    - Integration patterns with external systems
+    - Monitoring and health check capabilities
+
+    Key Features:
+    - Pluggable adapter architecture
+    - Unified interface for different protocols
+    - Built-in monitoring and error handling
+    - Type-safe configuration management
+
+    Generated: 2026-01-05
+    Version: 1.0
+'/
+
+title Parallel Pipeline Adapters Framework Design Diagram
+
+' Framework Core
+package "Adapter Framework Core" as Core #LightBlue {
+    class parallel_adapter_config {
+        +enum parallel_adapter_type type
+        +const char* name
+        +int enabled
+        +int retry_count
+        +int retry_delay_ms
+        +int timeout_ms
+        +void* user_data
+    }
+
+    enum parallel_adapter_type {
+        ADAPTER_TYPE_MQ
+        ADAPTER_TYPE_REST
+        ADAPTER_TYPE_DATABASE
+        ADAPTER_TYPE_FILESYSTEM
+        ADAPTER_TYPE_CUSTOM
+    }
+
+    class parallel_adapter_registry {
+        +parallel_adapter_registry_create()
+        +parallel_adapter_registry_register()
+        +parallel_adapter_registry_get()
+        +parallel_adapter_registry_unregister()
+        --
+        -parallel_adapter_entry* entries
+        -int count
+        -int capacity
+        -os_mutex_t* mutex
+    }
+}
+
+' MQ Adapters
+package "Message Queue Adapters" as MQAdapters #LightGreen {
+    class parallel_mq_config {
+        +struct parallel_adapter_config base
+        +const char* host
+        +int port
+        +const char* username
+        +const char* password
+        +const char* exchange
+        +const char* routing_key
+        +int heartbeat_interval
+        +int prefetch_count
+    }
+
+    class parallel_mq_message {
+        +const char* exchange
+        +const char* routing_key
+        +const void* body
+        +size_t body_size
+        +enum parallel_message_priority priority
+        +int delivery_mode
+        +int expiration_ms
+        +const char* content_type
+        +const char* correlation_id
+        +const char* reply_to
+        +void* user_data
+    }
+
+    enum parallel_message_priority {
+        MSG_PRIORITY_LOW
+        MSG_PRIORITY_NORMAL
+        MSG_PRIORITY_HIGH
+        MSG_PRIORITY_CRITICAL
+    }
+
+    interface parallel_mq_adapter {
+        +configure(config)
+        +connect()
+        +disconnect()
+        +is_connected()
+        +publish(message)
+        +consume(queue, callback, user_data)
+        +declare_queue(queue_name, durable, auto_delete)
+        +bind_queue(queue, exchange, routing_key)
+        +destroy()
+    }
+
+    class rabbitmq_adapter {
+        -struct parallel_mq_config config
+        -amqp_connection_state_t* connection
+        -amqp_channel_t channel
+        -int connected
+    }
+
+    class kafka_adapter {
+        -struct parallel_mq_config config
+        -rd_kafka_t* producer
+        -rd_kafka_t* consumer
+        -rd_kafka_topic_t* topic
+    }
+
+    class activemq_adapter {
+        -struct parallel_mq_config config
+        -cms::ConnectionFactory* factory
+        -cms::Connection* connection
+        -cms::Session* session
+    }
+}
+
+' REST Adapters
+package "REST API Adapters" as RESTAdapters #LightYellow {
+    enum parallel_http_method {
+        HTTP_METHOD_GET
+        HTTP_METHOD_POST
+        HTTP_METHOD_PUT
+        HTTP_METHOD_DELETE
+        HTTP_METHOD_PATCH
+        HTTP_METHOD_HEAD
+        HTTP_METHOD_OPTIONS
+    }
+
+    class parallel_rest_config {
+        +struct parallel_adapter_config base
+        +const char* base_url
+        +const char* api_key
+        +const char* auth_token
+        +int max_connections
+        +int keep_alive_timeout
+        +const char* user_agent
+        +const char* content_type
+    }
+
+    class parallel_rest_request {
+        +enum parallel_http_method method
+        +const char* path
+        +const char* query_string
+        +const void* body
+        +size_t body_size
+        +const char* content_type
+        +const char** headers
+        +int header_count
+        +int timeout_ms
+    }
+
+    class parallel_rest_response {
+        +int status_code
+        +const void* body
+        +size_t body_size
+        +const char* content_type
+        +const char** headers
+        +int header_count
+        +long response_time_ms
+    }
+
+    interface parallel_rest_adapter {
+        +configure(config)
+        +execute(request, response)
+        +execute_async(request, callback, user_data)
+        +ping()
+        +destroy()
+    }
+
+    class libcurl_adapter {
+        -struct parallel_rest_config config
+        -CURL* curl_handle
+        -struct curl_slist* headers
+        -int connected
+        -char error_buffer[CURL_ERROR_SIZE]
+    }
+
+    class cpprestsdk_adapter {
+        -struct parallel_rest_config config
+        -web::http::client::http_client* client
+        -std::map<std::string, std::string> default_headers
+        -bool connected
+    }
+}
+
+' Database Adapters
+package "Database Adapters" as DBAdapters #LightPink {
+    enum parallel_db_type {
+        DB_TYPE_SQLITE
+        DB_TYPE_POSTGRESQL
+        DB_TYPE_MYSQL
+        DB_TYPE_MONGODB
+        DB_TYPE_REDIS
+        DB_TYPE_CUSTOM
+    }
+
+    class parallel_db_config {
+        +struct parallel_adapter_config base
+        +enum parallel_db_type db_type
+        +const char* host
+        +int port
+        +const char* database
+        +const char* username
+        +const char* password
+        +const char* connection_string
+        +int max_connections
+        +int connection_timeout
+        +int query_timeout
+    }
+
+    class parallel_db_query {
+        +const char* sql
+        +const void** params
+        +int param_count
+        +int param_types
+        +int timeout_ms
+    }
+
+    class parallel_db_result {
+        +int row_count
+        +int column_count
+        +const char** column_names
+        +const void*** rows
+        +size_t* row_sizes
+        +long execution_time_ms
+        +int affected_rows
+        +long long last_insert_id
+    }
+
+    interface parallel_db_adapter {
+        +configure(config)
+        +connect()
+        +disconnect()
+        +is_connected()
+        +execute(query, result)
+        +begin_transaction()
+        +commit_transaction()
+        +rollback_transaction()
+        +bulk_insert(table, columns, rows)
+        +destroy()
+    }
+
+    class sqlite_adapter {
+        -struct parallel_db_config config
+        -sqlite3* db
+        -int connected
+        -char* error_msg
+    }
+
+    class postgresql_adapter {
+        -struct parallel_db_config config
+        -PGconn* connection
+        -int connected
+        -char* error_msg
+    }
+
+    class mysql_adapter {
+        -struct parallel_db_config config
+        -MYSQL* connection
+        -int connected
+        -char* error_msg
+    }
+}
+
+' Filesystem Adapters
+package "Filesystem Adapters" as FSAdapters #LightCyan {
+    class parallel_fs_config {
+        +struct parallel_adapter_config base
+        +const char* root_path
+        +int create_dirs
+        +int max_file_size
+        +int buffer_size
+        +const char* temp_dir
+    }
+
+    enum parallel_file_operation {
+        FILE_OP_READ
+        FILE_OP_WRITE
+        FILE_OP_APPEND
+        FILE_OP_DELETE
+        FILE_OP_MOVE
+        FILE_OP_COPY
+        FILE_OP_LIST
+        FILE_OP_EXISTS
+        FILE_OP_MKDIR
+    }
+
+    class parallel_file_info {
+        +const char* path
+        +size_t size
+        +time_t created_time
+        +time_t modified_time
+        +int is_directory
+        +int permissions
+    }
+
+    interface parallel_fs_adapter {
+        +configure(config)
+        +read_file(path, buffer, size, bytes_read)
+        +write_file(path, data, size, overwrite)
+        +append_file(path, data, size)
+        +delete_file(path)
+        +move_file(src_path, dst_path)
+        +list_directory(path, files, file_count)
+        +get_file_info(path, info)
+        +destroy()
+    }
+
+    class posix_fs_adapter {
+        -struct parallel_fs_config config
+        -char resolved_root_path[PATH_MAX]
+        -int initialized
+    }
+
+    class win32_fs_adapter {
+        -struct parallel_fs_config config
+        -wchar_t resolved_root_path[MAX_PATH]
+        -int initialized
+    }
+}
+
+' Monitoring and Metrics
+package "Adapter Monitoring" as Monitoring #LightGray {
+    class parallel_adapter_metrics {
+        +long long total_requests
+        +long long successful_requests
+        +long long failed_requests
+        +long long total_response_time_ms
+        +long long avg_response_time
+        +long long min_response_time_ms
+        +long long max_response_time_ms
+        +time_t last_request_time
+        +int current_queue_depth
+    }
+
+    class adapter_health_checker {
+        +health_check(adapter, type)
+        +get_metrics(adapter, type, metrics)
+        +validate_config(config)
+        +error_string(error_code)
+    }
+}
+
+' Relationships
+parallel_adapter_registry o-- parallel_adapter_entry : contains
+
+parallel_mq_adapter <|.. rabbitmq_adapter : implements
+parallel_mq_adapter <|.. kafka_adapter : implements
+parallel_mq_adapter <|.. activemq_adapter : implements
+
+parallel_rest_adapter <|.. libcurl_adapter : implements
+parallel_rest_adapter <|.. cpprestsdk_adapter : implements
+
+parallel_db_adapter <|.. sqlite_adapter : implements
+parallel_db_adapter <|.. postgresql_adapter : implements
+parallel_db_adapter <|.. mysql_adapter : implements
+
+parallel_fs_adapter <|.. posix_fs_adapter : implements
+parallel_fs_adapter <|.. win32_fs_adapter : implements
+
+Core --> MQAdapters : defines base
+Core --> RESTAdapters : defines base
+Core --> DBAdapters : defines base
+Core --> FSAdapters : defines base
+Core --> Monitoring : defines metrics
+
+MQAdapters --> Monitoring : uses
+RESTAdapters --> Monitoring : uses
+DBAdapters --> Monitoring : uses
+FSAdapters --> Monitoring : uses
+
+' External Dependencies
+rabbitmq_adapter --> "librabbitmq" : depends
+kafka_adapter --> "librdkafka" : depends
+activemq_adapter --> "activemq-cpp" : depends
+
+libcurl_adapter --> "libcurl" : depends
+cpprestsdk_adapter --> "cpprestsdk" : depends
+
+sqlite_adapter --> "sqlite3" : depends
+postgresql_adapter --> "libpq" : depends
+mysql_adapter --> "libmysqlclient" : depends
+
+posix_fs_adapter --> "POSIX APIs" : depends
+win32_fs_adapter --> "Win32 APIs" : depends
+
+' Usage Examples
+note as UsageExample
+    **Usage Example:**
+
+    // Create and configure MQ adapter
+    parallel_mq_adapter* mq = create_rabbitmq_adapter();
+    struct parallel_mq_config config = {
+        .base = {.type = ADAPTER_TYPE_MQ, .name = "task_queue"},
+        .host = "localhost", .port = 5672
+    };
+    mq->configure(mq, &config);
+    mq->connect(mq);
+
+    // Send message
+    struct parallel_mq_message msg = {
+        .routing_key = "tasks",
+        .body = "process_data",
+        .priority = MSG_PRIORITY_NORMAL
+    };
+    mq->publish(mq, &msg);
+end note
+
+' Design Patterns Used
+note as DesignPatterns
+    **Design Patterns Applied:**
+
+    **Adapter Pattern:**
+    - Unified interface for different protocols
+    - Pluggable implementations
+
+    **Factory Pattern:**
+    - Registry-based adapter creation
+    - Type-safe instantiation
+
+    **Observer Pattern:**
+    - Async callbacks for responses
+    - Event-driven notifications
+
+    **Strategy Pattern:**
+    - Configurable retry/error handling
+    - Pluggable authentication methods
+
+    **Template Method:**
+    - Standardized lifecycle (configure→connect→execute→disconnect)
+    - Consistent error handling
+end note
+
+' Benefits
+note as Benefits
+    **Framework Benefits:**
+
+    **Consistency:**
+    - Unified configuration and lifecycle
+    - Consistent error handling across protocols
+
+    **Extensibility:**
+    - Easy addition of new adapters
+    - Protocol-agnostic application code
+
+    **Reliability:**
+    - Built-in retry and timeout mechanisms
+    - Health monitoring and metrics
+
+    **Maintainability:**
+    - Clear separation of concerns
+    - Testable adapter implementations
+end note
+
+@enduml
