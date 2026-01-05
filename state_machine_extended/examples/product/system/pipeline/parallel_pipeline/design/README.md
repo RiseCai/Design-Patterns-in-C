@@ -1,102 +1,144 @@
-# Parallel Pipeline Design Diagrams
+# 并行管道架构设计评审文档
 
-This directory contains PlantUML diagrams documenting the architecture and design of the parallel pipeline framework.
+## 📋 概述
 
-## Available Diagrams
+本目录包含并行管道架构的完整设计评审文档，包括10个核心设计图表，涵盖架构、数据流、状态管理、部署和性能等各个方面。
 
-1. **parallel_pipeline_architecture_class_diagram.puml** - Overall architecture class diagram showing the decoupled modules
-2. **parallel_pipeline_workflow_sequence_diagram.puml** - Sequence diagram of workflow execution
-3. **parallel_pipeline_dataflow_sequence_diagram.puml** - Data flow sequence diagram
-4. **parallel_pipeline_module_dependencies_diagram.puml** - Module dependency relationships
-5. **parallel_pipeline_adapters_design_diagram.puml** - External system adapters design
+## 🎯 设计图表总览
 
-## Generating SVG Diagrams
+### 📊 架构设计图表 (4个)
+1. **架构类图** - `Parallel Pipeline Architecture Class Diagram.svg`
+   - 展示并行管道的整体模块架构
+   - 包含任务管理、工作流管理、数据流和适配器框架
 
-### Prerequisites
+2. **模块依赖图** - `Parallel Pipeline Module Dependencies Diagram.svg`
+   - 展示各模块间的依赖关系
+   - 清晰的依赖方向和接口关系
 
-1. **Java Runtime Environment (JRE)** - Required to run PlantUML
-2. **PlantUML JAR** - Download from https://plantuml.com/download
+3. **组件交互图** - `Parallel Pipeline Component Interaction Diagram.svg`
+   - 展示组件间的接口和交互关系
+   - 包括回调机制和扩展点设计
 
-### Setup PlantUML
+4. **适配器框架设计图** - `Parallel Pipeline Adapters Framework Design Diagram.svg`
+   - 展示外部系统集成架构
+   - 多协议适配器设计模式
 
-1. Download `plantuml.jar` from the official PlantUML website
-2. Place `plantuml.jar` in the project root directory: `D:\david\work\temp\Design-Patterns-in-C\plantuml.jar`
+### 🔄 动态行为图表 (3个)
+5. **工作流时序图** - `Parallel Pipeline Workflow Execution Sequence Diagram.svg`
+   - 展示任务执行的完整生命周期
+   - 包括依赖检查、调度和状态转换
 
-### Generate Diagrams
+6. **数据流时序图** - `Parallel Pipeline Data Flow Hybrid Model Sequence Diagram.svg`
+   - 展示数据在任务间的流转过程
+   - 混合数据流和控制流模型
 
-Run the update script from this directory:
+7. **状态机图** - `Parallel Pipeline State Machine Diagram.svg`
+   - 展示系统和工作流的状态转换逻辑
+   - 包括错误处理和恢复机制
+
+### 🚀 系统部署图表 (2个)
+8. **数据流图** - `Parallel Pipeline Data Flow Diagram.svg`
+   - 展示端到端的数据流架构
+   - 从数据源到数据汇的全流程
+
+9. **部署图** - `Parallel Pipeline Deployment Diagram.svg`
+   - 展示系统在不同环境下的部署架构
+   - 包括高可用性和扩展性设计
+
+### ⚡ 性能优化图表 (1个)
+10. **性能模型图** - `Parallel Pipeline Performance Model Diagram.svg`
+    - 展示性能目标和优化策略
+    - 包括并发控制和资源管理
+
+## 🛠️ 工具和脚本
+
+### 📄 HTML文档生成器
+- **脚本**: `generate_design_html.py`
+- **功能**: 自动生成包含所有图表的交互式HTML文档
+- **输出**: `parallel_pipeline_design_review.html`
 
 ```bash
-cd state_machine_extended/examples/product/system/pipeline/parallel_pipeline/design
+# 生成设计评审文档
+python generate_design_html.py
+```
+
+### 🔄 SVG图表更新器
+- **脚本**: `update_svg.py`
+- **功能**: 使用PlantUML重新生成所有SVG图表
+- **依赖**: 需要Java和plantuml.jar
+
+```bash
+# 更新所有SVG图表
 python update_svg.py
 ```
 
-This will generate SVG files for all PUML diagrams in the directory.
+## 📖 使用指南
 
-### Manual Generation
+### 🌐 查看设计文档
+1. 运行HTML生成器：
+   ```bash
+   cd design/
+   python generate_design_html.py
+   ```
 
-If you prefer to generate diagrams manually:
+2. 在浏览器中打开 `parallel_pipeline_design_review.html`
 
-```bash
-java -jar ../../../../../../plantuml.jar -tsvg diagram_name.puml
-```
+### 🔍 设计评审流程
+1. **架构评审**: 查看类图、依赖图和组件交互图
+2. **行为评审**: 检查时序图和状态机图
+3. **部署评审**: 评估部署图和数据流图
+4. **性能评审**: 分析性能模型图
 
-## Diagram Descriptions
+### 📝 图表维护
+- PUML文件用于版本控制和维护
+- SVG文件通过脚本自动生成
+- 修改PUML后运行 `update_svg.py` 更新SVG
 
-### Architecture Class Diagram
-Shows the modular architecture after decoupling:
-- Main entry point (`parallel_pipeline.h`)
-- Core modules (Task, Workflow)
-- Extension modules (DataFlow, DataStream, Monitor)
-- Integration modules (Adapters)
+## 📊 文档统计
 
-### Workflow Sequence Diagram
-Illustrates the execution flow of parallel workflows:
-- Task initialization and dependency checking
-- Concurrent execution with concurrency control
-- Completion handling and cleanup
+- **总图表数**: 10个
+- **PUML源文件**: 10个
+- **SVG输出文件**: 10个
+- **设计说明**: 12个注释块
+- **详细描述**: 7个图表包含详细说明
 
-### Data Flow Sequence Diagram
-Demonstrates data flow between tasks:
-- Producer-consumer relationships
-- Data stream buffering and synchronization
-- Hybrid task execution patterns
+## 🎨 设计评审重点
 
-### Module Dependencies Diagram
-Visualizes the dependency relationships between modules:
-- Clear separation of concerns
-- Optional vs. required dependencies
-- Extension points for future enhancements
+### 🏗️ 架构完整性
+- 分层架构设计清晰
+- 职责分离明确
+- 接口抽象合理
+- 扩展性良好
 
-### Adapters Design Diagram
-Shows the pluggable adapter architecture:
-- MQ, REST, Database, and File System adapters
-- Standardized interfaces
-- Extensible adapter framework
+### 🔄 动态行为
+- 状态转换完整
+- 错误处理机制健全
+- 并发控制有效
+- 数据流管理高效
 
-## Architecture Principles Reflected
+### 🚀 系统质量
+- 高可用性设计
+- 可扩展性架构
+- 性能优化策略
+- 监控和可观测性
 
-1. **Single Responsibility** - Each module has a focused purpose
-2. **Dependency Inversion** - Clear dependency directions
-3. **Interface Segregation** - Separate interfaces for different concerns
-4. **Open/Closed Principle** - Easy extension without modification
-5. **Backward Compatibility** - Existing code continues to work
+## 📅 更新日志
 
-## File Organization
+- **2026-01-05**: 初始版本，包含10个核心设计图表
+- **2026-01-05**: 添加HTML文档生成器
+- **2026-01-05**: 完善图表说明和评审指南
 
-```
-design/
-├── *.puml                 # PlantUML source files
-├── *.svg                  # Generated SVG diagrams
-├── update_svg.py          # Diagram generation script
-└── README.md             # This documentation
-```
+## 👥 评审建议
 
-## Maintenance
+建议按照以下顺序进行设计评审：
 
-When updating diagrams:
-1. Edit the corresponding `.puml` file
-2. Run `python update_svg.py` to regenerate SVGs
-3. Commit both `.puml` and `.svg` files
+1. **总体架构理解** → 类图 + 依赖图
+2. **核心流程验证** → 时序图 + 状态机图
+3. **系统集成评估** → 组件交互图 + 适配器图
+4. **部署方案审查** → 部署图 + 数据流图
+5. **性能指标确认** → 性能模型图
 
-The SVG files are included in version control for convenience, allowing others to view diagrams without setting up PlantUML.
+---
+
+**📧 技术支持**: 如有问题请联系架构团队
+**🔗 项目主页**: [并行管道架构项目](../../README.md)
