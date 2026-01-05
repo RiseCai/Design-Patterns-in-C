@@ -551,10 +551,11 @@
             </div>
 
             <!-- 相关设计图表 -->
+
             <div class="inline-diagram">
                 <div class="inline-diagram-header">📊 图表2: 架构类图</div>
                 <div class="inline-diagram-content">
-                    <img src="Parallel Pipeline Architecture Class Diagram.svg" alt="Parallel Pipeline Decoupled Architecture Class Diagram" class="diagram-image" loading="lazy">
+                    <img src="Parallel Pipeline Architecture Class Diagram.svg" alt="Parallel Pipeline Architecture Class Diagram" class="diagram-image" loading="lazy">
                     <div class="diagram-review-notes">
                         <h5>🔍 评审要点检查：</h5>
                         <ul>
@@ -565,7 +566,6 @@
                     </div>
                 </div>
             </div>
-
             <div class="inline-diagram">
                 <div class="inline-diagram-header">📊 图表3: 组件交互架构</div>
                 <div class="inline-diagram-content">
@@ -580,7 +580,6 @@
                     </div>
                 </div>
             </div>
-
             <div class="inline-diagram">
                 <div class="inline-diagram-header">📊 图表7: 模块依赖关系</div>
                 <div class="inline-diagram-content">
@@ -591,6 +590,21 @@
                             <li>✅ 验证耦合级别的合理性</li>
                             <li>✅ 检查依赖层次的清晰度</li>
                             <li>✅ 确认构建场景的多样性</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="inline-diagram">
+                <div class="inline-diagram-header">📊 图表4: 工作流执行序列图</div>
+                <div class="inline-diagram-content">
+                    <img src="Parallel Pipeline Workflow Execution Sequence Diagram.svg" alt="Parallel Pipeline Workflow Execution Sequence Diagram" class="diagram-image" loading="lazy">
+                    <div class="diagram-review-notes">
+                        <h5>🔍 评审要点检查：</h5>
+                        <ul>
+                            <li>✅ 验证工作流的启动和初始化序列</li>
+                            <li>✅ 检查条件分支和多阶段处理的执行逻辑</li>
+                            <li>✅ 确认任务状态转换和调度机制</li>
+                            <li>✅ 对齐动态决策和错误重试的执行流程</li>
                         </ul>
                     </div>
                 </div>
@@ -652,6 +666,7 @@
             </div>
 
             <!-- 相关设计图表 -->
+
             <div class="inline-diagram">
                 <div class="inline-diagram-header">📊 图表4: 数据流架构</div>
                 <div class="inline-diagram-content">
@@ -666,7 +681,6 @@
                     </div>
                 </div>
             </div>
-
             <div class="inline-diagram">
                 <div class="inline-diagram-header">📊 图表8: 性能优化模型</div>
                 <div class="inline-diagram-content">
@@ -738,6 +752,7 @@
             </div>
 
             <!-- 相关设计图表 -->
+
             <div class="inline-diagram">
                 <div class="inline-diagram-header">📊 图表9: 状态机架构</div>
                 <div class="inline-diagram-content">
@@ -809,6 +824,7 @@
             </div>
 
             <!-- 相关设计图表 -->
+
             <div class="inline-diagram">
                 <div class="inline-diagram-header">📊 图表6: 部署架构</div>
                 <div class="inline-diagram-content">
@@ -826,56 +842,137 @@
         </div>
 
         <div class="requirements-mapping">
-            <h3>🎯 需求与代码实现映射</h3>
+            <h3>🎯 用户场景与设计实现映射验证</h3>
             <div class="mapping-grid">
                 <div class="mapping-item">
-                    <h4>功能需求映射</h4>
-                    <p><strong>需求追踪：</strong> 每个功能需求对应具体的代码实现路径</p>
-                    <p><strong>接口验证：</strong> API接口是否完整覆盖需求场景</p>
-                    <p><strong>测试覆盖：</strong> 单元测试和集成测试是否覆盖关键路径</p>
+                    <h4>📊 数据处理流水线场景</h4>
+                    <p><strong>典型场景：</strong> 大数据批量处理、实时数据流处理</p>
+                    <p><strong>架构映射：</strong> 验证数据流架构是否支持场景需求</p>
+                    <p><strong>实现验证：</strong> 工作流引擎和数据管道的集成测试</p>
+                    <p><strong>性能保障：</strong> 吞吐量和延迟指标满足场景要求</p>
+                    <p><strong>流程对齐：</strong> <a href="#data_flow_hybrid">数据流混合模型序列图</a> 展示完整的启动和执行流程</p>
                 </div>
 
                 <div class="mapping-item">
-                    <h4>性能需求映射</h4>
-                    <p><strong>指标量化：</strong> 吞吐量、延迟等性能指标的具体实现</p>
-                    <p><strong>基准测试：</strong> 性能基准测试用例的完整性</p>
-                    <p><strong>优化验证：</strong> 性能优化措施的有效性验证</p>
+                    <h4>🔄 动态任务编排场景</h4>
+                    <p><strong>典型场景：</strong> 条件分支、多阶段处理、错误重试</p>
+                    <p><strong>架构映射：</strong> 状态机和任务调度器的协作机制</p>
+                    <p><strong>实现验证：</strong> 工作流定义和执行引擎的功能测试</p>
+                    <p><strong>可靠性保障：</strong> 任务状态一致性和故障恢复能力</p>
+                    <p><strong>流程对齐：</strong> <a href="#workflow_execution">工作流执行序列图</a> 展示完整的任务启动和执行流程</p>
                 </div>
 
                 <div class="mapping-item">
-                    <h4>可靠性需求映射</h4>
-                    <p><strong>故障场景：</strong> 故障注入测试覆盖的场景完整性</p>
-                    <p><strong>恢复机制：</strong> 自动恢复和人工干预的实现</p>
-                    <p><strong>数据一致性：</strong> 数据一致性保证的实现机制</p>
+                    <h4>🔌 外部系统集成场景</h4>
+                    <p><strong>典型场景：</strong> 数据库连接、消息队列、API调用</p>
+                    <p><strong>架构映射：</strong> 适配器框架和连接器的设计模式</p>
+                    <p><strong>实现验证：</strong> 第三方库集成和协议适配的测试</p>
+                    <p><strong>扩展性保障：</strong> 新集成能力的快速接入机制</p>
                 </div>
 
                 <div class="mapping-item">
-                    <h4>运维需求映射</h4>
-                    <p><strong>监控指标：</strong> 关键监控指标的定义和收集</p>
-                    <p><strong>配置管理：</strong> 运行时配置修改的能力</p>
-                    <p><strong>部署验证：</strong> 部署后验证和回滚机制</p>
+                    <h4>📈 监控与运维场景</h4>
+                    <p><strong>典型场景：</strong> 系统监控、性能调优、故障排查</p>
+                    <p><strong>架构映射：</strong> 可观测性和配置管理的实现框架</p>
+                    <p><strong>实现验证：</strong> 监控指标收集和告警机制的测试</p>
+                    <p><strong>运维保障：</strong> 运行时配置和部署管理的便利性</p>
                 </div>
             </div>
-        </div>
 
-        <div class="stats">
-            <h2>📊 设计图表统计</h2>
-            <div class="stats-grid">
-                <div class="stat-item">
-                    <span class="stat-number">11</span>
-                    <span class="stat-label">设计图表总数</span>
+            <div class="use-case-validation">
+                <h3>✅ 用户场景覆盖验证清单</h3>
+                <div class="validation-checklist">
+                    <div class="validation-item">
+                        <h4>🔍 场景完整性检查</h4>
+                        <ul>
+                            <li>✅ 核心业务场景是否全部覆盖</li>
+                            <li>✅ 异常处理场景是否充分考虑</li>
+                            <li>✅ 边界条件和极限情况是否测试</li>
+                            <li>✅ 用户交互流程是否顺畅</li>
+                        </ul>
+                    </div>
+
+                    <div class="validation-item">
+                        <h4>🎯 设计实现一致性</h4>
+                        <ul>
+                            <li>✅ 架构设计是否支持所有场景需求</li>
+                            <li>✅ 接口设计是否满足场景调用要求</li>
+                            <li>✅ 数据流设计是否保障场景数据处理</li>
+                            <li>✅ 状态管理是否覆盖场景状态变化</li>
+                        </ul>
+                    </div>
+
+                    <div class="validation-item">
+                        <h4>⚡ 性能可靠性保障</h4>
+                        <ul>
+                            <li>✅ 场景性能指标是否达到预期</li>
+                            <li>✅ 高并发场景的稳定性保障</li>
+                            <li>✅ 长时间运行的资源管理</li>
+                            <li>✅ 故障场景的快速恢复能力</li>
+                        </ul>
+                    </div>
+
+                    <div class="validation-item">
+                        <h4>🔧 运维部署便利性</h4>
+                        <ul>
+                            <li>✅ 场景部署配置是否简单直观</li>
+                            <li>✅ 运行时监控是否全面有效</li>
+                            <li>✅ 问题定位和故障排查是否便捷</li>
+                            <li>✅ 版本升级和回滚是否安全可靠</li>
+                        </ul>
+                    </div>
                 </div>
-                <div class="stat-item">
-                    <span class="stat-number">7</span>
-                    <span class="stat-label">带标题图表</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-number">12</span>
-                    <span class="stat-label">注释块数量</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-number">5</span>
-                    <span class="stat-label">详细描述图表</span>
+
+                <div class="scenario-mapping-table">
+                    <h3>📋 典型用户场景映射表</h3>
+                    <table class="evaluation-table">
+                        <thead>
+                            <tr>
+                                <th>用户场景</th>
+                                <th>核心需求</th>
+                                <th>架构组件</th>
+                                <th>实现验证</th>
+                                <th>测试状态</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>批量数据处理</strong></td>
+                                <td>高吞吐量数据转换</td>
+                                <td>DataFlow + ParallelTask</td>
+                                <td>集成测试覆盖率 > 90%</td>
+                                <td class="good-column">✅ 通过</td>
+                            </tr>
+                            <tr>
+                                <td><strong>实时流处理</strong></td>
+                                <td>低延迟数据流转</td>
+                                <td>DataStream + Workflow</td>
+                                <td>性能基准测试验证</td>
+                                <td class="good-column">✅ 通过</td>
+                            </tr>
+                            <tr>
+                                <td><strong>条件任务编排</strong></td>
+                                <td>动态决策和分支</td>
+                                <td>StateMachine + Adapters</td>
+                                <td>状态转换测试完整</td>
+                                <td class="neutral-column">⚠️ 待完善</td>
+                            </tr>
+                            <tr>
+                                <td><strong>系统集成接入</strong></td>
+                                <td>多协议外部连接</td>
+                                <td>Adapters + Connectors</td>
+                                <td>兼容性测试通过</td>
+                                <td class="good-column">✅ 通过</td>
+                            </tr>
+                            <tr>
+                                <td><strong>运维监控管理</strong></td>
+                                <td>实时状态观测</td>
+                                <td>Monitor + Dashboard</td>
+                                <td>监控指标完整收集</td>
+                                <td class="neutral-column">⚠️ 开发中</td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
@@ -883,61 +980,59 @@
         <div class="navigation">
             <h3>🧭 快速导航</h3>
             <div class="nav-links">
-                <a href="#diagram-0" class="nav-link">Adapters Framework Design Design Diagram</a>
-                <a href="#diagram-1" class="nav-link">Adapters Framework Design Diagram</a>
-                <a href="#diagram-2" class="nav-link">Parallel Pipeline Decoupled Architecture Class Diagram</a>
-                <a href="#diagram-3" class="nav-link">Parallel Pipeline Component Interaction Architecture</a>
-                <a href="#diagram-4" class="nav-link">Parallel Pipeline Data Flow Architecture</a>
-                <a href="#diagram-5" class="nav-link">Data Flow Hybrid Model Sequence Diagram</a>
-                <a href="#diagram-6" class="nav-link">Parallel Pipeline Deployment Architecture</a>
-                <a href="#diagram-7" class="nav-link">Parallel Pipeline Module Dependencies Diagram</a>
-                <a href="#diagram-8" class="nav-link">Parallel Pipeline Performance Architecture Model</a>
-                <a href="#diagram-9" class="nav-link">Parallel Pipeline State Machine Architecture</a>
-                <a href="#diagram-10" class="nav-link">Workflow Execution Sequence Diagram</a>
             </div>
         </div>
 
         <!-- 其他设计图表 -->
         <div class="diagram-grid">
-            <div class="diagram-card" id="diagram-0">
-                <div class="diagram-header">
-                    <div class="diagram-title">Adapters Framework Design Design Diagram</div>
-                    <div class="diagram-description">暂无详细描述</div>
-                </div>
-                <div class="diagram-content">
-                    <img src="Parallel Pipeline Adapters Framework Design Design Diagram.svg" alt="Adapters Framework Design Design Diagram" class="diagram-image" loading="lazy">
-                </div>
-            </div>
 
-            <div class="diagram-card" id="diagram-1">
-                <div class="diagram-header">
-                    <div class="diagram-title">Adapters Framework Design Diagram</div>
-                    <div class="diagram-description">暂无详细描述</div>
-                </div>
-                <div class="diagram-content">
-                    <img src="Parallel Pipeline Adapters Framework Design Diagram.svg" alt="Adapters Framework Design Diagram" class="diagram-image" loading="lazy">
+            <div class="inline-diagram">
+                <div class="inline-diagram-header">📊 图表5: 数据流混合模型序列图</div>
+                <div class="inline-diagram-content">
+                    <img src="Parallel Pipeline Data Flow Hybrid Model Sequence Diagram.svg" alt="Parallel Pipeline Data Flow Hybrid Model Sequence Diagram" class="diagram-image" loading="lazy">
+                    <div class="diagram-review-notes">
+                        <h5>🔍 评审要点检查：</h5>
+                        <ul>
+                            <li>✅ 验证数据流处理的启动序列</li>
+                            <li>✅ 检查混合模型的切换逻辑</li>
+                            <li>✅ 确认数据管道的初始化流程</li>
+                            <li>✅ 对齐大数据处理和实时流处理的启动需求</li>
+                        </ul>
+                    </div>
                 </div>
             </div>
+        </div>
 
-            <div class="diagram-card" id="diagram-5">
-                <div class="diagram-header">
-                    <div class="diagram-title">Data Flow Hybrid Model Sequence Diagram</div>
-                    <div class="diagram-description">暂无详细描述</div>
-                </div>
-                <div class="diagram-content">
-                    <img src="Parallel Pipeline Data Flow Hybrid Model Sequence Diagram.svg" alt="Data Flow Hybrid Model Sequence Diagram" class="diagram-image" loading="lazy">
-                </div>
-            </div>
+        <!-- Add workflow_execution diagram to requirements mapping section -->
+        <div class="requirements-mapping">
+            <h3>🔄 工作流执行序列图 - 用户场景流程对齐</h3>
 
-            <div class="diagram-card" id="diagram-10">
-                <div class="diagram-header">
-                    <div class="diagram-title">Workflow Execution Sequence Diagram</div>
-                    <div class="diagram-description">暂无详细描述</div>
-                </div>
-                <div class="diagram-content">
-                    <img src="Parallel Pipeline Workflow Execution Sequence Diagram.svg" alt="Workflow Execution Sequence Diagram" class="diagram-image" loading="lazy">
+            <div class="inline-diagram" id="workflow_execution">
+                <div class="inline-diagram-header">📊 图表10: 工作流执行序列图</div>
+                <div class="inline-diagram-content">
+                    <img src="Parallel Pipeline Workflow Execution Sequence Diagram.svg" alt="Parallel Pipeline Workflow Execution Sequence Diagram" class="diagram-image" loading="lazy">
+                    <div class="diagram-review-notes">
+                        <h5>🔍 评审要点检查：</h5>
+                        <ul>
+                            <li>✅ 验证工作流的启动和初始化序列</li>
+                            <li>✅ 检查条件分支和多阶段处理的执行逻辑</li>
+                            <li>✅ 确认任务状态转换和调度机制</li>
+                            <li>✅ 对齐动态决策和错误重试的执行流程</li>
+                        </ul>
+                    </div>
                 </div>
             </div>
+            <div class="diagram-reference" id="data_flow_hybrid">
+                <h4>📊 数据流混合模型序列图参考</h4>
+                <p><strong>适用场景：</strong> 数据处理流水线场景的流程对齐验证</p>
+                <p><strong>查看位置：</strong> 性能架构评审部分</p>
+                <p><strong>验证内容：</strong> 启动流程、混合模型切换、数据管道初始化</p>
+            </div>
+        </div>
+
+        <!-- 其他设计图表 -->
+        <div class="diagram-grid">
+
         </div>
 
         <div class="footer">
