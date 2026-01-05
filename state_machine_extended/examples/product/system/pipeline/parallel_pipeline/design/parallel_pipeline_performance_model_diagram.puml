@@ -1,0 +1,82 @@
+@startuml Parallel Pipeline Performance Model Diagram
+
+title Parallel Pipeline Performance Architecture Model
+
+' Performance objectives and requirements
+rectangle "Performance Objectives" as Objectives #LightBlue
+
+' Core performance components
+rectangle "Concurrency Control" as Concurrency #LightGreen
+rectangle "Resource Management" as Resources #LightYellow
+rectangle "Performance Monitoring" as Monitoring #LightCyan
+rectangle "Optimization Strategies" as Optimization #LightPink
+
+' Performance relationships
+Objectives --> Concurrency : drives
+Objectives --> Resources : constrains
+Objectives --> Monitoring : validates
+Objectives --> Optimization : enables
+
+' Key performance metrics
+note right of Objectives
+**Performance KPIs:**
+- Tasks/sec (throughput)
+- ms/task (latency)
+- Active tasks (concurrency)
+- MB used (memory)
+- % CPU (utilization)
+end note
+
+note right of Concurrency
+**Concurrency Controls:**
+- Thread pool sizing
+- Task queue management
+- Resource throttling
+- Deadlock prevention
+end note
+
+note right of Resources
+**Resource Management:**
+- Memory allocation
+- Buffer pooling
+- Cache hierarchies
+- I/O scheduling
+end note
+
+note right of Monitoring
+**Observability:**
+- Real-time metrics
+- Performance profiling
+- Health monitoring
+- Alert management
+end note
+
+note as OptimizationPatterns
+**Performance Optimization Patterns:**
+
+**Compute Optimization:**
+- SIMD vectorization for data processing
+- GPU acceleration for compute-intensive tasks
+- Algorithm optimization (O(n) improvements)
+- Cache-conscious data structures
+
+**Memory Optimization:**
+- Memory pool allocation to reduce fragmentation
+- Object pooling to eliminate allocation overhead
+- Cache-aligned data structures
+- NUMA-aware memory placement
+
+**I/O Optimization:**
+- Asynchronous I/O for non-blocking operations
+- I/O batching to reduce system calls
+- Memory-mapped files for large datasets
+- Network optimization (TCP tuning, connection pooling)
+
+**Concurrency Optimization:**
+- Lock-free data structures where possible
+- Fine-grained locking to reduce contention
+- Work-stealing schedulers for load balancing
+- Thread pool sizing based on workload
+end note
+
+@enduml

@@ -1,0 +1,379 @@
+@startuml Parallel Pipeline Component Interaction Diagram
+
+/'
+    Parallel Pipeline Component Interaction Diagram
+    ==============================================
+
+    This diagram shows the component interactions and interface relationships
+    within the parallel pipeline architecture.
+
+    Component Architecture:
+    - Application Layer: User-facing APIs and business logic
+    - Core Framework: Fundamental task and workflow management
+    - Extension Layers: Optional capabilities and integrations
+    - External Interfaces: System boundaries and contracts
+
+    Interface Design:
+    - API boundaries and abstraction layers
+    - Callback mechanisms and event handling
+    - Extension points and plugin architecture
+    - Error handling and recovery protocols
+
+    Generated: 2026-01-05
+    Version: 1.0
+'/
+
+title Parallel Pipeline Component Interaction Architecture
+
+' Application layer
+package "Application Layer" #LightBlue {
+    rectangle "Application APIs" as AppAPIs #LightCyan {
+        interface "parallel_pipeline.h" as MainAPI {
+            + parallel_workflow_init_ex()
+            + parallel_task_add_input_stream()
+            + parallel_task_add_output_stream()
+            + parallel_workflow_start()
+            + parallel_workflow_get_progress()
+        }
+
+        class "User Application" as UserApp {
+            + main()
+            + configure_pipeline()
+            + handle_results()
+        }
+    }
+}
+
+' Core framework layer
+package "Core Framework Layer" #LightGreen {
+    rectangle "Task Management" as TaskMgmt #LightCyan {
+        interface "parallel_task.h" as TaskAPI {
+            + parallel_task_init()
+            + parallel_task_add_dependency()
+            + parallel_task_start()
+            + parallel_task_get_state()
+        }
+
+        class "Task Instance" as Task {
+            - struct task_efsm base_task
+            - enum parallel_task_type type
+            - int depends_on[]
+            - enum parallel_task_state state
+        }
+    }
+
+    rectangle "Workflow Management" as WorkflowMgmt #LightCyan {
+        interface "parallel_workflow.h" as WorkflowAPI {
+            + parallel_workflow_init()
+            + parallel_workflow_add_task()
+            + parallel_workflow_start()
+            + parallel_workflow_get_progress()
+        }
+
+        class "Workflow Instance" as Workflow {
+            - struct parallel_task** tasks
+            - int max_concurrent
+            - enum parallel_workflow_state state
+            - os_semaphore_t* concurrency_sem
+        }
+    }
+}
+
+' Data flow extension layer
+package "Data Flow Extension Layer" #LightYellow {
+    rectangle "Data Flow API" as DataFlowAPI #LightCyan {
+        interface "parallel_dataflow.h" as DataFlowIntf {
+            + parallel_task_add_input_stream()
+            + parallel_task_add_output_stream()
+            + parallel_task_check_dependencies_ex()
+        }
+
+        class "Hybrid Task" as HybridTask {
+            - data_stream_t* input_streams[]
+            - data_stream_t* output_streams[]
+            - const char* stream_names[]
+        }
+    }
+
+    rectangle "Stream Service" as StreamService #LightCyan {
+        interface "data_stream_service.h" as StreamServiceAPI {
+            + data_stream_service_create()
+            + data_stream_service_create_stream()
+            + data_stream_service_destroy_stream()
+        }
+
+        class "Data Stream Service" as DataStreamService {
+            - data_stream_t* streams
+            - int stream_count
+        }
+    }
+
+    rectangle "Stream Core" as StreamCore #LightCyan {
+        interface "data_stream.h" as StreamAPI {
+            + data_stream_write()
+            + data_stream_read()
+            + data_stream_has_data()
+        }
+
+        class "Data Stream" as DataStream {
+            - void* buffer
+            - size_t element_size
+            - int capacity
+            - enum data_stream_mode mode
+        }
+    }
+}
+
+' Monitoring extension layer
+package "Monitoring Extension Layer" #LightCyan {
+    rectangle "Monitoring API" as MonitorAPI #LightCyan {
+        interface "workflow_monitor.h" as MonitorIntf {
+            + workflow_monitor_create()
+            + workflow_monitor_collect_stats()
+            + workflow_monitor_print_report()
+        }
+
+        class "Workflow Monitor" as WorkflowMonitor {
+            - struct workflow_stats stats
+            - monitor_callback_t* callbacks
+        }
+    }
+}
+
+' Adapter framework layer
+package "Adapter Framework Layer" #LightPink {
+    rectangle "Adapter API" as AdapterAPI #LightCyan {
+        interface "parallel_adapters.h" as AdapterIntf {
+            + adapter_configure()
+            + adapter_connect()
+            + adapter_execute()
+        }
+
+        class "Adapter Manager" as AdapterManager {
+            - struct adapter_config* configs
+            - enum parallel_adapter_type type
+        }
+    }
+
+    rectangle "MQ Adapter" as MQAdapter #LightCyan {
+        class "Message Queue Adapter" as MQAdapterImpl {
+            + configure_broker()
+            + publish_message()
+            + consume_message()
+        }
+    }
+
+    rectangle "REST Adapter" as RESTAdapter #LightCyan {
+        class "REST API Adapter" as RESTAdapterImpl {
+            + configure_endpoint()
+            + execute_request()
+            + handle_response()
+        }
+    }
+
+    rectangle "DB Adapter" as DBAdapter #LightCyan {
+        class "Database Adapter" as DBAdapterImpl {
+            + configure_connection()
+            + execute_query()
+            + handle_transaction()
+        }
+    }
+}
+
+' External systems layer
+package "External Systems Layer" #LightGray {
+    rectangle "Message Systems" as ExtMQ #LightCyan {
+        interface "RabbitMQ" as RabbitMQ
+        interface "Apache Kafka" as Kafka
+        interface "AWS SQS" as SQS
+    }
+
+    rectangle "Databases" as ExtDB #LightCyan {
+        interface "PostgreSQL" as Postgres
+        interface "MongoDB" as MongoDB
+        interface "Redis" as Redis
+    }
+
+    rectangle "APIs" as ExtAPI #LightCyan {
+        interface "REST API" as RESTAPI
+        interface "GraphQL" as GraphQL
+        interface "gRPC" as GRPC
+    }
+
+    rectangle "File Systems" as ExtFS #LightCyan {
+        interface "Local FS" as LocalFS
+        interface "NFS" as NFS
+        interface "S3" as S3
+    }
+}
+
+' Component interaction relationships
+UserApp --> MainAPI : uses
+MainAPI --> TaskAPI : delegates_task_mgmt
+MainAPI --> WorkflowAPI : delegates_workflow_mgmt
+MainAPI --> DataFlowIntf : optional_data_flow
+MainAPI --> MonitorIntf : optional_monitoring
+MainAPI --> AdapterIntf : optional_adapters
+
+Task --> Workflow : belongs_to
+Workflow --> Task : manages
+HybridTask --> Task : extends
+HybridTask --> DataStreamService : uses_streams
+
+DataFlowIntf --> StreamServiceAPI : manages_streams
+StreamServiceAPI --> StreamAPI : creates_streams
+DataStream --> DataStreamService : managed_by
+
+WorkflowMonitor --> Workflow : monitors
+WorkflowMonitor --> Task : monitors
+WorkflowMonitor --> DataStream : monitors
+
+AdapterManager --> MQAdapterImpl : manages
+AdapterManager --> RESTAdapterImpl : manages
+AdapterManager --> DBAdapterImpl : manages
+
+MQAdapterImpl --> RabbitMQ : connects
+MQAdapterImpl --> Kafka : connects
+MQAdapterImpl --> SQS : connects
+
+RESTAdapterImpl --> RESTAPI : calls
+RESTAdapterImpl --> GraphQL : queries
+RESTAdapterImpl --> GRPC : invokes
+
+DBAdapterImpl --> Postgres : queries
+DBAdapterImpl --> MongoDB : accesses
+DBAdapterImpl --> Redis : caches
+
+' Interface realization relationships
+MainAPI ..|> "Unified API" : provides
+TaskAPI ..|> "Task Management" : provides
+WorkflowAPI ..|> "Workflow Management" : provides
+DataFlowIntf ..|> "Data Flow Extension" : provides
+StreamServiceAPI ..|> "Stream Service" : provides
+StreamAPI ..|> "Stream Operations" : provides
+MonitorIntf ..|> "Monitoring" : provides
+AdapterIntf ..|> "Adapter Framework" : provides
+
+' Callback and event relationships
+DataStreamService --> HybridTask : data_available_callback
+Workflow --> WorkflowMonitor : status_change_callback
+Task --> Workflow : completion_callback
+DataStream --> HybridTask : buffer_status_callback
+
+' Extension point relationships
+MainAPI --> DataFlowIntf : [data_flow_enabled]
+MainAPI --> MonitorIntf : [monitoring_enabled]
+MainAPI --> AdapterIntf : [adapters_enabled]
+
+' Error handling relationships
+Task --> Workflow : error_callback
+Workflow --> UserApp : error_callback
+DataStream --> DataStreamService : error_callback
+AdapterManager --> MainAPI : error_callback
+
+' Configuration relationships
+UserApp --> MainAPI : configuration
+MainAPI --> Workflow : workflow_config
+MainAPI --> DataStreamService : stream_config
+MainAPI --> WorkflowMonitor : monitor_config
+MainAPI --> AdapterManager : adapter_config
+
+' Dependency injection relationships
+Workflow ..> TaskAPI : depends_on
+DataFlowIntf ..> TaskAPI : extends
+StreamServiceAPI ..> DataFlowIntf : supports
+MonitorIntf ..> WorkflowAPI : monitors
+MonitorIntf ..> TaskAPI : monitors
+AdapterIntf ..> MainAPI : integrates
+
+' Layer boundaries and abstractions
+note right of AppAPIs : Application Layer:\n- Business logic\n- Configuration\n- Result handling\n- User interaction
+note right of TaskMgmt : Task Layer:\n- Task lifecycle\n- Dependency management\n- Execution control\n- State tracking
+note right of WorkflowMgmt : Workflow Layer:\n- Orchestration\n- Concurrency control\n- Progress tracking\n- Error recovery
+note right of DataFlowAPI : Data Flow Layer:\n- Stream management\n- Buffer control\n- Data routing\n- Flow control
+note right of MonitorAPI : Monitoring Layer:\n- Metrics collection\n- Performance tracking\n- Health monitoring\n- Alert management
+note right of AdapterAPI : Adapter Layer:\n- Protocol abstraction\n- Connection management\n- Data transformation\n- Error handling
+
+' Component interaction patterns
+note as InteractionPatterns
+    **Interaction Patterns:**
+
+    **Direct API Calls:**
+    - Synchronous method invocations
+    - Immediate response handling
+    - Error propagation
+
+    **Callback Mechanisms:**
+    - Asynchronous event notifications
+    - State change callbacks
+    - Completion callbacks
+
+    **Observer Pattern:**
+    - Monitor subscriptions
+    - Event broadcasting
+    - Loose coupling
+
+    **Factory Pattern:**
+    - Component instantiation
+    - Configuration injection
+    - Dependency resolution
+
+    **Strategy Pattern:**
+    - Adapter selection
+    - Algorithm variation
+    - Pluggable behavior
+end note
+
+' Interface contracts and guarantees
+note as InterfaceContracts
+    **Interface Contracts:**
+
+    **Functional Contracts:**
+    - Method signatures and parameters
+    - Return value specifications
+    - Error condition handling
+    - Thread safety guarantees
+
+    **Performance Contracts:**
+    - Latency requirements
+    - Throughput guarantees
+    - Resource utilization limits
+    - Scalability characteristics
+
+    **Reliability Contracts:**
+    - Error handling mechanisms
+    - Recovery procedures
+    - Data consistency guarantees
+    - Fault tolerance levels
+
+    **Compatibility Contracts:**
+    - API version compatibility
+    - Configuration format stability
+    - Extension point preservation
+    - Backward compatibility
+end note
+
+' Extension mechanisms
+note as ExtensionMechanisms
+    **Extension Mechanisms:**
+
+    **Plugin Architecture:**
+    - Adapter registration
+    - Custom processor injection
+    - Monitoring plugin loading
+    - Data format extension
+
+    **Configuration-Driven:**
+    - Runtime behavior modification
+    - Feature flag control
+    - Parameter injection
+    - Dynamic reconfiguration
+
+    **Event-Driven Extensions:**
+    - Callback registration
+    - Event filtering
+    - Custom event handling
+    - Notification routing
+end note
+
+@enduml

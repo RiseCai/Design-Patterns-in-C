@@ -1,0 +1,55 @@
+@startuml Parallel Pipeline State Machine Diagram
+
+title Parallel Pipeline State Machine Architecture
+
+' Workflow States
+[*] --> Idle : system_startup()
+Idle --> Initializing : parallel_workflow_init_ex()
+Initializing --> Running : init_complete()
+Running --> Paused : workflow_pause()
+Paused --> Running : workflow_resume()
+Running --> Completed : all_tasks_completed()
+Running --> Error : critical_task_failure()
+Error --> Idle : workflow_reset()
+Completed --> Idle : workflow_cleanup()
+
+' Task States
+state TaskStates {
+    [*] --> TASK_IDLE : task_create()
+    TASK_IDLE --> TASK_READY : dependencies_met()
+    TASK_READY --> TASK_RUNNING : task_schedule()
+    TASK_RUNNING --> TASK_COMPLETED : task_execute_success()
+    TASK_RUNNING --> TASK_FAILED : task_execute_error()
+    TASK_FAILED --> TASK_IDLE : task_retry()
+    TASK_COMPLETED --> [*] : task_cleanup()
+}
+
+' Stream States
+state StreamStates {
+    [*] --> STREAM_CLOSED : stream_create()
+    STREAM_CLOSED --> STREAM_OPENING : stream_open()
+    STREAM_OPENING --> STREAM_OPEN : open_success()
+    STREAM_OPEN --> STREAM_ACTIVE : data_written()
+    STREAM_ACTIVE --> STREAM_FULL : capacity_reached()
+    STREAM_FULL --> STREAM_ACTIVE : data_consumed()
+    STREAM_ACTIVE --> STREAM_CLOSING : stream_close()
+    STREAM_CLOSING --> STREAM_CLOSED : close_success()
+    STREAM_CLOSED --> [*] : stream_destroy()
+
+    STREAM_OPENING --> STREAM_ERROR : open_failure()
+    STREAM_ACTIVE --> STREAM_ERROR : io_error()
+    STREAM_ERROR --> STREAM_RECOVERY : error_recovery()
+    STREAM_RECOVERY --> STREAM_OPEN : recovery_success()
+    STREAM_RECOVERY --> STREAM_CLOSED : recovery_failure()
+}
+
+' State machine relationships
+Idle --> TaskStates : manages
+Running --> StreamStates : coordinates
+TaskStates --> StreamStates : uses
+
+note right of Idle : Workflow States:\n- Resource allocation\n- Task initialization\n- Dependency setup
+note right of TaskStates : Task States:\n- Creation, scheduling\n- Execution, completion\n- Error recovery
+note right of StreamStates : Stream States:\n- Opening, data flow\n- Buffer management\n- Error handling
+
+@enduml

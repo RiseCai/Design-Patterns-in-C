@@ -1,0 +1,300 @@
+@startuml Parallel Pipeline Deployment Diagram
+
+/'
+    Parallel Pipeline Deployment Diagram
+    ====================================
+
+    This diagram shows the deployment architecture of the parallel pipeline system,
+    illustrating how components are deployed across different environments and nodes.
+
+    Deployment Patterns:
+    - Application Server: Main runtime environment
+    - External Systems: Integration points and data sources/sinks
+    - OS Layer: Platform services and resource management
+
+    Deployment Considerations:
+    - Scalability: Horizontal scaling across multiple nodes
+    - Reliability: Fault tolerance and high availability
+    - Performance: Resource optimization and load balancing
+
+    Generated: 2026-01-05
+    Version: 1.0
+'/
+
+title Parallel Pipeline Deployment Architecture
+
+' Primary application server
+node "Application Server\n(Primary Node)" as AppServer #LightBlue {
+    rectangle "Parallel Pipeline Runtime" as Runtime #LightGreen {
+        artifact "parallel_pipeline.so" as MainLib
+        artifact "parallel_task.so" as TaskLib
+        artifact "parallel_workflow.so" as WorkflowLib
+        artifact "parallel_dataflow.so" as DataFlowLib
+    }
+
+    rectangle "Configuration" as Config #LightYellow {
+        file "pipeline_config.json" as ConfigFile
+        file "workflow_definitions.xml" as WorkflowDefs
+        file "adapter_configs.yaml" as AdapterConfig
+    }
+
+    rectangle "Executables" as Executables #LightCyan {
+        artifact "pipeline_service" as MainService
+        artifact "pipeline_monitor" as MonitorService
+        artifact "pipeline_admin" as AdminTool
+    }
+
+    rectangle "Data Storage" as LocalStorage #LightGray {
+        database "Local Cache DB" as CacheDB
+        folder "Temp Files" as TempDir
+        folder "Log Files" as LogDir
+    }
+}
+
+' Secondary application server (for high availability)
+node "Application Server\n(Secondary Node)" as BackupServer #LightBlue {
+    rectangle "Parallel Pipeline Runtime\n(Standby)" as BackupRuntime #LightGreen {
+        artifact "parallel_pipeline.so" as BackupMainLib
+        artifact "parallel_task.so" as BackupTaskLib
+        artifact "parallel_workflow.so" as BackupWorkflowLib
+        artifact "parallel_dataflow.so" as BackupDataFlowLib
+    }
+
+    rectangle "Synchronization" as SyncService #LightPink {
+        component "State Replicator" as StateSync
+        component "Data Mirror" as DataMirror
+        component "Config Sync" as ConfigSync
+    }
+}
+
+' External systems and services
+node "External Systems" as ExtSystems #LightYellow {
+    rectangle "Message Systems" as Messaging #LightCyan {
+        database "RabbitMQ Cluster" as RMQ
+        database "Apache Kafka" as Kafka
+        database "AWS SQS" as SQS
+    }
+
+    rectangle "Databases" as Databases #LightCyan {
+        database "PostgreSQL" as Postgres
+        database "MongoDB" as MongoDB
+        database "Redis Cache" as Redis
+    }
+
+    rectangle "APIs & Services" as APIs #LightCyan {
+        cloud "REST APIs" as REST
+        cloud "GraphQL Services" as GraphQL
+        cloud "gRPC Services" as GRPC
+    }
+
+    rectangle "Storage Systems" as Storage #LightCyan {
+        folder "S3 Buckets" as S3
+        folder "HDFS" as HDFS
+        folder "NFS Shares" as NFS
+    }
+
+    rectangle "Monitoring & Observability" as Monitoring #LightCyan {
+        component "ELK Stack" as ELK
+        component "Prometheus" as Prometheus
+        component "Grafana" as Grafana
+    }
+}
+
+' Operating system and platform layer
+node "OS & Platform Layer" as Platform #LightGray {
+    rectangle "Linux/Windows Server" as OS #LightBlue {
+        component "Systemd" as Systemd
+        component "Cron" as Cron
+        component "Logrotate" as Logrotate
+    }
+
+    rectangle "Runtime Environment" as RuntimeEnv #LightBlue {
+        component "glibc 2.28+" as GLIBC
+        component "OpenSSL 1.1.1+" as OpenSSL
+        component "libcurl 7.68+" as LibCurl
+    }
+
+    rectangle "Resource Management" as Resources #LightBlue {
+        component "Memory Manager" as MemoryMgr
+        component "Thread Pool" as ThreadPool
+        component "I/O Scheduler" as IOScheduler
+        component "Network Stack" as NetworkStack
+    }
+
+    rectangle "Security Layer" as Security #LightBlue {
+        component "SELinux/AppArmor" as SELinux
+        component "Firewall" as Firewall
+        component "TLS/SSL" as TLS
+    }
+}
+
+' Network infrastructure
+node "Network Infrastructure" as Network #LightPink {
+    rectangle "Load Balancer" as LoadBalancer #LightCyan {
+        component "HAProxy/Nginx" as HAProxy
+        component "Health Checks" as HealthChecks
+        component "SSL Termination" as SSLTerm
+    }
+
+    rectangle "API Gateway" as Gateway #LightCyan {
+        component "Kong/Traefik" as Kong
+        component "Rate Limiting" as RateLimit
+        component "Authentication" as Auth
+    }
+
+    rectangle "Service Mesh" as Mesh #LightCyan {
+        component "Istio/Linkerd" as Istio
+        component "Service Discovery" as ServiceDiscovery
+        component "Traffic Management" as TrafficMgmt
+    }
+}
+
+' Deployment connections and dependencies
+AppServer --> ExtSystems : data_flow
+AppServer --> Platform : depends_on
+AppServer --> Network : network_access
+BackupServer --> AppServer : replication
+BackupServer --> ExtSystems : backup_access
+BackupServer --> Platform : depends_on
+
+ExtSystems --> AppServer : data_sources
+ExtSystems --> BackupServer : backup_sources
+ExtSystems --> Network : external_access
+
+Platform --> AppServer : platform_services
+Platform --> BackupServer : platform_services
+Platform --> Network : network_services
+
+Network --> AppServer : load_balancing
+Network --> BackupServer : failover
+Network --> ExtSystems : api_gateway
+
+' Detailed deployment relationships
+MainLib --> TaskLib : links
+MainLib --> WorkflowLib : links
+MainLib --> DataFlowLib : links
+MainLib --> ConfigFile : reads
+MainLib --> CacheDB : caches
+
+MainService --> Runtime : executes
+MainService --> ConfigFile : loads
+MainService --> LogDir : writes_logs
+
+MonitorService --> MainService : monitors
+MonitorService --> ELK : exports_metrics
+MonitorService --> Prometheus : exposes_metrics
+
+AdminTool --> MainService : manages
+AdminTool --> ConfigFile : modifies
+
+' External system integrations
+RMQ --> MainLib : message_queue
+Kafka --> MainLib : streaming
+Postgres --> MainLib : persistence
+MongoDB --> MainLib : documents
+Redis --> MainLib : caching
+REST --> MainLib : api_calls
+S3 --> MainLib : object_storage
+HDFS --> MainLib : distributed_fs
+
+' Platform dependencies
+Systemd --> MainService : manages
+Systemd --> MonitorService : manages
+Cron --> Logrotate : schedules
+GLIBC --> MainLib : runtime
+OpenSSL --> MainLib : security
+LibCurl --> MainLib : http_client
+
+MemoryMgr --> MainLib : memory_alloc
+ThreadPool --> MainLib : threading
+IOScheduler --> MainLib : io_ops
+NetworkStack --> MainLib : networking
+
+SELinux --> MainService : security_policy
+Firewall --> MainService : network_policy
+TLS --> MainLib : encryption
+
+' Network infrastructure connections
+HAProxy --> MainService : load_balances
+HAProxy --> BackupService : failover
+Kong --> REST : api_gateway
+Kong --> GraphQL : api_gateway
+Istio --> MainService : service_mesh
+
+' Deployment artifacts and configurations
+note right of AppServer : Deployment Artifacts:\n- Main executable\n- Shared libraries\n- Configuration files\n- Init scripts\n- Log directories
+note right of ExtSystems : Integration Points:\n- MQ brokers\n- Database servers\n- API endpoints\n- Storage systems\n- Monitoring stacks
+note right of Platform : Platform Requirements:\n- OS version\n- Library dependencies\n- Security policies\n- Resource limits
+note right of Network : Network Services:\n- Load balancing\n- API gateway\n- Service discovery\n- Traffic management
+
+' Deployment scenarios
+note as DeploymentScenarios
+    **Deployment Scenarios:**
+
+    **Single Node Deployment:**
+    - All components on one server
+    - Suitable for development/testing
+    - Minimal resource requirements
+
+    **Multi-Node HA Deployment:**
+    - Primary + secondary nodes
+    - Automatic failover
+    - Load balancing across nodes
+
+    **Cloud-Native Deployment:**
+    - Container orchestration (K8s)
+    - Microservices architecture
+    - Auto-scaling capabilities
+
+    **Edge Computing Deployment:**
+    - Distributed across edge nodes
+    - Local processing capabilities
+    - Centralized coordination
+end note
+
+' Performance and scaling considerations
+note as ScalingConsiderations
+    **Scaling Considerations:**
+
+    **Vertical Scaling:**
+    - Increase CPU cores and memory
+    - Upgrade storage performance
+    - Optimize OS kernel parameters
+
+    **Horizontal Scaling:**
+    - Add more application nodes
+    - Load balancer distribution
+    - Shared state management
+
+    **Data Scaling:**
+    - Database clustering
+    - Distributed caching
+    - Message queue partitioning
+
+    **Network Scaling:**
+    - CDN integration
+    - API rate limiting
+    - Connection pooling
+end note
+
+' Monitoring and observability
+note as Observability
+    **Observability Stack:**
+
+    **Metrics Collection:**
+    - Application metrics (Prometheus)
+    - System metrics (node_exporter)
+    - Custom business metrics
+
+    **Log Aggregation:**
+    - Application logs (ELK)
+    - System logs (rsyslog)
+    - Audit logs (compliance)
+
+    **Visualization:**
+    - Real-time dashboards (Grafana)
+    - Alert management
+    - Performance analytics
+end note
+
+@enduml

@@ -1,0 +1,197 @@
+@startuml Parallel Pipeline Data Flow Diagram
+
+/'
+    Parallel Pipeline Data Flow Diagram
+    ===================================
+
+    This diagram shows the complete data flow architecture of the parallel pipeline,
+    illustrating how data moves through the system from input to output.
+
+    Data Flow Patterns:
+    - Ingestion: Raw data acquisition and validation
+    - Processing: Data transformation and business logic
+    - Streaming: Inter-task data communication
+    - Output: Result delivery and persistence
+
+    Flow Control:
+    - Buffering: Capacity management and backpressure
+    - Routing: Data distribution to appropriate processors
+    - Synchronization: Ensuring data consistency across tasks
+
+    Generated: 2026-01-05
+    Version: 1.0
+'/
+
+title Parallel Pipeline Data Flow Architecture
+
+' External data sources
+database "External Data Sources" as ExtSources #LightBlue {
+    [Message Queues] as MQ
+    [Databases] as DB
+    [REST APIs] as APIs
+    [File Systems] as Files
+    [Sensors/IoT] as Sensors
+}
+
+' Data ingestion layer
+rectangle "Data Ingestion Layer" as Ingestion #LightYellow {
+    rectangle "Input Adapters" as InputAdapters #LightCyan {
+        [MQ Adapter] as MQAdapter
+        [DB Adapter] as DBAdapter
+        [REST Adapter] as RESTAdapter
+        [File Adapter] as FileAdapter
+        [Sensor Adapter] as SensorAdapter
+    }
+
+    rectangle "Data Validation" as Validation #LightCyan {
+        [Schema Validator] as SchemaVal
+        [Format Checker] as FormatCheck
+        [Data Filter] as DataFilter
+    }
+}
+
+' Processing layer
+rectangle "Task Processing Layer" as Processing #LightGreen {
+    rectangle "Task Instances" as TaskInstances #LightCyan {
+        [Task 1\n(Data Producer)] as Task1
+        [Task 2\n(Hybrid Task)] as Task2
+        [Task 3\n(Data Consumer)] as Task3
+        [Task N\n(Processor)] as TaskN
+    }
+
+    rectangle "Business Logic" as BusinessLogic #LightCyan {
+        [Data Transformer] as Transformer
+        [Aggregator] as Aggregator
+        [Analyzer] as Analyzer
+        [Decision Engine] as DecisionEngine
+    }
+}
+
+' Data flow layer
+rectangle "Data Flow Layer" as DataFlow #LightPink {
+    rectangle "Stream Services" as StreamServices #LightCyan {
+        [sensor_data stream] as SensorStream
+        [processed_data stream] as ProcessedStream
+        [alert_data stream] as AlertStream
+        [result_data stream] as ResultStream
+    }
+
+    rectangle "Buffer Management" as Buffers #LightCyan {
+        [FIFO Buffer] as FifoBuffer
+        [Latest Buffer] as LatestBuffer
+        [Sliding Window] as WindowBuffer
+        [Priority Queue] as PriorityQueue
+    }
+}
+
+' Output layer
+rectangle "Data Output Layer" as Output #LightGray {
+    rectangle "Output Adapters" as OutputAdapters #LightCyan {
+        [Result Publisher] as Publisher
+        [Data Exporter] as Exporter
+        [Notification Service] as Notifier
+        [Storage Writer] as StorageWriter
+    }
+
+    rectangle "Result Aggregation" as Aggregation #LightCyan {
+        [Result Merger] as Merger
+        [Summary Generator] as Summarizer
+        [Report Builder] as Reporter
+    }
+}
+
+' External data sinks
+database "External Data Sinks" as ExtSinks #LightBlue {
+    [Result Queues] as ResultMQ
+    [Data Warehouse] as Warehouse
+    [Monitoring DB] as MonitorDB
+    [Log Storage] as LogStorage
+    [Dashboard APIs] as Dashboards
+}
+
+' Main data flow connections
+ExtSources --> InputAdapters : Raw Data Input
+InputAdapters --> Validation : Structured Data
+Validation --> TaskInstances : Validated Data
+TaskInstances --> StreamServices : Inter-Task Data
+StreamServices --> Buffers : Buffered Data
+Buffers --> TaskInstances : Stream Data
+TaskInstances --> OutputAdapters : Processed Results
+OutputAdapters --> Aggregation : Formatted Results
+Aggregation --> ExtSinks : Final Output
+
+' Detailed internal flows
+MQ --> MQAdapter : Queue Messages
+DB --> DBAdapter : Database Records
+APIs --> RESTAdapter : API Responses
+Files --> FileAdapter : File Data
+Sensors --> SensorAdapter : Sensor Readings
+
+MQAdapter --> SchemaVal : Message Data
+DBAdapter --> SchemaVal : Record Data
+RESTAdapter --> SchemaVal : Response Data
+FileAdapter --> SchemaVal : File Content
+SensorAdapter --> SchemaVal : Sensor Data
+
+SchemaVal --> FormatCheck : Schema-Validated Data
+FormatCheck --> DataFilter : Format-Checked Data
+DataFilter --> Task1 : Filtered Data
+
+Task1 --> Transformer : Raw Task Data
+Transformer --> SensorStream : Transformed Data
+SensorStream --> FifoBuffer : Sensor Stream Data
+
+FifoBuffer --> Task2 : Buffered Sensor Data
+Task2 --> Analyzer : Sensor Analysis
+Analyzer --> ProcessedStream : Analysis Results
+ProcessedStream --> LatestBuffer : Latest Results
+
+LatestBuffer --> Task3 : Latest Processed Data
+Task3 --> DecisionEngine : Decision Input
+DecisionEngine --> AlertStream : Decision Alerts
+AlertStream --> PriorityQueue : Priority Alerts
+
+PriorityQueue --> TaskN : Alert Data
+TaskN --> Aggregator : Task Results
+Aggregator --> Publisher : Aggregated Results
+
+Publisher --> ResultMQ : Published Results
+Exporter --> Warehouse : Exported Data
+Notifier --> Dashboards : Notifications
+StorageWriter --> MonitorDB : Monitoring Data
+StorageWriter --> LogStorage : Log Data
+
+' Control and metadata flows
+Validation --> Buffers : Validation Metadata
+Buffers --> Validation : Buffer Status
+StreamServices --> TaskInstances : Data Availability
+TaskInstances --> StreamServices : Data Consumption
+Buffers --> StreamServices : Buffer Metrics
+
+' Error and exception flows
+Validation --> LogStorage : Validation Errors
+TaskInstances --> LogStorage : Task Errors
+StreamServices --> MonitorDB : Stream Errors
+Buffers --> MonitorDB : Buffer Errors
+
+note right of Ingestion : Data Ingestion:\n- Multi-protocol support\n- Data validation\n- Format normalization\n- Error filtering
+note right of Processing : Task Processing:\n- Parallel execution\n- Business logic\n- Data transformation\n- Result aggregation
+note right of DataFlow : Data Streaming:\n- Inter-task communication\n- Buffer management\n- Flow control\n- Data persistence
+note right of Output : Data Output:\n- Multi-destination\n- Format adaptation\n- Result aggregation\n- Delivery guarantees
+
+note as DataFlowNote
+    **Data Flow Characteristics:**
+
+    **Throughput**: High-volume data processing
+    **Latency**: Low-latency requirements
+    **Reliability**: Guaranteed delivery
+    **Scalability**: Horizontal scaling support
+
+    **Flow Control Mechanisms:**
+    - Backpressure handling
+    - Buffer overflow protection
+    - Data rate limiting
+    - Quality of service
+end note
+
+@enduml
