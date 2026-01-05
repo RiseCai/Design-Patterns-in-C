@@ -1,4 +1,17 @@
-@startuml Parallel Pipeline Adapters Framework Design Diagram
+@startuml Parallel Pipeline Adapters Framework Design Design Diagram
+
+' Layout optimization directives
+!pragma layout smetana
+skinparam nodesep 60
+skinparam ranksep 80
+skinparam linetype ortho
+skinparam arrow {
+    size 10
+}
+skinparam label {
+    distance 12
+    angle 25
+}
 
 /'
     Parallel Pipeline Adapters Framework Design Diagram

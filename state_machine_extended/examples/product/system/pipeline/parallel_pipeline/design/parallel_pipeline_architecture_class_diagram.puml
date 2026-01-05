@@ -1,5 +1,18 @@
 @startuml Parallel Pipeline Architecture Class Diagram
 
+' Layout optimization directives
+!pragma layout smetana
+skinparam nodesep 70
+skinparam ranksep 90
+skinparam linetype polyline
+skinparam arrow {
+    size 10
+}
+skinparam label {
+    distance 10
+    angle 20
+}
+
 /'
     Parallel Pipeline Architecture Class Diagram
     ============================================
