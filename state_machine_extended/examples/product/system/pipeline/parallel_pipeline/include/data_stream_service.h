@@ -28,14 +28,4 @@ data_stream_t data_stream_service_create_stream(struct data_stream_service *serv
 void data_stream_service_destroy_stream(struct data_stream_service *service,
                                        data_stream_t stream);
 
-/* Data stream service management */
-struct data_stream_service *data_stream_service_create(void);
-void data_stream_service_destroy(struct data_stream_service *service);
-data_stream_t data_stream_service_create_stream(struct data_stream_service *service,
-                                               const char *name,
-                                               size_t element_size,
-                                               int capacity);
-void data_stream_service_destroy_stream(struct data_stream_service *service,
-                                       data_stream_t stream);
-
 #endif /* __DATA_STREAM_SERVICE_H__ */

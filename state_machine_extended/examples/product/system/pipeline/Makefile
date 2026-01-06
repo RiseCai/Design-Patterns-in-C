@@ -23,6 +23,8 @@ DATA_DEMO = data_pipeline/examples/data_pipeline_demo.c
 TASK_DEMO = task_pipeline/examples/task_pipeline_demo.c
 PARALLEL_DEMO = parallel_pipeline/examples/parallel_pipeline_demo.c
 PARALLEL_STREAM_DEMO = parallel_pipeline/examples/parallel_pipeline_stream_os_demo.c
+EMBEDDED_AI_AIDE_DEMO = parallel_pipeline/examples/embedded_ai_aide_dag_demo.c
+ZERO_COPY_DEMO = parallel_pipeline/examples/zero_copy_demo.c
 
 # OS example sources
 DATA_OS_EXAMPLE = data_pipeline/examples/data_pipeline_os_example.c
@@ -34,7 +36,7 @@ PARALLEL_TEST = parallel_pipeline/test/test_parallel_pipeline.c
 DATA_STREAM_INTEGRATION_TEST = parallel_pipeline/test/test_data_stream_integration.c
 
 # Targets
-all: data_pipeline_demo task_pipeline_demo parallel_pipeline_demo parallel_pipeline_stream_demo data_pipeline_os_example task_pipeline_os_example parallel_pipeline_os_example test_parallel_pipeline test_data_stream_integration
+all: data_pipeline_demo task_pipeline_demo parallel_pipeline_demo parallel_pipeline_stream_demo embedded_ai_aide_demo zero_copy_demo data_pipeline_os_example task_pipeline_os_example parallel_pipeline_os_example test_parallel_pipeline test_data_stream_integration
 
 data_pipeline_demo: $(DATA_DEMO) $(DATA_SRC) $(COMMON_SRC)
 	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
@@ -46,6 +48,12 @@ parallel_pipeline_demo: $(PARALLEL_DEMO) $(PARALLEL_SRC) $(DATA_STREAM_SRC) $(TA
 	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
 
 parallel_pipeline_stream_demo: $(PARALLEL_STREAM_DEMO) $(PARALLEL_SRC) $(DATA_STREAM_SRC) $(TASK_SRC) $(COMMON_SRC)
+	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
+
+embedded_ai_aide_demo: $(EMBEDDED_AI_AIDE_DEMO) $(PARALLEL_SRC) $(DATA_STREAM_SRC) $(TASK_SRC) $(COMMON_SRC)
+	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
+
+zero_copy_demo: $(ZERO_COPY_DEMO) $(PARALLEL_SRC) $(DATA_STREAM_SRC) $(TASK_SRC) $(COMMON_SRC)
 	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
 
 data_pipeline_os_example: $(DATA_OS_EXAMPLE) $(DATA_SRC) $(COMMON_SRC)
@@ -64,6 +72,6 @@ test_data_stream_integration: $(DATA_STREAM_INTEGRATION_TEST) $(PARALLEL_SRC) $(
 	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
 
 clean:
-	rm -f data_pipeline_demo task_pipeline_demo parallel_pipeline_demo parallel_pipeline_stream_demo data_pipeline_os_example task_pipeline_os_example parallel_pipeline_os_example test_parallel_pipeline test_data_stream_integration
+	rm -f data_pipeline_demo task_pipeline_demo parallel_pipeline_demo parallel_pipeline_stream_demo embedded_ai_aide_demo zero_copy_demo data_pipeline_os_example task_pipeline_os_example parallel_pipeline_os_example test_parallel_pipeline test_data_stream_integration
 
 .PHONY: all clean

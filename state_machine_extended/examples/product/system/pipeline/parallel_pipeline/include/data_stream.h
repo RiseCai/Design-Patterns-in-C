@@ -37,7 +37,8 @@ static inline timestamp_t os_get_timestamp(void) {
 enum data_stream_mode {
     STREAM_MODE_FIFO,       /* FIFO queue */
     STREAM_MODE_LATEST,     /* Only keep latest element */
-    STREAM_MODE_WINDOW      /* Sliding window */
+    STREAM_MODE_WINDOW,     /* Sliding window */
+    STREAM_MODE_BROADCAST   /* Broadcast mode with reference counting */
 };
 
 /* Data stream configuration */
@@ -87,12 +88,26 @@ struct data_stream_stats {
     int corruption_errors;
 };
 
+/* Zero-copy data reference (for zero-copy operations) */
+struct data_ref {
+    const void *data;        /* Direct pointer to data (no copy) */
+    size_t size;             /* Size of data */
+    uint32_t ref_id;         /* Reference ID for tracking */
+    timestamp_t timestamp;   /* When this reference was created */
+};
+
+/* Zero-copy read result */
+struct data_read_result {
+    struct data_ref ref;     /* Data reference */
+    int status;              /* Status code */
+};
+
 /* Core API */
 data_stream_t data_stream_create(const struct data_stream_config *config);
 int data_stream_destroy(data_stream_t stream);
 
-int data_stream_write(data_stream_t stream, 
-                     const void *data, 
+int data_stream_write(data_stream_t stream,
+                     const void *data,
                      size_t size,
                      int timeout_ms);
 
@@ -100,6 +115,19 @@ int data_stream_read(data_stream_t stream,
                     void *buffer,
                     size_t buffer_size,
                     int timeout_ms);
+
+/* Zero-copy API (experimental) */
+int data_stream_write_zero_copy(data_stream_t stream,
+                               const void *data,
+                               size_t size,
+                               int timeout_ms);
+
+int data_stream_read_zero_copy(data_stream_t stream,
+                              struct data_read_result *result,
+                              int timeout_ms);
+
+int data_stream_release_reference(data_stream_t stream,
+                                 uint32_t ref_id);
 
 int data_stream_peek(data_stream_t stream, 
                     void *buffer,

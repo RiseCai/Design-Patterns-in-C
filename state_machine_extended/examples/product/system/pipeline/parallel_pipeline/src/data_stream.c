@@ -25,6 +25,14 @@
 #endif
 #endif
 
+/* Internal data element with reference counting (for broadcast mode) */
+struct data_element {
+    void *data;                 /* Element data */
+    int ref_count;              /* Reference count for broadcast mode */
+    uint32_t ref_id;            /* Reference ID for zero-copy tracking */
+    size_t data_size;           /* Actual data size */
+};
+
 /* Internal data stream structure */
 struct data_stream {
     /* Configuration */
@@ -33,18 +41,19 @@ struct data_stream {
     int capacity;
     enum data_stream_mode mode;
     int window_size;
-    
+
     /* Buffer management */
-    void *buffer;               /* Circular buffer */
+    void *buffer;               /* Circular buffer (for non-broadcast modes) */
+    struct data_element *elements; /* Element array with ref counting (for broadcast mode) */
     int head;                   /* Read position */
     int tail;                   /* Write position */
     int count;                  /* Number of elements in buffer */
-    
+
     /* Synchronization */
     os_mutex_t *mutex;
     os_semaphore_t *data_available;  /* Semaphore for readers */
     os_semaphore_t *space_available; /* Semaphore for writers */
-    
+
     /* Metadata */
     int stream_id;
     int producer_task_id;
@@ -52,10 +61,10 @@ struct data_stream {
     size_t total_bytes_transferred;
     timestamp_t creation_time;
     timestamp_t last_activity;
-    
+
     /* Statistics */
     struct data_stream_stats stats;
-    
+
     /* State */
     bool initialized;
     bool closed;
@@ -92,20 +101,20 @@ data_stream_t data_stream_create(const struct data_stream_config *config)
         TRACE_ERROR("Invalid data stream configuration");
         return NULL;
     }
-    
+
     if (ensure_id_mutex_initialized() != 0) {
         return NULL;
     }
-    
+
     /* Allocate stream structure */
     struct data_stream *stream = (struct data_stream *)malloc(sizeof(struct data_stream));
     if (!stream) {
         TRACE_ERROR("Failed to allocate data stream structure");
         return NULL;
     }
-    
+
     memset(stream, 0, sizeof(struct data_stream));
-    
+
     /* Copy configuration */
     if (config->name) {
         strncpy(stream->name, config->name, sizeof(stream->name) - 1);
@@ -113,73 +122,106 @@ data_stream_t data_stream_create(const struct data_stream_config *config)
     } else {
         strcpy(stream->name, "unnamed_stream");
     }
-    
+
     stream->element_size = config->element_size;
     stream->capacity = config->capacity;
     stream->mode = config->mode;
     stream->window_size = config->window_size;
-    
+
     /* Validate window size for window mode */
     if (stream->mode == STREAM_MODE_WINDOW) {
         if (stream->window_size <= 0 || stream->window_size > stream->capacity) {
-            TRACE_ERROR("Invalid window size %d for capacity %d", 
+            TRACE_ERROR("Invalid window size %d for capacity %d",
                        stream->window_size, stream->capacity);
             free(stream);
             return NULL;
         }
     }
-    
-    /* Allocate buffer */
-    stream->buffer = malloc(stream->element_size * stream->capacity);
-    if (!stream->buffer) {
-        TRACE_ERROR("Failed to allocate buffer for data stream");
-        free(stream);
-        return NULL;
+
+    /* Allocate buffer based on mode */
+    if (stream->mode == STREAM_MODE_BROADCAST) {
+        /* For broadcast mode, allocate array of elements with ref counting */
+        stream->elements = (struct data_element *)malloc(sizeof(struct data_element) * stream->capacity);
+        if (!stream->elements) {
+            TRACE_ERROR("Failed to allocate elements array for broadcast stream");
+            free(stream);
+            return NULL;
+        }
+
+        /* Initialize elements */
+        for (int i = 0; i < stream->capacity; i++) {
+            stream->elements[i].data = malloc(stream->element_size);
+            if (!stream->elements[i].data) {
+                TRACE_ERROR("Failed to allocate element data");
+                /* Cleanup already allocated elements */
+                for (int j = 0; j < i; j++) {
+                    free(stream->elements[j].data);
+                }
+                free(stream->elements);
+                free(stream);
+                return NULL;
+            }
+            stream->elements[i].ref_count = 0;
+        }
+    } else {
+        /* For other modes, use simple circular buffer */
+        stream->buffer = malloc(stream->element_size * stream->capacity);
+        if (!stream->buffer) {
+            TRACE_ERROR("Failed to allocate buffer for data stream");
+            free(stream);
+            return NULL;
+        }
     }
-    
+
     /* Initialize buffer indices */
     stream->head = 0;
     stream->tail = 0;
     stream->count = 0;
-    
+
     /* Create synchronization primitives */
     stream->mutex = os_mutex_create();
     stream->data_available = os_semaphore_create(0, stream->capacity);
     stream->space_available = os_semaphore_create(stream->capacity, stream->capacity);
-    
+
     if (!stream->mutex || !stream->data_available || !stream->space_available) {
         TRACE_ERROR("Failed to create synchronization primitives for data stream");
         if (stream->mutex) os_mutex_destroy(stream->mutex);
         if (stream->data_available) os_semaphore_destroy(stream->data_available);
         if (stream->space_available) os_semaphore_destroy(stream->space_available);
-        free(stream->buffer);
+        if (stream->buffer) free(stream->buffer);
+        if (stream->elements) {
+            for (int i = 0; i < stream->capacity; i++) {
+                if (stream->elements[i].data) free(stream->elements[i].data);
+            }
+            free(stream->elements);
+        }
         free(stream);
         return NULL;
     }
-    
+
     /* Assign unique stream ID */
     os_mutex_lock(id_mutex, OS_WAIT_FOREVER);
     stream->stream_id = next_stream_id++;
     os_mutex_unlock(id_mutex);
-    
+
     /* Initialize metadata */
     stream->producer_task_id = -1;  /* No producer yet */
     stream->consumer_count = 0;
     stream->total_bytes_transferred = 0;
     stream->creation_time = os_get_timestamp();
     stream->last_activity = stream->creation_time;
-    
+
     /* Initialize statistics */
     memset(&stream->stats, 0, sizeof(struct data_stream_stats));
     stream->stats.min_latency = (timestamp_t)-1;  /* Max value */
-    
+
     /* Set state */
     stream->initialized = true;
     stream->closed = false;
-    
-    TRACE_INFO("Data stream '%s' created (id=%d, element_size=%zu, capacity=%d)",
-               stream->name, stream->stream_id, stream->element_size, stream->capacity);
-    
+
+    TRACE_INFO("Data stream '%s' created (id=%d, mode=%d, element_size=%zu, capacity=%d)",
+               stream->name, stream->stream_id, stream->mode, stream->element_size, stream->capacity);
+
     return (data_stream_t)stream;
 }
 
@@ -189,86 +231,96 @@ int data_stream_destroy(data_stream_t stream_handle)
     if (!stream_handle) {
         return DATA_STREAM_ERROR_INVALID_PARAM;
     }
-    
+
     struct data_stream *stream = (struct data_stream *)stream_handle;
-    
+
     os_mutex_lock(stream->mutex, OS_WAIT_FOREVER);
-    
+
     if (stream->closed) {
         os_mutex_unlock(stream->mutex);
         return DATA_STREAM_ERROR_ALREADY_CLOSED;
     }
-    
+
     stream->closed = true;
-    
+
     /* Release any waiting threads */
     os_semaphore_give(stream->data_available);
     os_semaphore_give(stream->space_available);
-    
+
     os_mutex_unlock(stream->mutex);
-    
+
     /* Destroy synchronization primitives */
     if (stream->mutex) {
         os_mutex_destroy(stream->mutex);
     }
-    
+
     if (stream->data_available) {
         os_semaphore_destroy(stream->data_available);
     }
-    
+
     if (stream->space_available) {
         os_semaphore_destroy(stream->space_available);
     }
-    
+
     /* Free buffer */
     if (stream->buffer) {
         free(stream->buffer);
     }
-    
+
+    /* Free elements for broadcast mode */
+    if (stream->elements) {
+        for (int i = 0; i < stream->capacity; i++) {
+            if (stream->elements[i].data) {
+                free(stream->elements[i].data);
+            }
+        }
+        free(stream->elements);
+    }
+
     /* Free stream structure */
     free(stream);
-    
+
     TRACE_INFO("Data stream destroyed");
     return DATA_STREAM_SUCCESS;
 }
 
 /* Write data to stream */
-int data_stream_write(data_stream_t stream_handle, 
-                     const void *data, 
+int data_stream_write(data_stream_t stream_handle,
+                     const void *data,
                      size_t size,
                      int timeout_ms)
 {
     if (!stream_handle || !data || size == 0) {
         return DATA_STREAM_ERROR_INVALID_PARAM;
     }
-    
+
     struct data_stream *stream = (struct data_stream *)stream_handle;
-    
+
     /* Check if stream is closed */
     if (stream->closed) {
         return DATA_STREAM_ERROR_ALREADY_CLOSED;
     }
-    
+
     /* Check size matches element size */
     if (size != stream->element_size) {
         TRACE_ERROR("Size mismatch: expected %zu, got %zu", stream->element_size, size);
         return DATA_STREAM_ERROR_SIZE_MISMATCH;
     }
-    
+
     /* Wait for space available */
     if (os_semaphore_take(stream->space_available, timeout_ms) != OS_OK) {
         stream->stats.timeout_errors++;
         return DATA_STREAM_ERROR_TIMEOUT;
     }
-    
+
     os_mutex_lock(stream->mutex, OS_WAIT_FOREVER);
-    
+
     /* Handle different stream modes */
     switch (stream->mode) {
         case STREAM_MODE_FIFO:
             /* Standard FIFO behavior */
             break;
-            
+
         case STREAM_MODE_LATEST:
             /* If buffer is full, discard oldest element */
             if (stream->count == stream->capacity) {
@@ -278,7 +330,7 @@ int data_stream_write(data_stream_t stream_handle,
                 os_semaphore_give(stream->space_available);
             }
             break;
-            
+
         case STREAM_MODE_WINDOW:
             /* Maintain sliding window */
             if (stream->count == stream->window_size) {
@@ -288,34 +340,76 @@ int data_stream_write(data_stream_t stream_handle,
                 os_semaphore_give(stream->space_available);
             }
             break;
+
+        case STREAM_MODE_BROADCAST:
+            /* For broadcast mode, check if buffer is full */
+            if (stream->count == stream->capacity) {
+                /* Find element with ref_count == 0 and reuse it */
+                int reused = 0;
+                for (int i = 0; i < stream->capacity; i++) {
+                    int idx = (stream->head + i) % stream->capacity;
+                    if (stream->elements[idx].ref_count == 0) {
+                        stream->head = (idx + 1) % stream->capacity;
+                        stream->count--;
+                        reused = 1;
+                        /* Give back space semaphore since we're reusing a slot */
+                        os_semaphore_give(stream->space_available);
+                        break;
+                    }
+                }
+                if (!reused) {
+                    /* All elements are still referenced, cannot write */
+                    os_mutex_unlock(stream->mutex);
+                    os_semaphore_give(stream->space_available); /* Give back semaphore */
+                    return DATA_STREAM_ERROR_BUFFER_FULL;
+                }
+            }
+            break;
     }
-    
+
     /* Copy data to buffer */
-    void *dest = (char *)stream->buffer + (stream->tail * stream->element_size);
-    memcpy(dest, data, size);
-    
+    if (stream->mode == STREAM_MODE_BROADCAST) {
+        /* Copy to elements array */
+        memcpy(stream->elements[stream->tail].data, data, size);
+        /* Set reference count to number of consumers */
+        stream->elements[stream->tail].ref_count = (stream->consumer_count > 0) ? stream->consumer_count : 1;
+        TRACE_INFO("Broadcast write: element %d, ref_count=%d, consumers=%d",
+                  stream->tail, stream->elements[stream->tail].ref_count, stream->consumer_count);
+    } else {
+        /* Copy to circular buffer */
+        void *dest = (char *)stream->buffer + (stream->tail * stream->element_size);
+        memcpy(dest, data, size);
+    }
+
     /* Update buffer indices */
     stream->tail = (stream->tail + 1) % stream->capacity;
     stream->count++;
-    
+
     /* Update statistics */
     stream->total_bytes_transferred += size;
     stream->stats.bytes_written += size;
     stream->stats.write_count++;
     stream->stats.current_queue_depth = stream->count;
-    
+
     if (stream->count > stream->stats.max_queue_depth) {
         stream->stats.max_queue_depth = stream->count;
     }
-    
+
     /* Update last activity timestamp */
     stream->last_activity = os_get_timestamp();
-    
+
     os_mutex_unlock(stream->mutex);
-    
-    /* Signal data available */
-    os_semaphore_give(stream->data_available);
-    
+
+    /* Signal data available - for broadcast mode, signal once per consumer */
+    if (stream->mode == STREAM_MODE_BROADCAST) {
+        int consumers = (stream->consumer_count > 0) ? stream->consumer_count : 1;
+        for (int i = 0; i < consumers; i++) {
+            os_semaphore_give(stream->data_available);
+        }
+    } else {
+        os_semaphore_give(stream->data_available);
+    }
+
     return DATA_STREAM_SUCCESS;
 }
 
@@ -328,30 +422,30 @@ int data_stream_read(data_stream_t stream_handle,
     if (!stream_handle || !buffer || buffer_size == 0) {
         return DATA_STREAM_ERROR_INVALID_PARAM;
     }
-    
+
     struct data_stream *stream = (struct data_stream *)stream_handle;
-    
+
     /* Check if stream is closed */
     if (stream->closed) {
         return DATA_STREAM_ERROR_ALREADY_CLOSED;
     }
-    
+
     /* Check buffer size */
     if (buffer_size < stream->element_size) {
-        TRACE_ERROR("Buffer too small: need %zu, got %zu", 
+        TRACE_ERROR("Buffer too small: need %zu, got %zu",
                    stream->element_size, buffer_size);
         return DATA_STREAM_ERROR_SIZE_MISMATCH;
     }
-    
+
     /* Wait for data available */
     timestamp_t start_time = os_get_timestamp();
     if (os_semaphore_take(stream->data_available, timeout_ms) != OS_OK) {
         stream->stats.timeout_errors++;
         return DATA_STREAM_ERROR_TIMEOUT;
     }
-    
+
     os_mutex_lock(stream->mutex, OS_WAIT_FOREVER);
-    
+
     /* Check if there's actually data (should be, but just in case) */
     if (stream->count == 0) {
         os_mutex_unlock(stream->mutex);
@@ -359,34 +453,74 @@ int data_stream_read(data_stream_t stream_handle,
         os_semaphore_give(stream->data_available);
         return DATA_STREAM_ERROR_BUFFER_EMPTY;
     }
-    
-    /* Copy data from buffer */
-    const void *src = (char *)stream->buffer + (stream->head * stream->element_size);
-    memcpy(buffer, src, stream->element_size);
-    
-    /* Update buffer indices */
-    stream->head = (stream->head + 1) % stream->capacity;
-    stream->count--;
-    
+
+    /* Handle different stream modes */
+    if (stream->mode == STREAM_MODE_BROADCAST) {
+        /* For broadcast mode, find the first element with ref_count > 0 */
+        int found = 0;
+        for (int i = 0; i < stream->count; i++) {
+            int idx = (stream->head + i) % stream->capacity;
+            if (stream->elements[idx].ref_count > 0) {
+                /* Copy data */
+                memcpy(buffer, stream->elements[idx].data, stream->element_size);
+
+                /* Decrement reference count */
+                stream->elements[idx].ref_count--;
+                TRACE_INFO("Broadcast read: element %d, ref_count now %d",
+                          idx, stream->elements[idx].ref_count);
+
+                /* If ref_count reaches 0, remove this element */
+                if (stream->elements[idx].ref_count == 0) {
+                    /* Move head forward */
+                    stream->head = (idx + 1) % stream->capacity;
+                    stream->count--;
+
+                    /* Signal space available */
+                    os_semaphore_give(stream->space_available);
+                }
+                /* Note: For broadcast mode, we don't move head until ref_count == 0 */
+
+                found = 1;
+                break;
+            }
+        }
+
+        if (!found) {
+            /* This shouldn't happen, but just in case */
+            os_mutex_unlock(stream->mutex);
+            os_semaphore_give(stream->data_available);
+            return DATA_STREAM_ERROR_BUFFER_EMPTY;
+        }
+    } else {
+        /* For other modes, standard FIFO behavior */
+        /* Copy data from buffer */
+        const void *src = (char *)stream->buffer + (stream->head * stream->element_size);
+        memcpy(buffer, src, stream->element_size);
+
+        /* Update buffer indices */
+        stream->head = (stream->head + 1) % stream->capacity;
+        stream->count--;
+
+        /* Signal space available */
+        os_semaphore_give(stream->space_available);
+    }
+
     /* Update statistics */
     stream->total_bytes_transferred += stream->element_size;
     stream->stats.bytes_read += stream->element_size;
     stream->stats.read_count++;
     stream->stats.current_queue_depth = stream->count;
-    
+
     /* Calculate latency */
     timestamp_t end_time = os_get_timestamp();
     timestamp_t latency = end_time - start_time;
     update_latency_stat(&stream->stats, latency);
-    
+
     /* Update last activity timestamp */
     stream->last_activity = os_get_timestamp();
-    
+
     os_mutex_unlock(stream->mutex);
-    
-    /* Signal space available */
-    os_semaphore_give(stream->space_available);
-    
+
     return DATA_STREAM_SUCCESS;
 }
 
@@ -698,4 +832,298 @@ static int calculate_available_data(struct data_stream *stream)
 static void copy_element(struct data_stream *stream, void *dest, const void *src)
 {
     memcpy(dest, src, stream->element_size);
+}
+
+/* ============================================================================
+ * ZERO-COPY API IMPLEMENTATIONS (EXPERIMENTAL)
+ * ============================================================================ */
+
+/* Global reference ID counter for zero-copy operations */
+static uint32_t next_ref_id = 1;
+static os_mutex_t *ref_id_mutex = NULL;
+
+/* Initialize reference ID mutex */
+static int ensure_ref_id_mutex_initialized(void)
+{
+    if (!ref_id_mutex) {
+        ref_id_mutex = os_mutex_create();
+        if (!ref_id_mutex) {
+            TRACE_ERROR("Failed to create reference ID mutex");
+            return -1;
+        }
+    }
+    return 0;
+}
+
+/* Generate unique reference ID */
+static uint32_t generate_ref_id(void)
+{
+    if (ensure_ref_id_mutex_initialized() != 0) {
+        return 0; /* Error */
+    }
+
+    os_mutex_lock(ref_id_mutex, OS_WAIT_FOREVER);
+    uint32_t ref_id = next_ref_id++;
+    os_mutex_unlock(ref_id_mutex);
+
+    return ref_id;
+}
+
+/* Zero-copy write - stores data without copying */
+int data_stream_write_zero_copy(data_stream_t stream_handle,
+                               const void *data,
+                               size_t size,
+                               int timeout_ms)
+{
+    if (!stream_handle || !data || size == 0) {
+        return DATA_STREAM_ERROR_INVALID_PARAM;
+    }
+
+    struct data_stream *stream = (struct data_stream *)stream_handle;
+
+    /* Check if stream is closed */
+    if (stream->closed) {
+        return DATA_STREAM_ERROR_ALREADY_CLOSED;
+    }
+
+    /* Check size matches element size */
+    if (size != stream->element_size) {
+        TRACE_ERROR("Size mismatch: expected %zu, got %zu", stream->element_size, size);
+        return DATA_STREAM_ERROR_SIZE_MISMATCH;
+    }
+
+    /* Only broadcast mode supports zero-copy for now */
+    if (stream->mode != STREAM_MODE_BROADCAST) {
+        TRACE_ERROR("Zero-copy write only supported in broadcast mode");
+        return DATA_STREAM_ERROR_INVALID_PARAM;
+    }
+
+    /* Wait for space available */
+    if (os_semaphore_take(stream->space_available, timeout_ms) != OS_OK) {
+        stream->stats.timeout_errors++;
+        return DATA_STREAM_ERROR_TIMEOUT;
+    }
+
+    os_mutex_lock(stream->mutex, OS_WAIT_FOREVER);
+
+    /* Check if buffer is full */
+    if (stream->count == stream->capacity) {
+        /* Find element with ref_count == 0 and reuse it */
+        int reused = 0;
+        for (int i = 0; i < stream->capacity; i++) {
+            int idx = (stream->head + i) % stream->capacity;
+            if (stream->elements[idx].ref_count == 0) {
+                stream->head = (idx + 1) % stream->capacity;
+                stream->count--;
+                reused = 1;
+                /* Give back space semaphore since we're reusing a slot */
+                os_semaphore_give(stream->space_available);
+                break;
+            }
+        }
+        if (!reused) {
+            /* All elements are still referenced, cannot write */
+            os_mutex_unlock(stream->mutex);
+            os_semaphore_give(stream->space_available); /* Give back semaphore */
+            return DATA_STREAM_ERROR_BUFFER_FULL;
+        }
+    }
+
+    /* Store data directly (zero-copy) */
+    memcpy(stream->elements[stream->tail].data, data, size);
+
+    /* Generate unique reference ID */
+    stream->elements[stream->tail].ref_id = generate_ref_id();
+    stream->elements[stream->tail].data_size = size;
+
+    /* Set reference count to number of consumers */
+    stream->elements[stream->tail].ref_count = (stream->consumer_count > 0) ? stream->consumer_count : 1;
+
+    TRACE_INFO("Zero-copy write: element %d, ref_id=%u, ref_count=%d, consumers=%d",
+               stream->tail, stream->elements[stream->tail].ref_id,
+               stream->elements[stream->tail].ref_count, stream->consumer_count);
+
+    /* Update buffer indices */
+    stream->tail = (stream->tail + 1) % stream->capacity;
+    stream->count++;
+
+    /* Update statistics */
+    stream->total_bytes_transferred += size;
+    stream->stats.bytes_written += size;
+    stream->stats.write_count++;
+    stream->stats.current_queue_depth = stream->count;
+
+    if (stream->count > stream->stats.max_queue_depth) {
+        stream->stats.max_queue_depth = stream->count;
+    }
+
+    /* Update last activity timestamp */
+    stream->last_activity = os_get_timestamp();
+
+    os_mutex_unlock(stream->mutex);
+
+    /* Signal data available - for broadcast mode, signal once per consumer */
+    int consumers = (stream->consumer_count > 0) ? stream->consumer_count : 1;
+    for (int i = 0; i < consumers; i++) {
+        os_semaphore_give(stream->data_available);
+    }
+
+    return DATA_STREAM_SUCCESS;
+}
+
+/* Zero-copy read - returns direct pointer to data */
+int data_stream_read_zero_copy(data_stream_t stream_handle,
+                              struct data_read_result *result,
+                              int timeout_ms)
+{
+    if (!stream_handle || !result) {
+        return DATA_STREAM_ERROR_INVALID_PARAM;
+    }
+
+    struct data_stream *stream = (struct data_stream *)stream_handle;
+
+    /* Check if stream is closed */
+    if (stream->closed) {
+        result->status = DATA_STREAM_ERROR_ALREADY_CLOSED;
+        return DATA_STREAM_ERROR_ALREADY_CLOSED;
+    }
+
+    /* Only broadcast mode supports zero-copy for now */
+    if (stream->mode != STREAM_MODE_BROADCAST) {
+        TRACE_ERROR("Zero-copy read only supported in broadcast mode");
+        result->status = DATA_STREAM_ERROR_INVALID_PARAM;
+        return DATA_STREAM_ERROR_INVALID_PARAM;
+    }
+
+    /* Wait for data available */
+    timestamp_t start_time = os_get_timestamp();
+    if (os_semaphore_take(stream->data_available, timeout_ms) != OS_OK) {
+        stream->stats.timeout_errors++;
+        result->status = DATA_STREAM_ERROR_TIMEOUT;
+        return DATA_STREAM_ERROR_TIMEOUT;
+    }
+
+    os_mutex_lock(stream->mutex, OS_WAIT_FOREVER);
+
+    /* Check if there's actually data */
+    if (stream->count == 0) {
+        os_mutex_unlock(stream->mutex);
+        /* Give back the semaphore since we didn't actually consume data */
+        os_semaphore_give(stream->data_available);
+        result->status = DATA_STREAM_ERROR_BUFFER_EMPTY;
+        return DATA_STREAM_ERROR_BUFFER_EMPTY;
+    }
+
+    /* Find the first element with ref_count > 0 */
+    int found = 0;
+    for (int i = 0; i < stream->count; i++) {
+        int idx = (stream->head + i) % stream->capacity;
+        if (stream->elements[idx].ref_count > 0) {
+            /* Return direct pointer to data (ZERO-COPY) */
+            result->ref.data = stream->elements[idx].data;
+            result->ref.size = stream->elements[idx].data_size;
+            result->ref.ref_id = stream->elements[idx].ref_id;
+            result->ref.timestamp = os_get_timestamp();
+            result->status = DATA_STREAM_SUCCESS;
+
+            /* Decrement reference count */
+            stream->elements[idx].ref_count--;
+
+            TRACE_INFO("Zero-copy read: element %d, ref_id=%u, ref_count now %d",
+                       idx, result->ref.ref_id, stream->elements[idx].ref_count);
+
+            /* If ref_count reaches 0, remove this element */
+            if (stream->elements[idx].ref_count == 0) {
+                /* Move head forward */
+                stream->head = (idx + 1) % stream->capacity;
+                stream->count--;
+
+                /* Signal space available */
+                os_semaphore_give(stream->space_available);
+            }
+
+            found = 1;
+            break;
+        }
+    }
+
+    if (!found) {
+        /* This shouldn't happen, but just in case */
+        os_mutex_unlock(stream->mutex);
+        os_semaphore_give(stream->data_available);
+        result->status = DATA_STREAM_ERROR_BUFFER_EMPTY;
+        return DATA_STREAM_ERROR_BUFFER_EMPTY;
+    }
+
+    /* Update statistics */
+    stream->total_bytes_transferred += result->ref.size;
+    stream->stats.bytes_read += result->ref.size;
+    stream->stats.read_count++;
+    stream->stats.current_queue_depth = stream->count;
+
+    /* Calculate latency */
+    timestamp_t end_time = os_get_timestamp();
+    timestamp_t latency = end_time - start_time;
+    update_latency_stat(&stream->stats, latency);
+
+    /* Update last activity timestamp */
+    stream->last_activity = os_get_timestamp();
+
+    os_mutex_unlock(stream->mutex);
+
+    return DATA_STREAM_SUCCESS;
+}
+
+/* Release reference - allows data to be freed when all consumers are done */
+int data_stream_release_reference(data_stream_t stream_handle,
+                                 uint32_t ref_id)
+{
+    if (!stream_handle) {
+        return DATA_STREAM_ERROR_INVALID_PARAM;
+    }
+
+    struct data_stream *stream = (struct data_stream *)stream_handle;
+
+    /* Only broadcast mode supports zero-copy for now */
+    if (stream->mode != STREAM_MODE_BROADCAST) {
+        TRACE_ERROR("Reference release only supported in broadcast mode");
+        return DATA_STREAM_ERROR_INVALID_PARAM;
+    }
+
+    os_mutex_lock(stream->mutex, OS_WAIT_FOREVER);
+
+    /* Find the element with matching ref_id */
+    int found = 0;
+    for (int i = 0; i < stream->count; i++) {
+        int idx = (stream->head + i) % stream->capacity;
+        if (stream->elements[idx].ref_id == ref_id && stream->elements[idx].ref_count > 0) {
+            /* Decrement reference count */
+            stream->elements[idx].ref_count--;
+
+            TRACE_INFO("Reference released: element %d, ref_id=%u, ref_count now %d",
+                       idx, ref_id, stream->elements[idx].ref_count);
+
+            /* If ref_count reaches 0, remove this element */
+            if (stream->elements[idx].ref_count == 0) {
+                /* Move head forward */
+                stream->head = (idx + 1) % stream->capacity;
+                stream->count--;
+
+                /* Signal space available */
+                os_semaphore_give(stream->space_available);
+            }
+
+            found = 1;
+            break;
+        }
+    }
+
+    os_mutex_unlock(stream->mutex);
+
+    if (!found) {
+        TRACE_INFO("Reference ID %u not found or already released", ref_id);
+        return DATA_STREAM_ERROR_INVALID_PARAM;
+    }
+
+    return DATA_STREAM_SUCCESS;
 }
