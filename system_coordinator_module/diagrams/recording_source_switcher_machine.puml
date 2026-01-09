@@ -1,0 +1,354 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+
+title TWS录音系统全场景时序图 - 含实时存储与有限缓存
+
+actor 用户 as User
+participant "充电盒" as Case
+participant "主耳机" as Primary
+participant "从耳机" as Secondary
+participant "链路质量监测" as LinkMonitor
+participant "缓冲区管理器" as BufferManager
+participant "流控管理器" as FlowControl
+participant "存储管理器" as StorageManager
+participant "充电盒存储" as Storage
+participant "录音文件合并器" as Merger
+
+== 场景1: 正常录音 - 实时同步存储(缓存受限) ==
+
+User -> Case: 点击录音键(pressRecordButton())
+activate Case
+Case -> Case: 检测耳机状态(detectEarbudsStatus())\n返回: L1状态(双耳在盒)
+Case -> Case: 选择录音源(selectRecordingSource())\n决策: 使用充电盒MIC
+Case -> Case: 初始化录音参数(initRecordingParams())\n48kHz/48kbps → 6KB/s数据速率
+
+Case -> BufferManager: 创建缓冲会话(createBufferSession(session_id="CASE_001", max_size=12KB))
+activate BufferManager
+BufferManager --> Case: 句柄( buffer_handle, threshold=80% )
+note right of BufferManager: 最大缓存: 12KB (约2秒)\n高水位线: 9.6KB (80%)
+
+Case -> StorageManager: 打开存储文件(openStorageFile(filename="REC_001.dat", mode="append"))
+activate StorageManager
+StorageManager -> Storage: 创建文件句柄(file_open())
+activate Storage
+Storage --> StorageManager: fd
+deactivate Storage
+StorageManager --> Case: file_handle
+
+Case -> Case: 启动录音(startAudioCapture())
+Case -> FlowControl: 设置流控参数(configFlowControl(bitrate=48kbps, link_capacity=80kbps))
+activate FlowControl
+FlowControl --> Case: 流控就绪
+deactivate FlowControl
+
+note over Case, StorageManager: <b>▶️ 实时同步循环开始 (每50ms一次)</b>
+
+loop 每50ms音频块 (300字节)
+    Case -> Case: 捕获音频块(captureAudioBlock(duration=50ms))
+    Case -> BufferManager: 写入缓冲(writeBuffer(data_chunk, timestamp, size=300B))
+    activate BufferManager
+    BufferManager -> BufferManager: 检查缓存水位(checkWaterLevel())
+    
+    alt 缓存已满或达到阈值 (>9.6KB) - 高频率发生
+        BufferManager -> BufferManager: 标记为URGENT_SYNC
+        BufferManager --> Case: 状态=NEED_SYNC_URGENT
+    else 缓存正常
+        BufferManager --> Case: 状态=BUFF_OK
+    end
+    
+    deactivate BufferManager
+    
+    alt 需要同步 (每200ms或URGENT触发)
+        Case -> FlowControl: 请求同步配额(requestSyncQuota(data_size=1200B))
+        activate FlowControl
+        FlowControl -> LinkMonitor: 查询链路容量(queryLinkCapacity())
+        activate LinkMonitor
+        LinkMonitor --> FlowControl: capacity=80kbps, current_loss=3%
+        deactivate LinkMonitor
+        
+        alt 链路质量OK (loss < 10%)
+            FlowControl --> Case: quota_granted=true, max_batch=1500B
+        else 链路拥塞
+            FlowControl --> Case: quota_granted=false, wait_ms=50
+            Case -> Case: 等待并检查缓存溢出风险
+        end
+        deactivate FlowControl
+        
+        alt 配额通过
+            Case -> StorageManager: 追加写入(appendWrite(file_handle, data_batch))
+            activate StorageManager
+            StorageManager -> Storage: 写入磁盘(storage_write(fd, data_batch))
+            activate Storage
+            Storage --> StorageManager: 写入完成(ACK)
+            deactivate Storage
+            StorageManager --> Case: 写入确认(bytes_written=1200)
+            deactivate StorageManager
+            
+            Case -> BufferManager: 删除已同步数据(flushSyncedData(size=1200B))
+            activate BufferManager
+            BufferManager -> BufferManager: 释放已用空间\n剩余缓存: 0KB
+            deactivate BufferManager
+            
+            note right of BufferManager: <font color=green>✓ 数据已安全落盘\n缓存压力释放</font>
+        end
+    end
+end
+
+note over Case, Storage: <b>▶️ 实时同步循环结束</b>
+
+deactivate Case
+
+== 场景2: 主耳录音中 - 含实时同步(缓存压力) ==
+
+User -> Case: 开盒取出双耳
+Case -> Primary: 蓝牙命令: 启动录音与同步\n(cmdStartRecordingAndSync(session_id="EAR_002", storage_path="REC_002.dat"))
+
+User -> Case: 点击录音键
+Case -> Primary: 开始录音并实时同步(startRecordingWithSync())
+
+activate Primary
+Primary -> Primary: 检测为主耳\n启动MIC捕获
+
+Primary -> BufferManager: 创建有限缓冲(createBufferSession(session_id="EAR_002", max_size=8KB))
+activate BufferManager
+note right of BufferManager: 耳机端缓存更小: 8KB (约1.3秒)\n限制: 耳机RAM资源紧张
+
+Primary -> StorageManager: 通过蓝牙打开远程文件\n(openRemoteStorageFile(path="REC_002.dat"))
+StorageManager --> Primary: 远程文件句柄(remote_fd)
+
+note over Primary, StorageManager: <b>▶️ 主耳实时同步循环 (每30ms, 180字节)</b>
+
+loop 录音持续中...
+    Primary -> Primary: 捕获音频(captureAudio(duration=30ms))
+    Primary -> BufferManager: 写入(writeBuffer(data, timestamp))
+    activate BufferManager
+    BufferManager -> BufferManager: 检查水位(current_usage)
+    
+    alt 缓存 > 6.4KB (80%阈值)
+        BufferManager --> Primary: WARNING: 缓存压力高
+        note right of Primary: <font color=red>⚠️ 缓存即将溢出!\n必须立即同步</font>
+    end
+    deactivate BufferManager
+    
+    Primary -> FlowControl: 检查蓝牙带宽(checkBluetoothBandwidth())
+    activate FlowControl
+    FlowControl -> LinkMonitor: 获取实时链路质量(getRealtimeLinkQuality())
+    activate LinkMonitor
+    LinkMonitor --> FlowControl: quality=GOOD(loss=4%), rtt=15ms
+    deactivate LinkMonitor
+    
+    alt 链路质量GOOD
+        FlowControl --> Primary: capacity_available=60kbps
+        deactivate FlowControl
+        
+        Primary -> StorageManager: 远程追加写入(remoteAppendWrite(remote_fd, data_chunk))
+        activate StorageManager
+        StorageManager -> Case: 通过蓝牙传输(transmitOverBluetooth(data_chunk))
+        activate Case
+        
+        Case -> Storage: 落盘存储(storage_write(local_fd, data_chunk))
+        activate Storage
+        Storage --> Case: ACK
+        deactivate Storage
+        
+        Case --> StorageManager: 传输确认
+        deactivate Case
+        StorageManager --> Primary: sync_confirmed
+        deactivate StorageManager
+        
+        Primary -> BufferManager: flushSyncedData()\n释放已同步的缓存
+        note right of BufferManager: <font color=green>✓ 同步成功\n缓存释放</font>
+        
+    else 链路质量POOR (loss > 15%)
+        FlowControl --> Primary: capacity_available=15kbps (不足!)
+        deactivate FlowControl
+        
+        note right of Primary: <font color=red>⚠️ 链路拥塞!\n无法实时同步</font>
+        
+        alt 缓存未满
+            Primary -> BufferManager: 继续缓冲(keepBuffering())\n等待链路恢复
+            note right of BufferManager: 数据积压中...\n缓存使用率↑
+        else 缓存即将满 (usage > 7KB)
+            BufferManager --> Primary: ERROR: 缓存溢出风险
+            Primary -> Primary: 质量降级策略(qualityDegradation())\n降低码率: 48kbps → 32kbps → 24kbps
+            note right of Primary: 牺牲音质保连续性\n数据生成速率下降
+        end
+    end
+end
+
+deactivate Primary
+
+== 场景3: 链路中断 - 缓存积压与恢复 ==
+
+note over Primary, StorageManager: <b>⚠️ 链路突然中断</b>
+LinkMonitor -> Primary: 链路中断告警(linkBroken(loss_rate=85%, timeout))
+
+activate Primary
+Primary -> Primary: 标记中断点(markDisconnectPoint(seq_num=8500, timestamp=T_disconnect))
+Primary -> BufferManager: 查询剩余缓存(queryRemainingCapacity())
+activate BufferManager
+BufferManager --> Primary: remaining=1.2KB (约200ms)\n警告: 缓存即将耗尽!
+deactivate BufferManager
+
+note over Primary, BufferManager: <font color=red>关键决策: 缓存有限, 无法长期保存\n必须在200ms内恢复链路或停止录音</font>
+
+alt 尝试快速恢复 (100ms内)
+    Primary -> LinkMonitor: 启动快速重连(attemptFastReconnect(timeout=100ms))
+    
+    LinkMonitor --> Primary: 重连成功? (60%概率)
+    
+    alt 重连成功
+        Primary -> StorageManager: 恢复同步(resumeSync())
+        note right of Primary: <font color=green>✓ 快速恢复\n盲区<100ms</font>
+    else 重连失败
+        Primary -> BufferManager: 检查积压数据(checkBacklog())
+        activate BufferManager
+        BufferManager --> Primary: 积压: 4.8KB (最后800ms数据)
+        deactivate BufferManager
+        
+        note over Primary: 缓存已满且即将溢出!\n必须丢弃旧数据或停止录音
+        
+        alt 继续录音 (数据丢失模式)
+            Primary -> BufferManager: 设置覆盖模式(setOverwriteMode(true))
+            note right of BufferManager: 新数据覆盖最旧数据\n<strong>滑动窗口缓存</strong>\n持续时间: 始终保持最后800ms
+        else 停止录音保数据
+            Primary -> Primary: 停止捕获(stopCapture())
+            Primary -> User: 通知录音暂停(notifyUserPaused())
+        end
+    end
+end
+deactivate Primary
+
+note over Primary, Case: <b>▶️ 中断期间: 数据仅保存在耳机RAM\n充电盒存储出现数据断层</b>
+
+== 场景4: 主从切换 - 缓存交接与存储同步 ==
+
+note over Primary, Secondary: <b>主耳(左)电量低触发主动切换</b>
+Primary -> LinkMonitor: 评估切换(evaluateSwitchNeed())\n电量: 左耳27%, 右耳65%
+
+LinkMonitor --> Primary: 建议切换(switchRecommended)
+Primary -> Secondary: 准备切换(prepareSwitch(new_master="RIGHT", session_id="EAR_002"))
+
+activate Secondary
+Secondary -> Secondary: 启动预见性缓存(preemptiveCaching(duration=300ms))\n预录300ms音频到本地缓存
+Secondary -> BufferManager: 创建二级缓冲(createSecondaryBuffer(max_size=6KB))
+
+Primary -> BufferManager: 查询未同步数据(queryUnsyncedData())
+activate BufferManager
+BufferManager --> Primary: unsynced_size=2.4KB (最后400ms数据)
+deactivate BufferManager
+
+note over Primary: 关键: 必须将这2.4KB数据同步到充电盒\n否则切换后数据丢失
+
+Primary -> FlowControl: 请求紧急同步(requestEmergencySync(size=2.4KB))
+activate FlowControl
+FlowControl -> LinkMonitor: 查询链路容量
+LinkMonitor --> FlowControl: quality=GOOD
+FlowControl --> Primary: quota_granted\nmax_latency=50ms
+deactivate FlowControl
+
+Primary -> StorageManager: 同步剩余数据(syncRemainingData(data_size=2.4KB))
+activate StorageManager
+StorageManager -> Case: 传输数据(transmitOverBluetooth())
+Case -> Storage: 追加写入(fd, data)
+Storage --> Case: ACK\n数据落盘确认
+Case --> StorageManager: 传输完成
+StorageManager --> Primary: 同步完成确认\n所有数据已安全存储
+deactivate StorageManager
+
+note right of Primary: <font color=green>✓ 切换前数据已落盘\n充电盒存储完整</font>
+
+Primary -> BufferManager: 清空本地缓存(clearBuffer())\n本地缓存释放
+
+Primary -> Secondary: 发送切换确认(switchCommit(timestamp=T_switch))
+Secondary -> Secondary: 接管为主耳(becomeMaster())
+Secondary -> StorageManager: 继续向同一文件追加(continueAppend(session_id="EAR_002", remote_fd))
+
+Secondary -> BufferManager: 合并预见性缓存(mergePreemptiveCache())\n将预录300ms标记为有效数据
+note right of BufferManager: 重叠窗口: 最后300ms\n主耳和从耳都有数据\n合并时优先主耳数据
+
+Secondary -> Case: 通知切换完成(notifySwitchComplete(new_master="RIGHT"))
+deactivate Secondary
+
+== 场景5: 录音结束 - 基于存储的合并流程 ==
+
+User -> Case: 停止录音(stopRecording())
+activate Case
+Case -> Primary: 停止(stop())
+Case -> Secondary: 停止(stop())
+
+Case -> Merger: 合并请求(initiateMerging(sessions=["EAR_002"]))
+
+activate Merger
+Merger -> StorageManager: 从存储读取录音元数据(getRecordingMetadata(file="REC_002.dat"))
+activate StorageManager
+StorageManager -> Storage: 读取文件头信息(readFileHeader())
+Storage --> StorageManager: 元数据(时长、码率、盲区标记)
+deactivate Storage
+
+note right of StorageManager: 存储特征:\n1. 连续数据块 (大部分)\n2. 标记点: T_disconnect, T_switch, T_reconnect\n3. 盲区段: seq_gap 12200-13000 (4.9秒)
+
+StorageManager --> Merger: metadata
+deactivate StorageManager
+
+Merger -> Storage: 读取音频数据流(readStream())
+activate Storage
+Storage --> Merger: 数据流 + 标记点(markers[])
+deactivate Storage
+
+Merger -> Merger: 根据标记点解析(parseByMarkers())
+Merger -> Merger: 盲区检测与插值(detectAndInterpolateBlindGaps())
+Merger -> Merger: 多段数据对齐(alignMultiSegments())\n按时间戳排序
+
+note right of Merger: 合并策略:\n1. 优先使用充电盒存储的数据\n2. 耳机缓存仅作为恢复补充\n3. 盲区根据大小智能插值\n4. 重叠窗口加权混合
+
+Merger -> Storage: 写入最终文件(writeFinal("FINAL_REC_002.mp3"))
+activate Storage
+Storage --> Merger: 最终文件路径
+deactivate Storage
+
+Merger --> Case: 合并结果(continuity_index=98.3%, blind_gaps:[{pos:"14:20:15", dur:"4.9s", type:"link_failure"}])
+deactivate Merger
+deactivate Case
+
+== 关键API与数据流总结 ==
+
+note over User, Storage
+    <b>修订后的核心API (增加存储约束):</b>
+    
+    <font color=blue>▶ 耳机端API (带缓存限制)</font>
+    - createBufferSession(session_id, max_size=8KB) → 创建有限缓存
+    - writeBuffer() → 写入并检查水位
+    - getWaterLevel() → 返回当前使用率(0-100%)
+    - flushSyncedData() → 同步成功后释放
+    
+    <font color=blue>▶ 流控与同步API</font>
+    - requestSyncQuota(data_size) → 申请传输配额
+    - getRealtimeLinkQuality() → 实时链路质量
+    - qualityDegradation() → 链路不足时降码率
+    
+    <font color=blue>▶ 存储管理API (核心新增)</font>
+    - openRemoteStorageFile() → 耳机端打开充电盒文件
+    - remoteAppendWrite() → 实时追加写入
+    - syncRemainingData() → 切换前强制同步
+    
+    <font color=red>▶ 关键约束与设计原则</font>
+    1. <b>缓存不是无限的</b>: 耳机端8-12KB, 充电盒端12-20KB
+    2. <b>数据必须尽快落盘</b>: 高水位(80%)触发强制同步
+    3. <b>链路拥塞时降码率</b>: 48k→32k→24kbps, 保证连续性
+    4. <b>切换前必须同步</b>: 避免数据丢失在耳机RAM
+    5. <b>最终合并基于存储</b>: 不依赖易失性缓存
+    
+    <font color=purple>▶ 盲窗产生根本原因</font>
+    1. 链路中断 + 缓存有限(200ms) → 数据丢失
+    2. 同步未完成 + 切换 → 数据在RAM丢失
+    3. 存储I/O延迟 → 小盲区(20-50ms)
+    
+    <font color=green>▶ 优化方向</font>
+    - 增加耳机RAM缓存至20KB (成本↑)
+    - 采用压缩算法减少数据量 (功耗↑)
+    - 蓝牙5.2+LE Audio提升带宽 (硬件↑)
+    - 预测性同步避免积压 (算法复杂度↑)
+end note
+
+@enduml
