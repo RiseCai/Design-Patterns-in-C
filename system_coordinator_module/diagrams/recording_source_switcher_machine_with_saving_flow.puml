@@ -1,566 +1,292 @@
 @startuml
 !include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
 
-title TWS录音系统完整解决方案时序图 - 缓存感知型Flash存储架构
+title TWS录音系统完整解决方案时序图 - 全场景融合
 
 actor 用户 as User
-participant "充电盒" as Case
-participant "主耳机" as Primary
-participant "从耳机" as Secondary
-participant "链路质量监测" as LinkMonitor
-participant "缓存管理器" as CacheManager
-participant "流控管理器" as FlowControl
-participant "存储策略决策器" as StorageDecision
-participant "Flash存储引擎" as FlashEngine
-participant "充电盒聚合器" as Aggregator
-participant "充电盒存储" as Storage
+participant "充电盒主控" as Case
+participant "主耳机(Left)" as Master
+participant "从耳机(Right)" as Slave
+participant "链路质量监测" as LinkMon
+participant "缓存管理器" as CacheMgr
+participant "流控管理器" as FlowCtrl
+participant "存储决策器" as StorageDec
+participant "Flash引擎(NOR)" as FlashNOR
+participant "Flash引擎(NAND)" as FlashNAND
+participant "聚合器" as Aggregator
 
-== 场景1: 正常录音 - 缓存驱动实时存储 ==
+== 场景1: 盒录音常态流程（链路良好） ==
 
-User -> Case: 点击录音键(pressRecordButton())
+User -> Case: pressRecordButton()
 activate Case
-Case -> Case: 检测耳机状态(detectEarbudsStatus())
-Case -> Case: 选择录音源(selectRecordingSource())\n决策: 充电盒MIC(类型=CASE_LOCAL)
-Case -> Case: 初始化录音参数(initRecordingParams())\n48kHz/48kbps/单声道
+Case -> Case: detectEarbudsStatus() → IN_CASE
+Case -> StorageDec: setRecordingSource(CASE_MIC)
+Case -> Case: initRecordingParams(48kHz, 48kbps)
 
-group 初始化资源 [资源分配阶段]
-    Case -> CacheManager: createCacheSession(session_id=101, max_size=12KB, type=CASE_LOCAL)
-    activate CacheManager
-    CacheManager --> Case: cache_handle (threshold=80%: 9.6KB)
-    note right of CacheManager: 分配12KB SRAM缓存\n高水位: 9.6KB (2秒数据)\n低水位: 2.4KB
-    deactivate CacheManager
-    
-    Case -> StorageDecision: setCurrentSession(session_id=101, record_type=CASE_LOCAL)
-    activate StorageDecision
-    StorageDecision --> Case: 决策上下文就绪
-    
-    Case -> FlashEngine: openStoragePartition(partition_id=CASE_LOCAL, mode=OVERWRITE)
-    activate FlashEngine
-    FlashEngine -> FlashEngine: 检查Flash磨损计数器\n当前扇区擦写=8923次 (<100000)
-    FlashEngine --> Case: storage_handle
-    
-    Case -> FlashEngine: writeSessionMeta(session_id=101, start_time=1698765432000)
-    FlashEngine -> FlashEngine: 元数据双备份(扇区0/1轮询写入)\n写入位置: 扇区[erase_count%8]\n擦写次数+1
-    deactivate FlashEngine
+group 资源分配
+    Case -> CacheMgr: createCache(session_id=201, max_size=16KB, type=CASE_LOCAL)
+    CacheMgr --> Case: cache_handle, threshold=12KB(80%)
+    Case -> FlashNAND: openPartition(CASE_LOCAL, mode=CACHE)
+    FlashNAND --> Case: partition_handle, base=0x80000000
+    Case -> FlashNAND: writeSessionMeta(session=201, start_time=1698840000)\n双备份(扇区0/1轮询)
 end
 
-Case -> Case: 启动音频捕获(startAudioCapture())
-Case -> FlowControl: configFlowControl(bitrate=48kbps, link_capacity=80kbps)
-activate FlowControl
-FlowControl --> Case: 流控就绪\n初始配额: 1500B/50ms
-deactivate FlowControl
+Case -> Case: startAudioCapture()
+Case -> FlowCtrl: config(bitrate=48kbps, capacity=80kbps, mode=ADAPTIVE)
 
-note over Case, FlashEngine: <b>▶️ 实时循环开始 (50ms周期)</b>
-
-loop 每50ms (300字节数据块)
-    Case -> Case: captureAudioBlock(duration=50ms)
-    
-    group 数据写入与缓存管理
-        Case -> CacheManager: writeCache(data_chunk, timestamp, size=300B)
-        activate CacheManager
-        CacheManager -> CacheManager: updateUsage(+300B)
-        CacheManager -> CacheManager: checkWaterLevel(current=3.6KB)
-        
-        alt 缓存达到高水位 (≥9.6KB)
-            CacheManager --> Case: ALERT_HIGH_WATERMARK
-            Case -> StorageDecision: emergencyDecision(cache_state=HIGH, spp_status=UNKNOWN)
-            activate StorageDecision
-            StorageDecision --> Case: DECISION_FORCE_FLUSH\n立即强制同步
-            deactivate StorageDecision
-        else 缓存正常
-            CacheManager --> Case: STATUS_NORMAL
-        end
-        deactivate CacheManager
-    end
-    
-    group 流控与存储决策
-        alt 需要同步 (配额周期到或高水位触发)
-            Case -> FlowControl: requestSyncQuota(data_size=1200B, priority=NORMAL)
-            activate FlowControl
-            FlowControl -> LinkMonitor: queryLinkCapacity()
-            activate LinkMonitor
-            LinkMonitor --> FlowControl: capacity=80kbps, loss=2%, rtt=12ms
-            deactivate LinkMonitor
-            
-            alt 链路质量良好 (loss<10%)
-                FlowControl --> Case: quota_granted=true, max_batch=1500B, timeout=50ms
-                deactivate FlowControl
-                
-                Case -> StorageDecision: decideStorageStrategy(spp_status=GOOD, cache_level=60%)
-                activate StorageDecision
-                StorageDecision --> Case: STRATEGY_REALTIME_ONLY\n无需本地备份
-                deactivate StorageDecision
-                
-                group 实时同步路径 (PUML主路径)
-                    Case -> FlashEngine: appendToTempBuffer(data_batch, size=1200B)
-                    activate FlashEngine
-                    FlashEngine -> FlashEngine: 写入NAND页(cache_page)\n地址: 0x80000000 + page_offset
-                    FlashEngine --> Case: 写入确认 (page_id=42)
-                    deactivate FlashEngine
-                end
-                
-                Case -> CacheManager: flushSyncedData(size=1200B)
-                activate CacheManager
-                CacheManager -> CacheManager: releaseCache(1200B)\n剩余缓存: 2.4KB
-                deactivate CacheManager
-                
-            else 链路拥塞 (loss>15%)
-                FlowControl --> Case: quota_granted=false, wait_ms=50
-                deactivate FlowControl
-                
-                Case -> StorageDecision: decideStorageStrategy(spp_status=BAD, cache_level=75%)
-                activate StorageDecision
-                StorageDecision --> Case: STRATEGY_PARALLEL_BACKUP\n传输+本地备份
-                deactivate StorageDecision
-                
-                group 并行备份路径 (PDF核心机制)
-                    Case -> FlashEngine: backupSliceToNOR(slice_id=1501, data=1200B)
-                    activate FlashEngine
-                    FlashEngine -> FlashEngine: 计算备份扇区\nsector = 2 + (backup_idx % 2558)\n磨损均衡: 当前索引=8923
-                    FlashEngine -> FlashEngine: 擦除扇区 (sector=157)
-                    FlashEngine -> FlashEngine: 按页写入 (page_count=5)\n起始地址: 0x9E2000 + sector*4KB
-                    FlashEngine -> FlashEngine: 计算CRC32, 生成元数据
-                    FlashEngine -> FlashEngine: 双备份元数据到扇区[0/1]
-                    FlashEngine --> Case: 备份完成 (STATUS_OK)
-                    deactivate FlashEngine
-                end
-            end
-        
-        else 无需同步 (缓存未满且未到周期)
-            Case -> CacheManager: keepBuffering()
-        end
-    end
-end
-
-note over Case, FlashEngine: <b>▶️ 实时循环结束</b>
-deactivate Case
-
-== 场景2: 主耳录音 - 缓存受限与质量自适应 ==
-
-User -> Case: 开盒取出双耳 (L电量78%, R电量82%)
-Case -> Primary: 蓝牙命令: assignMaster(role=LEFT, session_id=102)
-Case -> Secondary: assignSlave(role=RIGHT, session_id=102)
-
-User -> Case: 点击录音键
-Case -> Primary: startEarbudRecording(session_id=102, type=CALL_RECORD)
-
-activate Primary
-Primary -> Primary: 检测为主耳\n启动MIC捕获
-
-group 耳机端资源初始化 (RAM更紧张)
-    Primary -> CacheManager: createCacheSession(session_id=102, max_size=8KB, type=CALL_RECORD)
-    activate CacheManager
-    CacheManager --> Primary: cache_handle (threshold=80%: 6.4KB)
-    note right of CacheManager: 耳机SRAM限制: 仅8KB\n约1.3秒缓存\n高水位: 6.4KB
-    deactivate CacheManager
-    
-    Primary -> StorageDecision: setCurrentSession(session_id=102, record_type=CALL_RECORD)
-    Primary -> FlashEngine: openRemotePartition(partition_id=EARBUD_BACKUP)
-    activate FlashEngine
-    FlashEngine --> Primary: remote_storage_handle\n备份分区起始: 0x9E2000
-    deactivate FlashEngine
-end
-
-note over Primary, FlashEngine: <b>▶️ 主耳实时循环 (30ms周期, 180字节)</b>
-
-loop 录音持续中...
-    Primary -> Primary: captureAudio(duration=30ms, format=opus)
-    
-    group 写入与压力检测
-        Primary -> CacheManager: writeCache(data, timestamp)
-        activate CacheManager
-        CacheManager -> CacheManager: updateUsage(+180B)
-        CacheManager -> CacheManager: checkUsageAlert(current=5.8KB)
-        
-        alt 缓存 > 6.4KB (80%阈值)
-            CacheManager --> Primary: WARNING_CACHE_PRESSURE\n剩余: 200ms
-            Primary -> Primary: alertHighPressure()\n触发紧急同步
-        end
-        deactivate CacheManager
-    end
+loop 每50ms (300B数据块)
+    Case -> Case: captureAudioBlock(50ms)
+    Case -> CacheMgr: writeCache(data, timestamp, size=300B)
+    activate CacheMgr
+    CacheMgr -> CacheMgr: updateUsage(+300B)\n当前=3.6KB
+    CacheMgr --> Case: CACHE_NORMAL
+    deactivate CacheMgr
     
     alt 每200ms同步周期
-        Primary -> FlowControl: checkBluetoothBandwidth(needed=12kbps)
-        activate FlowControl
-        FlowControl -> LinkMonitor: getRealtimeLinkQuality()
-        activate LinkMonitor
-        LinkMonitor --> FlowControl: quality=GOOD, loss=4%, rtt=18ms, rssi=-55dBm
-        deactivate LinkMonitor
+        Case -> FlowCtrl: requestSyncQuota(size=1200B, priority=NORMAL)
+        activate FlowCtrl
+        FlowCtrl -> LinkMon: queryLinkQuality()
+        activate LinkMon
+        LinkMon --> FlowCtrl: RSSI=-58dBm, loss=3%, rtt=15ms
+        deactivate LinkMon
         
-        alt 带宽充足 (capacity>60kbps)
-            FlowControl --> Primary: capacity_available=62kbps
-            deactivate FlowControl
+        alt 链路良好
+            FlowCtrl --> Case: quotaGranted=true, max_latency=50ms
+            deactivate FlowCtrl
             
-            group 蓝牙传输路径
-                Primary -> FlashEngine: remoteAppendWrite(data_chunk, size=1440B)
-                activate FlashEngine
-                FlashEngine -> Case: transmitOverBluetooth(data_chunk, session_id=102)
-                activate Case
-                Case -> FlashEngine: appendToStorageFile(path="REC_102.dat", offset=36600B)
-                activate FlashEngine
-                FlashEngine -> FlashEngine: NAND编程 (2KB页)
-                FlashEngine --> Case: 写入确认 (耗时12ms)
-                deactivate FlashEngine
-                Case --> FlashEngine: 传输ACK
-                deactivate Case
-                FlashEngine --> Primary: sync_confirmed (rtt=35ms)
-            end
+            Case -> StorageDec: decideStrategy(link=GOOD, cache=45%)
+            activate StorageDec
+            StorageDec --> Case: STRATEGY_REALTIME_ONLY
+            deactivate StorageDec
             
-            Primary -> CacheManager: flushSyncedData(1440B)\n释放已同步缓存
-            note right of CacheManager: <font color=green>✓ 同步成功\n缓存释放\n使用率: 2.1KB</font>
+            Case -> FlashNAND: appendToCache(data_batch, size=1200B)\n地址: 0x80000000 + page_offset
+            activate FlashNAND
+            FlashNAND -> FlashNAND: programPage(page_id=42, data)\n耗时=12ms
+            FlashNAND --> Case: ACK
+            deactivate FlashNAND
             
-        else 带宽不足 (loss>15% or capacity<20kbps)
-            FlowControl --> Primary: capacity_available=15kbps (不足!)
-            deactivate FlowControl
-            
-            note right of Primary: <font color=red>⚠️ 链路拥塞!\n无法实时同步</font>
-            
-            alt 缓存未满 (< 7KB)
-                Primary -> CacheManager: keepBuffering()\n等待链路恢复
-                CacheManager -> CacheManager: 预计可缓冲: 280ms
-            else 缓存即将满 (usage > 7KB)
-                CacheManager --> Primary: ERROR_CACHE_FULL_RISK
-                Primary -> StorageDecision: emergencyDecision(cache_level=88%, link_quality=POOR)
-                activate StorageDecision
-                StorageDecision --> Primary: DECISION_DEGRADE_QUALITY\n码率: 48kbps→32kbps
-                deactivate StorageDecision
-                
-                Primary -> Primary: applyBitrateReduction(new_bitrate=32kbps)
-                note right of Primary: 牺牲音质保连续性\n数据生成速率↓33%
-                Primary -> CacheManager: adjustThreshold(new_threshold=5.4KB)
-            end
-        end
-    end
-end
-deactivate Primary
-
-== 场景3: 链路中断 - 盲窗标记与有限缓存保护 ==
-
-note over Primary, LinkMonitor: <b>⚠️ 蓝牙链路突发中断 (rss=85%)</b>
-LinkMonitor -> Primary: onLinkBroken(timestamp=1698765600123, loss_rate=85%, reason=timeout)
-
-activate Primary
-Primary -> Primary: markBlindGapStart(seq_num=12450, timestamp=1698765600123)
-Primary -> Primary: updateCurrentMeta(flags.blind_gap_start=1, link_rssi=-92dBm)
-
-group 缓存剩余评估
-    Primary -> CacheManager: queryRemainingCapacity()
-    activate CacheManager
-    CacheManager --> Primary: remaining=1.2KB (约200ms)\n警告: 缓存即将耗尽!
-    CacheManager -> CacheManager: calcMaxHoldTime(1.2KB, current_bitrate=32kbps)
-    CacheManager --> Primary: max_hold_time=280ms
-    deactivate CacheManager
-end
-
-note over Primary: 关键决策: 280ms内恢复链路或停止录音
-
-alt 尝试快速恢复 (优先级1)
-    group 快速重连流程 (100ms超时)
-        Primary -> LinkMonitor: attemptFastReconnect(timeout=100ms, max_attempts=2)
-        activate LinkMonitor
-        LinkMonitor -> LinkMonitor: 监听广播包/发送重连请求
-        
-        alt 60%概率成功 (<100ms)
-            LinkMonitor --> Primary: reconnect_success (took=67ms)
-            deactivate LinkMonitor
-            
-            Primary -> Primary: markBlindGapEnd(timestamp=1698765600190)\n盲窗时长=67ms
-            Primary -> FlashEngine: updateMetaBlindGap(session_id=102, gap_start=12450, gap_end=12472)
-            activate FlashEngine
-            FlashEngine -> FlashEngine: 元数据双备份 (盲窗标记持久化)
-            FlashEngine --> Primary: 更新确认
-            deactivate FlashEngine
-            
-            Primary -> FlowControl: resumeSync()            
-            note right of Primary: <font color=green>✓ 快速恢复\n盲区<100ms\n用户几乎无感知</font>
-            
-        else 40%概率失败
-            LinkMonitor --> Primary: reconnect_failed
-            deactivate LinkMonitor
-            
-            note over Primary: 重连失败,进入缓存保持模式
-            
-            alt 继续录音 (数据丢失模式) [用户可配置]
-                Primary -> Primary: applySlidingWindowMode(enable=true)
-                Primary -> CacheManager: setOverwriteMode(oldest_data)\n保持最后200ms
-                note right of Primary: <font color=orange>⚠️ 新数据覆盖旧数据\n滑动窗口缓存\n持续时间: 始终200ms</font>
-                
-            else 停止录音保护数据
-                Primary -> Primary: stopCapture(immediate=true)
-                Primary -> Primary: flushRemainingToFlash()  // PDF: 强制备份剩余
-                Primary -> CacheManager: clearBuffer()                
-                Primary -> Case: notifyUserPaused(reason="link_loss")
-            end
+            Case -> CacheMgr: flushSynced(1200B)\n释放缓存\n剩余=2.4KB
         end
     end
 end
 
-deactivate Primary
+Case -> Case: stopRecording()
+Case -> Aggregator: startAggregating(session_id=201)
 
-note over Primary, Case: <b>▶️ 中断期间: 仅耳机RAM缓存\n充电盒存储出现数据断层 (盲窗)</b>
+== 场景2: 耳机录音 + 主从切换（电量触发） ==
 
-== 场景4: 主从切换 - 预见性缓存与强制同步 ==
+User -> Master: earbudRemoved() → 电量L=78%, R=82%
+Master -> Master: becomeMaster(session=202)
+Slave -> Slave: becomeSlave(session=202)
 
-note over Primary, Secondary: <b>主耳(左)电量27%触发切换</b>
-Primary -> LinkMonitor: evaluateSwitchNeed()\n左耳电量=27%, 右耳=65%, 阈值=30%
+User -> Master: startRecording()
 
-LinkMonitor --> Primary: switchRecommended(new_master=RIGHT)
-
-group 预见性缓存启动 (切换前300ms)
-    Primary -> Secondary: prepareSwitch(new_master="RIGHT", session_id=102, handover_time=300ms)
-    activate Secondary
-    
-    Secondary -> Secondary: startPreemptiveCache(duration=300ms, overlap_mode=enable)
-    Secondary -> CacheManager: createSecondaryCache(max_size=6KB)\n预录到独立缓存区
-    Secondary -> FlashEngine: openFlashBackup()\n从耳本地备份分区
-    activate FlashEngine
-    FlashEngine --> Secondary: 预录句柄\nsector_start=201, sector_end=204
-    deactivate FlashEngine
-    
-    note right of Secondary: 预见性缓存: 300ms音频\n约1.8KB数据\n存储到Flash临时区
-    deactivate Secondary
+group 耳机初始化（RAM紧张）
+    Master -> CacheMgr: createCache(session=202, max_size=12KB, type=CALL_RECORD)\n实际可用: 12KB
+    CacheMgr --> Master: cache_handle, threshold=9.6KB(80%)
+    Master -> FlashNOR: openBackupPartition(base=0x9E2000, size=20MB)
+    FlashNOR --> Master: backup_handle
 end
 
-group 主耳强制同步剩余数据
-    Primary -> CacheManager: queryUnsyncedData()\n查询未同步到盒子的数据
-    activate CacheManager
-    CacheManager --> Primary: unsynced_size=2.4KB (最后400ms, slice_id=12447-12454)
-    deactivate CacheManager
+loop 每30ms捕获 (180B)
+    Master -> Master: captureOpus(30ms)
+    Master -> CacheMgr: writeCache(data, size=180B)
+    activate CacheMgr
+    CacheMgr -> CacheMgr: updateUsage(+180B)\n当前=5.8KB
     
-    Primary -> FlowControl: requestEmergencySync(data_size=2.4KB, priority=CRITICAL)
-    activate FlowControl
-    FlowControl -> LinkMonitor: queryLinkCapacity()\n评估切换窗口期链路
-    LinkMonitor --> FlowControl: quality=GOOD (loss=3%, rssi=-58dBm)
-    FlowControl --> Primary: quota_granted=true, max_latency=50ms, preemptive=true
-    deactivate FlowControl
-    
-    Primary -> FlashEngine: syncRemainingData(slices=12447-12454, remote_path="REC_102.dat")
-    activate FlashEngine
-    FlashEngine -> FlashEngine: 遍历备份索引(backup_slice_idx=54)\n读取Flash备份数据
-    FlashEngine -> Case: transmitSlicesOverBluetooth(slice_data, meta_info)
-    activate Case
-    Case -> FlashEngine: appendToStorageFile(slices, size=2.4KB, marker="SWITCH_HANDOVER")
-    FlashEngine -> FlashEngine: NAND编程 (目标块=128+offset)\n标记切换点
-    FlashEngine --> Case: 写入确认 (sync_duration=38ms)
-    Case --> FlashEngine: 传输完成ACK
-    deactivate Case
-    FlashEngine --> Primary: 同步完成确认\n所有数据已安全落盘
-    
-    Primary -> FlashEngine: eraseBackupSectors(slice_range=12447-12454)\n释放耳机Flash空间
-    FlashEngine --> Primary: 擦除完成
-    
-    FlashEngine --> Primary: STATUS_SYNC_COMPLETE
-    deactivate FlashEngine
-    
-    note right of Primary: <font color=green>✓ 切换前数据已落盘\n同步耗时38ms\n充电盒存储完整\n耳机Flash空间释放</font>
-end
-
-Primary -> CacheManager: clearLocalBuffer()\n清空剩余缓存
-
-group 切换确认与从耳接管
-    Primary -> Secondary: sendSwitchCommit(timestamp=1698765601234, last_sync_slice=12454)
-    Secondary -> Secondary: becomeMaster(session_id=102)
-    
-    Secondary -> FlashEngine: mergePreemptiveCache(session_id=102)
-    activate FlashEngine
-    FlashEngine -> FlashEngine: 读取预录数据(slice_id=12455-12460)\n时间戳: 1698765601234-1294\n检查与原主耳数据重叠
-    FlashEngine -> FlashEngine: 重叠检测: slice_id=12455-60 vs 12447-54\n发现: 部分重叠(60ms)
-    
-    alt 重叠窗口处理
-        FlashEngine -> FlashEngine: discardOverlapped(preemptive_slices=12455-57)\n保留原主耳数据(更可靠)
-        FlashEngine -> FlashEngine: retainNonOverlapped(slices=12458-60)\n标记为新数据
+    alt 达到高水位(>9.6KB)
+        CacheMgr --> Master: ALERT_HIGH_WATERMARK\n剩余=200ms
+        Master -> StorageDec: emergencyDecision(cache=80%, link_quality=BAD)
+        activate StorageDec
+        StorageDec --> Master: DECISION_BACKUP_PARALLEL
+        deactivate StorageDec
+        
+        par 同步路径
+            Master -> FlowCtrl: requestSyncQuota(size=1440B, priority=URGENT)
+            FlowCtrl --> Master: quotaGranted, latency=40ms
+            Master -> FlashNAND: remoteAppend(session=202, data)\n蓝牙传输
+        and 备份路径
+            Master -> FlashNOR: backupSlice(slice_id=1501, data)
+            activate FlashNOR
+            FlashNOR -> FlashNOR: eraseSector(backup_idx%2558)\n写5页
+            FlashNOR -> FlashNOR: writeMetaWearLeveling()\n扇区=8925%8=5
+            FlashNOR --> Master: BACKUP_OK
+            deactivate FlashNOR
+        end
+    else 缓存正常
+        Master -> FlowCtrl: checkLinkQuality()
+        FlowCtrl --> Master: LINK_GOOD
+        Master -> FlashNAND: remoteAppend(data)\n仅同步
     end
     
-    FlashEngine --> Secondary: 合并完成\n新增有效分片: 3个\n丢弃重叠: 3个
-    deactivate FlashEngine
-    
-    Secondary -> Case: notifySwitchComplete(new_master=RIGHT, session_id=102)\n无缝切换
-    Case --> Secondary: ACK
-    
-    Secondary -> StorageDecision: updateMasterInfo(device_id=RIGHT)
-    Secondary -> CacheManager: transferCacheOwnership()\n缓存句柄转移
-    activate CacheManager
-    CacheManager --> Secondary: 当前缓存: 1.2KB
-    deactivate CacheManager
+    deactivate CacheMgr
 end
 
-deactivate Primary
-note right of Primary: Primary变为从耳
-activate Secondary
-note right of Secondary: Secondary变为主耳
+== 场景3: 链路中断 + 盲窗标记 ==
 
-note over Secondary: 新主耳继续录音...\n全局slice_id保持连续: 12461+
+LinkMon --> Master: onLinkBroken(timestamp=1698840123, rss=90%)
 
-== 场景5: 录音结束 - 基于存储的智能合并 ==
-
-User -> Case: 停止录音(stopRecording(session_id=102))
-
-group 停止所有设备
-    Case -> Secondary: stopRecording()\n停止主耳捕获
-    Case -> Primary: stopRecording()\n停止从耳预录
+group 中断处理（PUML核心）
+    Master -> Master: markBlindGapStart(seq=12450, timestamp=1698840123)
+    Master -> CacheMgr: queryRemainingCapacity()
+    activate CacheMgr
+    CacheMgr --> Master: remaining=1.2KB (200ms)
+    deactivate CacheMgr
     
-    Secondary -> Secondary: finalizeLastSlice()
-    Secondary -> FlashEngine: ensureLastSliceSynced()\n强制同步剩余数据
-    activate FlashEngine
-    FlashEngine -> FlashEngine: 检查未同步分片\n上传slice_id=12461-12465
-    FlashEngine --> Secondary: 全部已同步
-    deactivate FlashEngine
-    
-    Secondary -> Case: recordingStopped(session_id=102, total_slices=66, last_slice_id=12465)
-end
-
-group 启动聚合与合并
-    Case -> Aggregator: initiateAggregating(session_id=102, sources=[LEFT, RIGHT])
-    activate Aggregator
-    
-    Aggregator -> FlashEngine: loadSliceMetadataFromStorage(session_id=102)
-    activate FlashEngine
-    FlashEngine -> FlashEngine: 从NAND读取索引表\n位置: INDEX_FLASH_BLOCK_START=256\n块数: 2 blocks
-    FlashEngine -> FlashEngine: 解析元数据,检测盲窗标记\n发现: blind_gap_start=1 (slice_id=12450)\nblind_gap_end=1 (slice_id=12472)\n盲窗时长: 220ms
-    FlashEngine --> Aggregator: 66个分片元数据 + 2个盲窗标记
-    deactivate FlashEngine
-    
-    Aggregator -> Aggregator: parseMetadataWithBlindGaps()\n识别三段: 12447-12449, 12450-12472(盲窗), 12473-12465
-    
-    group 分批聚合 (PDF机制, BATCH=50)
-        Aggregator -> FlashEngine: loadBatchSlices(batch_id=0, count=50)
-        activate FlashEngine
-        FlashEngine -> Storage: readDataFromNAND(offset=0x80000000, size=200KB)
-        Storage --> FlashEngine: 分片数据流
-        FlashEngine --> Aggregator: slices[0-49]
-        deactivate FlashEngine
-        
-        Aggregator -> Aggregator: sortByTimestamp(slices[0-49])\n时间戳升序
-        Aggregator -> Aggregator: deduplicateBySliceId()\n去除重复分片
+    alt 快速重连（100ms内）
+        Master -> LinkMon: attemptFastReconnect(timeout=100ms, max_retry=2)
+        LinkMon --> Master: success (took=67ms)
+        Master -> Master: markBlindGapEnd(timestamp=1698840190)\n盲窗=67ms
+        Master -> FlashNOR: updateMetaBlindGap(session=202, gap_start=12450, gap_end=12472)\n元数据持久化
+    else 重连失败
+        CacheMgr --> Master: CACHE_CRITICAL
+        Master -> StorageDec: emergencyDecision(link=BROKEN, cache=95%)
+        StorageDec --> Master: DECISION_QUALITY_DEGRADE\n48kbps→32kbps
+        Master -> Slave: notifyBitrateReduction(32kbps)\n从耳同步降码率
     end
+end
+
+== 场景4: 主从切换（电量触发） ==
+
+Master -> LinkMon: evaluateSwitchNeed()\nL=28%(B₁), R=65%(B₀)
+
+LinkMon --> Master: switchRecommended(new_master=RIGHT)
+
+group 切换前准备
+    Master -> Slave: prepareSwitch(session=202, handover_time=300ms)
+    activate Slave
+    Slave -> CacheMgr: createPreemptiveCache(max_size=10KB)\n预录到独立Flash区
+    Slave -> FlashNOR: openPreemptPartition()\nsector_range=2500-2557
+end
+
+Master -> CacheMgr: queryUnsyncedData()\nunsynced=2.4KB (slice=12447-54)
+
+group 强制同步剩余数据
+    Master -> FlowCtrl: requestEmergencySync(size=2.4KB, priority=CRITICAL)
+    FlowCtrl --> Master: quotaGranted, max_latency=50ms
     
-    group 盲窗智能处理 (PUML策略)
-        Aggregator -> Aggregator: detectBlindGapSeverity(gap_slice_count=23)\n时长=220ms, 数据量=0KB
+    Master -> FlashNOR: readBackupSlices(range=12447-54)
+    FlashNOR --> Master: slice_data
+    
+    par 传输并行
+        loop 每个分片
+            Master -> FlashNAND: remoteAppend(slice_data, meta)\n蓝牙SPP
+            FlashNAND --> Master: ACK
+        end
+    and 擦除并行
+        loop 已同步分片
+            Master -> FlashNOR: eraseBackupSector(slice_id)\n释放空间
+        end
+    end
+end
+
+Master -> Slave: sendSwitchCommit(timestamp=1698840300, last_sync=12454)
+Slave -> Slave: becomeMaster(session=202)
+
+group 预录数据合并
+    Slave -> FlashNOR: mergePreemptiveCache()\n读取预录分片=12455-60
+    FlashNOR -> FlashNOR: detectOverlap(预录 vs 已同步)\n发现: 3个分片重叠(12455-57)
+    FlashNOR --> Slave: discardOverlapped(3)\nretainNonOverlapped(3)
+    Slave -> CacheMgr: transferCacheOwnership()\n剩余缓存=1.2KB
+    Slave -> Case: notifySwitchComplete(new_master=RIGHT)\n无缝切换
+end
+
+== 场景5: 聚合与盲窗处理 ==
+
+Case -> Aggregator: startAggregating(session=202, sources=[LEFT,RIGHT])
+
+group 加载元数据与盲窗检测
+    Aggregator -> FlashNAND: loadMetadataWithBlindMarkers(session=202)
+    FlashNAND --> Aggregator: 66分片 + blind_gap_start=12450 + blind_gap_end=12472\n盲窗时长=220ms
+    
+    Aggregator -> Aggregator: classifyBlindGapSeverity(duration=220ms)\n等级: MEDIUM (50~200ms)
+end
+
+group 分批聚合（PDF机制）
+    loop batch=0..1 (每批50个分片)
+        Aggregator -> FlashNAND: loadBatchSlices(batch_id, count=50)
+        FlashNAND --> Aggregator: slice_data_stream
         
-        alt 盲窗 < 50ms [轻微]
-            Aggregator -> Aggregator: interpolateAudioLinear()\n线性插值补盲
-        else 盲窗 50-200ms [中等]
-            Aggregator -> Aggregator: fillWithSilence()\n静音填充
-            Aggregator -> Aggregator: addGapMarker(duration=220ms, type=link_failure)
-        else 盲窗 > 200ms [严重]
-            Aggregator -> Aggregator: splitIntoMultipleFiles()\n避免大段无效数据
+        Aggregator -> Aggregator: sortByTimestamp()\ndeduplicateBySliceId()
+        
+        alt 盲窗处理策略
+            Aggregator -> Aggregator: fillSilence(duration=220ms)\n生成静音数据
+            Aggregator -> FlashNAND: writeGapMarker(position=12450, type=LINK_FAILURE)\n文件内标记
         end
         
-        note right of Aggregator: 当前盲窗220ms → split策略\n生成文件: REC_102_PART1 + REC_102_PART2
+        Aggregator -> FlashNAND: appendToFinalFile(data, size=200KB)\n循环写入4KB块
     end
-    
-    group 写入最终文件
-        Aggregator -> FlashEngine: createFinalFile(filename="REC_102_CALL_20231031_143025.opus", type=CALL_RECORD)
-        FlashEngine -> Storage: lfs_file_open()\nLittleFS文件系统
-        Storage --> FlashEngine: file_descriptor
-        
-        loop 写入聚合后数据
-            Aggregator -> FlashEngine: writeAudioChunk(data, size=4KB)
-            FlashEngine -> Storage: lfs_file_write()\n追加到完整文件
-        end
-        
-        Aggregator -> FlashEngine: writeMergerReport(blind_gaps=[{start:12450, end:12472, duration:220ms}], continuity_index=96.7%)
-    end
-    
-    Aggregator -> FlashEngine: closeFileAndCleanup()
-    FlashEngine -> Storage: lfs_file_close()\n确保文件系统一致性
-    Storage --> FlashEngine: 文件句柄释放
-    
-    FlashEngine -> FlashEngine: eraseTempSlices(session_id=102)\n清理临时缓存区
-    FlashEngine --> Aggregator: 聚合完成\n释放2MB临时空间
-    deactivate FlashEngine
-    
-    Aggregator --> Case: aggregationResult(status=SUCCESS, files=2, blind_gap_count=1, continuity=96.7%)
-    deactivate Aggregator
-    
-    Case -> User: notifyRecordingComplete(file_path="/record/call/REC_102_PART1.opus", quality_report="连续性96.7%, 盲窗220ms已标记")
 end
+
+group 生成报告
+    Aggregator -> Aggregator: calculateContinuityIndex()\nCI = 96.7%
+    Aggregator -> FlashNAND: writeMergerReport(gap_list=[{start:12450, duration:220ms, type:link_failure}])
+    FlashNAND --> Aggregator: 报告持久化
+    
+    Aggregator --> Case: aggregationResult(files=2, CI=96.7%, blind_gaps=1)
+end
+
+Case -> User: notifyComplete(path="/record/call/REC_202_PART1.opus", quality="CI=96.7%")
+
+== 场景6: 断电恢复（Flash寿命保障） ==
+
+note over Master: ⚠️ 电量耗尽 (0%) 正在写slice=12463
+
+User -> Master: power_on()
+
+group 重启恢复
+    Master -> FlashNOR: checkPowerLossRecovery()
+    FlashNOR -> FlashNOR: scanMetaBackupSectors(0-7)\n最新元数据在扇区5 (erase_count=8925)
+    FlashNOR -> FlashNOR: validatePartialSlice(slice=12463)\n发现: 仅3/5页写入
+    FlashNOR --> Master: markSliceInvalid(slice=12463)\nrecoverToLastValid(slice=12462)
+    
+    Master -> Case: reconnectAndRequestSync(last_slice=12462)
+    Case -> Master: requestMissing(slice=12463)
+    Master -> FlashNOR: readBackup(slice=12464-65)\n补传剩余
+    FlashNOR -> FlashNOR: eraseSyncedSectors(12464-65)\n释放空间
+    
+    FlashNOR --> Master: recoveryComplete\n丢失分片: 0
+end
+
+note right of Master: <font color=green>✓ Flash磨损均衡正常\n扇区平均擦写8925次\n预计寿命: 8925/365 = 24.4年</font>
+
+== 关键API清单 ==
+
+note over Case, Aggregator
+    <b>核心API（整合版）</b>
+    
+    <font color=blue>状态机API:</font>
+    - record_state_machine_init()
+    - record_state_transition(event, ctx)
+    - record_state_get_coverage() → 95%
+    
+    <font color=blue>决策API:</font>
+    - record_make_decision(input) → output策略
+    - record_estimate_continuity(strategy) → CI预测值
+    
+    <font color=blue>缓存API:</font>
+    - cache_create/max_size/threshold
+    - cache_write/auto_monitor
+    - cache_get_remaining_ms() → 200ms
+    
+    <font color=blue>Flash增强API:</font>
+    - flash_write_meta_wear_leveling() → 扇区轮询
+    - flash_atomic_write_begin/commit() → 断电保护
+    - flash_check_power_loss() → 恢复检测
+    
+    <font color=blue>盲窗处理API:</font>
+    - record_mark_blind_gap(start/end)
+    - aggregator_detect_gap_severity() → NONE/LIGHT/MEDIUM/HEAVY
+    - aggregator_fill_gap() → 插值/静音/分割
+    
+    <font color=red>性能指标:</font>
+    - 盲窗平均: <50ms (链路中断)
+    - 切换盲窗: 0ms (强制同步)
+    - Flash寿命: >10年 (80k次预警)
+    - 缓存命中率: >98% (12KB配置)
+    - CI达标率: >96% (Monte Carlo)
+end note
 
 deactivate Case
-
-== 场景6: 异常恢复 - 断电与磨损均衡 ==
-
-note over Primary, FlashEngine: <b>⚠️ 耳机端录音中突发断电 (电量0%)</b>
-
-note right of FlashEngine: 断电前最后操作: 正在写slice_id=12463\n元数据已双备份, 数据已写3页/5页
-
-group 重启后恢复流程
-    User -> Primary: 开机重启 (power_on)
-    Primary -> FlashEngine: checkPowerLossRecovery()
-    activate FlashEngine
-    
-    FlashEngine -> FlashEngine: 扫描元数据备份扇区 (0-7)\n读取最新元数据 (erase_count=8925)
-    FlashEngine -> FlashEngine: 校验数据完整性\nslice_id=12463: valid=1, trans_status=3 (备份待补传)\n数据页数: 3/5 (不完整)
-    
-    alt 检测到不完整分片
-        FlashEngine -> FlashEngine: markPartialSliceInvalid(slice_id=12463)\n标记为无效
-        FlashEngine -> FlashEngine: recoverLastCompleteSlice()\n回滚到12462
-    end
-    
-    FlashEngine --> Primary: 恢复状态:\n- 最后有效slice_id: 12462\n- 待补传分片: 1个\n- Flash磨损: 扇区平均8925次\n健康状态: GOOD
-    
-    Primary -> Case: reconnectAndRequestBackup(session_id=102, last_sync_slice=12462)
-    activate Case
-    Case -> Primary: requestMissingSlices(from_slice=12463, count=1)
-    Primary -> FlashEngine: readBackupSlice(slice_id=12463)
-    FlashEngine -> FlashEngine: 从NOR备份区读取\nsector=157, page=0-3
-    FlashEngine --> Primary: slice_data (不完整, 已标记)
-    Primary -> Primary: 丢弃不完整分片, 从12464开始
-    
-    Primary -> Case: uploadSlices(from_slice=12464, to_slice=12465)
-    Primary -> FlashEngine: eraseBackupSectors(12464-12465)\n补传成功后释放
-    
-    deactivate Case
-    deactivate FlashEngine
-    
-    note right of Primary: <font color=green>✓ 断电恢复成功\n数据丢失: 0个分片\nFlash磨损均衡正常</font>
-end
-
-== 关键API与数据流总结 ==
-
-note over User, Storage
-    <b>整合后的核心API (PDF + PUML融合)</b>
-    
-    <font color=blue>▶ 耳机端API (带缓存感知)</font>
-    - createCacheSession(id, max_size, type) → 初始化缓存管理器
-    - writeCache(data, ts) → 写入并自动水位监测
-    - queryRemainingCapacity() → 返回剩余缓存(ms)
-    - makeStorageDecision() → 融合决策: SPP状态 + 缓存水位 + 电量
-    - markBlindGap(start/end) → 在元数据标记盲窗
-    
-    <font color=blue>▶ 流控与同步API</font>
-    - requestSyncQuota(size, priority) → 申请传输配额(NORMAL/URGENT/CRITICAL)
-    - getRealtimeLinkQuality() → 返回rtt, loss, rssi
-    - attemptFastReconnect(timeout) → 快速重连,支持超时
-    - requestEmergencySync() → 切换前强制同步
-    
-    <font color=blue>▶ Flash存储引擎API (PDF核心增强)</font>
-    - openStoragePartition(id, mode) → 打开分区,检查磨损计数
-    - backupSliceToNOR(slice_id, data) → 磨损均衡备份
-    - writeSessionMeta() → 元数据轮询双备份(解决P0问题)
-    - eraseBackupSectors(range) → 成功后释放空间
-    - checkPowerLossRecovery() → 断电恢复检测
-    
-    <font color=blue>▶ 聚合与合并API</font>
-    - loadSliceMetadataWithBlindMarkers() → 加载元数据+盲窗标记
-    - detectBlindGapSeverity() → 评估盲窗等级 (轻微/中等/严重)
-    - interpolateAudioLinear() → <50ms线性插值
-    - splitIntoMultipleFiles() → >200ms分割文件
-    - writeMergerReport() → 生成含连续性的报告
-    
-    <font color=red>▶ 设计原则与约束</font>
-    1. <b>缓存有限性</b>: 耳机8KB(1.3s), 充电盒12KB(2s) → 必须尽快落盘
-    2. <b>磨损均衡</b>: 元数据8扇区轮询 + 数据2558扇区轮询 → 寿命>1年
-    3. <b>盲窗可感知</b>: 元数据标记+聚合处理 → 用户可见盲区位置与大小
-    4. <b>切换零丢失</b>: 预见性缓存+强制同步+重叠检测 → 数据完整性>99.9%
-    5. <b>断电可恢复</b>: 元数据双备份+不完整分片检测 → 数据丢失率<0.1%
-    
-    <font color=purple>▶ 性能指标</font>
-    - 盲窗平均时长: < 50ms (链路中断快速恢复)
-    - Flash寿命: > 1年 (10万次擦写均衡)
-    - 主从切换数据丢失: 0个分片 (强制同步保障)
-    - 聚合连续性指数: > 96% (200ms以下盲窗智能处理)
-    - 断电恢复时间: < 500ms (元数据快速扫描)
-end note
 
 @enduml
