@@ -1,0 +1,58 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+
+title TWS录音系统 - 整体状态机（v2.0）
+
+skinparam backgroundColor #FEFECE
+skinparam state {
+    BackgroundColor<<Warning>> LightYellow
+    BackgroundColor<<Critical>> LightPink
+}
+
+state "系统总控" as System {
+    [*] --> IDLE : 上电/复位\nsystem_init()
+    IDLE --> RECORDING : start_recording()\n用户操作或自动触发
+    
+    state RECORDING {
+        [*] --> SAMPLING : 开始采集\naudio_capture_start()
+        
+        SAMPLING --> SYNCING : [link_good]\n实时传输策略
+        SAMPLING --> BACKUP_PARALLEL : [link_bad]\n并行备份策略
+        SAMPLING --> BACKUP_ONLY : [link_broken]\n仅备份策略
+        
+        SYNCING --> RECONNECTING : [link_broken]\n连接中断
+        BACKUP_PARALLEL --> BACKUP_ONLY : [link_broken]\n降级
+        
+        RECONNECTING --> SYNCING : [reconnect_success]\n快速恢复
+        RECONNECTING --> BACKUP_ONLY : [reconnect_timeout]\n重连失败
+        
+        SAMPLING --> SWITCHING : [Δbattery>20% || Δrssi>5dB]\n主从切换请求
+        SWITCHING --> SAMPLING : [switch_complete]\n切换完成
+        
+        SYNCING --> AGGREGATING : [stop_recording]\n正常结束
+        BACKUP_ONLY --> AGGREGATING : [stop_recording]\n停止录音
+        RECONNECTING --> AGGREGATING : [graceful_stop]\n优雅停止
+    }
+    
+    AGGREGATING --> MERGING : [metadata_loaded]\n加载元数据
+    MERGING --> IDLE : [merge_complete]\n合并完成
+    
+    BACKUP_ONLY --> BACKLOG_UPLOAD : [reconnect_idle && unsynced>0]\n回连补传
+    BACKLOG_UPLOAD --> IDLE : [upload_complete]\n补传完成
+    
+    state RECONNECTING <<Warning>> {
+        [*] --> FAST_RECONN : [timeout=50ms]\n快速重连
+        FAST_RECONN --> FAST_RECONN : [retry<2]\n重试
+        FAST_RECONN --> SLOW_RECONN : [retry>=2]\n降级
+        SLOW_RECONN --> [*] : [timeout=100ms]\n超时失败
+    }
+    
+    state BACKUP_ONLY <<Critical>> {
+        [*] --> BACKUP_NORMAL : [cache<80%]\n正常备份
+        [*] --> BACKUP_URGENT : [cache>=80%]\n紧急备份
+        BACKUP_URGENT --> BACKUP_CRITICAL : [cache>=90%]\n临界状态
+        BACKUP_CRITICAL --> [*] : [stop_recording]\n强制停止
+    }
+}
+
+@enduml

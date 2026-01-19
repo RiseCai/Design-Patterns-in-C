@@ -1,0 +1,194 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+
+title TWS录音系统完整时序图 - 全场景融合（v2.0）
+
+actor 用户 as User
+participant "充电盒\n(Case)" as Case
+participant "主耳机\n(Left)" as Master
+participant "从耳机\n(Right)" as Slave
+participant "链路监测\n(LinkMon)" as LinkMon
+participant "缓存管理\n(CacheMgr)" as CacheMgr
+participant "流控管理\n(FlowCtrl)" as FlowCtrl
+participant "存储决策\n(StorageDec)" as StorageDec
+participant "Flash引擎\n(NOR/NAND)" as Flash
+participant "聚合器\n(Aggregator)" as Agg
+
+== 场景1: S01盒录音常态流程（链路良好） ==
+User->Case: pressRecordButton()
+activate Case
+Case->Case: detectEarbudsStatus() → IN_CASE
+Case->StorageDec: setRecordingSource(CASE_MIC)
+
+group 资源初始化
+    Case->CacheMgr: createCache(session=201, max=16KB, type=CASE_LOCAL)
+    CacheMgr-->Case: cache_handle, threshold=12.8KB(80%)
+    Case->Flash: openPartition(CASE_LOCAL, base=0x80000000)
+    Case->Flash: writeSessionMeta(session=201, start=1698840000)\n双备份扇区轮询写入
+end
+
+Case->Case: startAudioCapture(48kHz/48kbps)
+Case->FlowCtrl: config(bitrate=48kbps, capacity=80kbps)
+
+loop 50ms周期 (300B/次)
+    Case->Case: captureAudioBlock(50ms)
+    Case->CacheMgr: writeCache(data, size=300B)
+    activate CacheMgr
+    CacheMgr->CacheMgr: updateUsage(+300B)\n当前=3.6KB
+    CacheMgr-->Case: CACHE_NORMAL
+    deactivate CacheMgr
+    
+    alt 每200ms同步周期
+        Case->FlowCtrl: requestSyncQuota(size=1200B, priority=NORMAL)
+        activate FlowCtrl
+        FlowCtrl->LinkMon: queryLinkQuality()
+        LinkMon-->FlowCtrl: RSSI=-58dBm, loss=3%, rtt=15ms
+        FlowCtrl-->Case: quotaGranted=true, maxLatency=50ms
+        deactivate FlowCtrl
+        
+        Case->StorageDec: decideStrategy(link=GOOD, cache=45%)
+        StorageDec-->Case: STRATEGY_REALTIME_ONLY
+        
+        Case->Flash: appendToCache(data_batch=1200B)\n地址: 0x80000000+offset
+        activate Flash
+        Flash->Flash: programPage(page=42, data)\n耗时12ms
+        Flash-->Case: ACK
+        deactivate Flash
+        
+        Case->CacheMgr: flushSynced(1200B)\n释放缓存\n剩余=2.4KB
+    end
+end
+
+Case->Case: stopRecording()
+Case->Agg: startAggregating(session=201)
+deactivate Case
+
+== 场景2: S06耳机录音链路中断（盲窗产生） ==
+LinkMon-->Master: onLinkBroken(timestamp=1698840123, rss=90%)
+
+group 中断处理与盲窗标记
+    activate Master
+    Master->Master: markBlindGapStart(seq=12450, ts=1698840123)
+    Master->Flash: updateMeta(flags.blind_gap_start=1)
+    
+    Master->CacheMgr: queryRemainingCapacity()
+    CacheMgr-->Master: remaining=1.2KB (200ms)
+    
+    alt 快速重连（100ms内）
+        Master->LinkMon: attemptFastReconnect(timeout=50ms, retry=2)
+        LinkMon-->Master: success (took=67ms)
+        Master->Master: markBlindGapEnd(ts=1698840190)\n盲窗=67ms
+        Master->Flash: updateMeta(flags.blind_gap_end=1)\n元数据持久化
+    else 重连失败
+        CacheMgr-->Master: CACHE_CRITICAL
+        Master->StorageDec: emergencyDecision(link=BROKEN, cache=95%)
+        StorageDec-->Master: DECISION_QUALITY_DEGRADE\n48kbps→32kbps
+        Master->Slave: notifyBitrateReduction(32kbps)
+    end
+    deactivate Master
+end
+
+== 场景3: S08主从切换（电量+链路+佩戴） ==
+Master->LinkMon: evaluateSwitch()\nL=28% vs R=65% (Δ=37%>20%), RSSI=-85 vs -55 (Δ=30dB>5dB)
+
+LinkMon-->Master: switchRecommended(new_master=RIGHT)
+
+group 切换前准备（预见性缓存）
+    activate Slave
+    Master->Slave: prepareSwitch(session=202, handover_time=300ms)
+    Slave->CacheMgr: createPreemptiveCache(max=10KB)\n预录到独立Flash区
+    Slave->Flash: openPreemptPartition(sector=2500-2557)
+    deactivate Slave
+end
+
+group 强制同步剩余数据
+    Master->CacheMgr: queryUnsyncedData()\nunsynced=2.4KB (slice=12447-54)
+    
+    Master->FlowCtrl: requestEmergencySync(size=2.4KB, priority=CRITICAL)
+    FlowCtrl-->Master: quotaGranted, maxLatency=50ms
+    
+    par
+        loop 每个分片
+            Master->Flash: readBackup(slice_id)\n从NOR读取
+            Flash-->Master: slice_data
+            Master->Flash: remoteAppend(data)\n蓝牙SPP传输
+            Flash-->Master: ACK
+        end
+        loop 已同步分片
+            Master->Flash: eraseBackupSector(slice_id)\n释放空间
+        end
+    end
+end
+
+Master->Slave: sendSwitchCommit(timestamp=1698840300, last_sync=12454)
+activate Slave
+Slave->Slave: becomeMaster(session=202)
+
+group 预录数据合并（重叠检测）
+    Slave->Flash: mergePreemptiveCache()\n预录=12455-60 vs 已同步=12447-54
+    Flash->Flash: detectOverlap()\n发现重叠3片(12455-57，60ms)
+    Flash->Flash: discardOverlapped(3)\n丢弃预录重叠
+    Flash->Flash: retainNonOverlapped(3)\n保留非重叠
+    Slave->Case: notifySwitchComplete(new_master=RIGHT)
+end
+deactivate Slave
+
+== 场景4: 录音结束聚合与盲窗处理 ==
+Case->Agg: startAggregating(session=202, sources=[LEFT,RIGHT])
+
+group 加载元数据与盲窗标记
+    Agg->Flash: loadMetadataWithBlindMarkers(session=202)
+    Flash-->Agg: 66分片 + blind_gap_start=12450 + blind_gap_end=12472\n盲窗时长=220ms
+    
+    Agg->Agg: classifyBlindGapSeverity(duration=220ms)\n等级=MEDIUM(50~200ms)
+end
+
+group 分批聚合（PDF机制）
+    loop batch=0..1 (每批50个分片)
+        Agg->Flash: loadBatchSlices(batch_id, count=50)
+        Flash-->Agg: slice_data_stream
+        
+        Agg->Agg: sortByTimestamp()\n时间戳升序
+        Agg->Agg: deduplicateBySliceId()\n去重
+        
+        alt 盲窗处理策略
+            Agg->Agg: fillSilence(duration=220ms)\n生成静音数据
+            Agg->Flash: writeGapMarker(position=12450, type=LINK_FAILURE)\n文件内标记
+        end
+        
+        Agg->Flash: appendToFinalFile(data, size=200KB)\n循环写入4KB块
+    end
+end
+
+group 生成合并报告
+    Agg->Agg: calculateContinuityIndex()\nCI = 96.7%
+    Agg->Flash: writeMergerReport(gap_list=[{start:12450, dur:220ms, type:link_failure}])
+    Flash-->Agg: 报告持久化
+    
+    Agg-->Case: aggregationResult(files=2, CI=96.7%, blind_gaps=1)
+end
+Case->User: notifyComplete(path="/record/call/REC_202_PART1.opus", quality="CI=96.7%")
+
+== 场景5: 断电恢复（Flash寿命保障） ==
+note over Master: ⚠️ 电量耗尽 (0%) 正在写slice=12463
+
+User->Master: power_on()
+activate Master
+Master->Flash: checkPowerLossRecovery()
+
+group 重启恢复流程
+    Flash->Flash: scanMetaBackupSectors(0-7)\n最新在扇区5 (erase_count=8925)
+    Flash->Flash: validatePartialSlice(slice=12463)\n仅3/5页写入
+    Flash-->Master: markSliceInvalid(slice=12463)\n回滚到12462
+    
+    Master->Case: reconnectAndRequestSync(last_slice=12462)
+    Case->Master: requestMissing(slice=12463)
+    Master->Flash: readBackup(slice=12464-65)\n补传剩余
+    Flash->Flash: eraseSyncedSectors(12464-65)\n释放空间
+    Flash-->Master: recoveryComplete\n丢失分片=0
+end
+deactivate Master
+
+note right of Flash: <font color=green>✓ Flash磨损均衡正常\n扇区平均擦写8925次\n预计寿命: 8925/365 = 24.4年</font>
+
+@enduml
