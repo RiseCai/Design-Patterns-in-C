@@ -1,0 +1,42 @@
+{
+"file_note":"True",
+"trace":    "True",
+"summary":  "",
+"note":     """
+Ensure a class has only one instance and provide a global point of access to it.
+<br>Participants:
+<br>    Singleton
+<br>      - defines get_instance() that lets clients access its unique instance
+<br>      - may be responsible for creating its own unique instance
+""",
+
+"namespace": "singleton",
+"path":      "singleton",
+
+"classes": {
+	"singleton":{
+		"comment":"Unique global instance accessed via get_instance()",
+		"includes":[],
+		"members": [
+			["static_method", "get_instance", "struct singleton *", ""],
+			["virtual", "set_name",  "void", "const char *name"],
+			["virtual", "set_value", "void", "int value"],
+			["virtual", "get_name",  "const char *"],
+			["virtual", "get_value", "int"],
+			["var", "name",  "char", "[32]"],
+			["var", "value", "int"]
+		]
+	},
+
+	"test":{
+		"templates":["_test"],
+		"includes":["singleton"],
+		"members": [
+			["static_method", "main", "int", "", "private", "", """
+				<br>printf(\"Hello world\");
+			"""
+			]
+		]
+	}
+}
+}

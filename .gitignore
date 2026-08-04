@@ -31,6 +31,8 @@ Release
 tools/tmpl/autogen_.jinja
 tools/_code
 *.log
-log*
+/log*
+!auto-gen/null_object/logger/
+!auto-gen/null_object/logger/**
 *TAGS
 *cscope.files

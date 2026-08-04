@@ -1,0 +1,63 @@
+{
+"file_note":"True",
+"trace":    "True",
+"summary":  "",
+"note":     """
+Without violating encapsulation, capture and externalize an object's internal
+state so that the object can be restored to this state later.
+<br>Participants:
+<br>    Memento
+<br>      - stores internal state of the Originator object
+<br>    Originator
+<br>      - creates a memento containing a snapshot of its current internal state
+<br>      - uses the memento to restore its internal state
+<br>    Caretaker
+<br>      - is responsible for the memento's safekeeping
+<br>      - never operates on or examines the contents of a memento
+""",
+
+"namespace": "memento",
+"path":      "memento",
+
+"classes": {
+	"memento":{
+		"comment":"Stores internal state of the Originator",
+		"includes":[],
+		"members": [
+			["method", "get_state", "int"],
+			["var", "state", "int"]
+		]
+	},
+	"originator":{
+		"comment":"Creates and restores from memento",
+		"includes":["memento"],
+		"members": [
+			["virtual", "set_state", "void", "int state"],
+			["virtual", "get_state", "int"],
+			["virtual", "create_memento", "struct memento *"],
+			["virtual", "set_memento", "void", "struct memento *"],
+			["var", "state", "int"]
+		]
+	},
+	"caretaker":{
+		"comment":"Keeps memento without inspecting it",
+		"includes":["memento"],
+		"members": [
+			["method", "set_memento", "void", "struct memento *"],
+			["method", "get_memento", "struct memento *"],
+			["var", "_memento", "struct memento *"]
+		]
+	},
+
+	"test":{
+		"templates":["_test"],
+		"includes":["originator", "caretaker"],
+		"members": [
+			["static_method", "main", "int", "", "private", "", """
+				<br>printf(\"Hello world\");
+			"""
+			]
+		]
+	}
+}
+}

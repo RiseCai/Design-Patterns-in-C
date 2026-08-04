@@ -221,6 +221,7 @@ int main(void)
   * Builder
   * Prototype
   * Singleton
+  * Object Pool
 2. Structural patterns
   * Adapter
   * Bridge
@@ -232,12 +233,22 @@ int main(void)
   * Handle Body Idiom
   * Proxy
   * MVC
+  * Null Object
+    - Logger
+    - Strategy
+  * IoC / DI
+    - Constructor injection
+    - Setter injection
+    - Method injection
+    - Interface injection
+    - Service locator
 3. Behavioral patterns
   * Chain of Responsibility
   * Command
   * Interpreter
   * Iterator
   * Mediator
+  * Memento
   * Observer
   * State
   * Strategy
